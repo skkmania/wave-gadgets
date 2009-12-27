@@ -1,0 +1,97 @@
+#test {
+  display: none;
+}
+#animal-shogi {
+  margin: 20px;
+  width: 270px;
+  height: 360px;
+  position: relative;
+  background-image: url(savanna.png);
+}
+div.cell {
+  width: 80px;
+  height: 80px;
+  padding: 5px;
+  border: 1px solid white;
+  position: absolute;
+  /*background-image: url(savanna.png);*/
+}
+img.piece {
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+/*
+  -moz-box-shadow: 3px 3px 2px black;
+  -webkit-box-shadow: 3px 3px 2px black;
+  width: 70px;
+  height: 70px;
+  margin: 5px;
+*/
+}
+img.opponent {
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  filter: progid:DXImageTransform.Microsoft.basicimage(rotation=2);
+}
+.sidebar-panel {
+  border: 1px solid black;
+  width: 170px;
+  padding: 0;
+}
+.sidebar-panel h2 {
+  font-size: medium;
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  background-color: black;
+  color: white;
+}
+#message {
+  height: 70px;
+}
+#message-body {
+  padding: 3px;
+}
+.player {
+  margin: 5px;
+}
+span.mine {
+  text-decoration: underline;
+}
+span.turn {
+  background-color: #FFCCCC;
+}
+#sidebar {
+  margin: 20px;
+  margin-left: 300px;
+  margin-top: 0;
+  float: left;
+}
+#my-captured {
+  height: 90px;
+  padding: 3px;
+}
+#opponent-captured {
+  height: 30px;
+  padding: 3px;
+}
+#my-captured img {
+  width: 40px;
+  height: 40px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+}
+#opponent-captured img {
+  width: 20px;
+  height: 20px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+}
+button.join {
+  width: 450px;
+  padding: 5px;
+  border: 1px solid black;
+  color: yellow;
+  background-color: black;
+  margin-left: 20px;
+  font-size: large;
+}
