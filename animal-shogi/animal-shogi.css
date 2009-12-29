@@ -66,21 +66,21 @@ span.turn {
   margin-top: 0;
   float: left;
 }
-#my-captured {
+#bottom-captured {
   height: 90px;
   padding: 3px;
 }
-#opponent-captured {
+#top-captured {
   height: 30px;
   padding: 3px;
 }
-#my-captured img {
+#bottom-captured img {
   width: 40px;
   height: 40px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
 }
-#opponent-captured img {
+#top-captured img {
   width: 20px;
   height: 20px;
   -moz-border-radius: 2px;
