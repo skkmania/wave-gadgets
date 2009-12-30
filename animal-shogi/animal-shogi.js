@@ -1,4 +1,4 @@
-HOST = 'http://apps.technohippy.net/animal-shogi/';
+HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
 //HOST = '';
 
 ControlPanel = Class.create({
