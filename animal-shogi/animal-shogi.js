@@ -5,25 +5,20 @@ ControlPanel = Class.create({
   initialize: function(game) {
     this.game = game;
   },
-  update: function() {
-    if (!this.elm) {
-      this.elm = $('control-panel');
-      this.player1Elm = $('player1-panel');
-      this.player2Elm = $('player2-panel');
-    }
-    if (this.game.player1) {
-      this.player1Elm.innerHTML = t('sente') + this.game.player1.statusHtml();
-    }
-    else {
-      this.player1Elm.innerHTML = t('sente') + t('waiting');
-    }
-    if (this.game.player2) {
-      this.player2Elm.innerHTML = t('gote') + this.game.player2.statusHtml();
-    }
-    else {
-      this.player2Elm.innerHTML = t('gote') + t('waiting');
-    }
-  }
+  update: function() {              
+    if (!this.elm) {                          
+      this.elm = $('control-panel');                         
+      if (this.game.top == 1){                                                
+        this.player1Elm = $('top-panel');
+        this.player2Elm = $('bottom-panel');
+      } else {       
+        this.player2Elm = $('top-panel');
+        this.player1Elm = $('bottom-panel');
+      }                    
+    }                           
+    this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
+    this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
+  } 
 });
 
 Piece = Class.create();
@@ -396,6 +391,7 @@ AnimalShogiGame = Class.create({
     this.mode = 'init';
     this.message(t('click_join_button'));
     this.turn = null;
+    this.top = 0; // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
   },
   setPlayer: function(name, opponent) {
     if (!this.player1) {
@@ -433,6 +429,9 @@ AnimalShogiGame = Class.create({
   },
   show: function() {
     //this.board.show();
+  },
+  reverse: function() {
+    this.message('<h2>reverse</h2>');
   },
   start: function() {
     this.player1.initialArrange(this.board);

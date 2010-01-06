@@ -10,6 +10,8 @@ M17N = {
       message: 'メッセージ',
       others_captured: '相手の持ち駒',
       my_captured: '自分の持ち駒',
+      captured: '持ち駒',
+      reverse: '反転',
       join: '参加する',
       help: 'ルール説明',
       cannot_get_own_piece: '自分の駒を取ることはできません',
