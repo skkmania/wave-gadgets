@@ -45,9 +45,9 @@ alert('game start.');
   <button onclick="javascript:invokeMove(); $('state').value = 'piece:\'giraffe_player2\', from:[0,1], to:[0,2]'">Move</button>
   <button onclick="javascript:$('json').innerHTML = window.game.toHTML()">toJSON</button>
 </div>
+
 <div id="sidebar">
   <div id="control-panel" class="sidebar-panel">
-    <h2 class="t">gote</h2>
     <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
 
   <div id="captured" class="sidebar-panel">
@@ -63,12 +63,11 @@ alert('game start.');
     <div id="my-captured"></div>
   </div>
 
-    <h2 class="t">sente</h2>
     <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
   </div>
 
       <div style="text-align:left;">
-    	<button id="reverse-button" class="reverse t" onclick="window.game.reverse());">reverse</button>
+    	<button id="reverse-button" class="reverse t" onclick="window.game.reverse();">reverse</button>
       </div>
 
   <div style="text-align:right;">

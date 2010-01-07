@@ -134,6 +134,7 @@ Piece.prototype = {
       var xy = window.game.upsideDownIfNeeded(this.cell.x, this.cell.y);
       ret += xy[0] + ',' + xy[1];
     }
+alert('Piece:toString -> ' + ret);
     return ret;
   },
 };
@@ -393,6 +394,14 @@ AnimalShogiGame = Class.create({
     this.turn = null;
     this.top = 0; // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
   },
+  determineTop: function() {
+    if(this.player1 && this.player1.name == wave.getViewer().getId()){
+      this.top = 0; 
+    } else if (this.player2 && this.player2.name == wave.getViewer().getId()){
+      this.top = 1;
+    } else
+      this.top = 0; // default
+  },
   setPlayer: function(name, opponent) {
     if (!this.player1) {
       this.player1 = new Player('player1', name, !opponent);
@@ -417,6 +426,7 @@ AnimalShogiGame = Class.create({
       // TODO
       //throw 'Invalid Player Data';
     }
+    this.determineTop();
   },
   message: function(message) {
     if (!this.messageElm) {
@@ -517,7 +527,7 @@ alert('stateChanged: ' + state.toString());
   },
   fromState: function(state) {
     var viewer = wave.getViewer().getId();
-alert('viewer: ' + viewer);
+alert('fromState: viewer: ' + viewer);
     if (!this.player1 && state.get('player1')) {
       var isMe = state.get('player1') == viewer;
       this.player1 = new Player('player1', state.get('player1'), isMe);
@@ -550,6 +560,7 @@ alert('viewer: ' + viewer);
       var piece = Piece.selectByName(name);
       var pieceData = state.get(name); // owner,x,y
       if (piece && pieceData) {
+
         pieceData = pieceData.split(',');
 //alert('piece:' + name + ' data:' + pieceData);
         var owner = this[pieceData[0]];
