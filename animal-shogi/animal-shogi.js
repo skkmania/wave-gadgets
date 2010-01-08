@@ -5,6 +5,17 @@ ControlPanel = Class.create({
   initialize: function(game) {
     this.game = game;
   },
+  reverse: function() {              
+      if (this.game.top == 1){                                                
+        this.player1Elm = $('top-panel');
+        this.player2Elm = $('bottom-panel');
+      } else {       
+        this.player2Elm = $('top-panel');
+        this.player1Elm = $('bottom-panel');
+      }                    
+    this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
+    this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
+  }, 
   update: function() {              
     if (!this.elm) {                          
       this.elm = $('control-panel');                         
@@ -216,6 +227,13 @@ Cell.prototype = {
     this.piece = piece;
     this.piece.cell = this;
   },
+  move: function(toY,toX){
+    var marginTop = 0;
+    var marginLeft = 0;
+    var width = 90;
+    this.elm.style.left = (marginLeft + width * toX) + 'px';
+    this.elm.style.top = (marginTop + width * toY) + 'px';
+  },
   createElm: function() {
     var marginTop = 0;
     var marginLeft = 0;
@@ -312,6 +330,9 @@ Board = Class.create({
   initialize: function(elm) {
     this.width = 3;
     this.height = 4;
+    this.boardData = [];
+    this.blackStand = '';
+    this.whiteStand = '';
     this.elm = elm || document.body;;
     this.cells = [];
     for (var r = 0; r < this.height; r++) {
@@ -350,6 +371,60 @@ Board = Class.create({
     }
     ret += ']';
     return ret;
+  },
+  reverse: function(top) {
+
+    for (var r = 0; r < this.height; r++) {
+      for (var c = 0; c < this.width; c++) {
+        this.cells[r][c].move(this.height - r - 1,this.width - c - 1); 
+      }
+    }
+    var tmpAry = this.cells.flatten().reverse();
+    tmpAry.each(function(c){
+      if (c.piece) {
+/*
+alert('piece name : ' + c.piece.name);
+if(c.piece.elm.hasClassName('opponent')){
+  alert('opponent found -> ' + c.piece.player);
+}
+if(c.piece.elm.hasClassName('mine')){
+  alert('mine found -> ' + c.piece.player);
+}
+if(c.piece.elm.hasClassName('top')){
+  alert('top found -> ' + c.piece.player);
+}
+if(c.piece.elm.hasClassName('bottom')){
+  alert('bottom found -> ' + c.piece.player);
+}
+*/
+        if (c.piece.player.id == 'player1') {
+          if (top ==  0){
+            c.piece.elm.removeClassName('opponent');
+            c.piece.elm.addClassName('mine');
+          } else {
+            c.piece.elm.removeClassName('mine');
+            c.piece.elm.addClassName('opponent');
+          }
+        } else {
+          if (top ==  0){
+            c.piece.elm.removeClassName('mine');
+            c.piece.elm.addClassName('opponent');
+          } else {
+            c.piece.elm.removeClassName('opponent');
+            c.piece.elm.addClassName('mine');
+          }
+        }
+      }
+    });
+
+    this.cells = [];
+    for (var r = 0; r < this.height; r++) {
+      var row = [];
+      for (var c = 0; c < this.width; c++) {
+        row.push(tmpAry[c + r*this.width]);
+      }
+      this.cells.push(row);
+    }
   }
 });
 
@@ -383,8 +458,18 @@ Player = Class.create({
   }
 });
 
+Stand = Class.create({
+  initialize: function(game) {
+  },
+  display: function() {
+  },
+  update: function() {
+  }
+});
+
 AnimalShogiGame = Class.create({
   initialize: function(settings) {
+alert('initialize game object settings : ' + settings.containerId);
     this.settings = settings;
     this.container = $(settings.containerId);
     this.controlPanel = new ControlPanel(this);
@@ -442,10 +527,16 @@ AnimalShogiGame = Class.create({
   },
   reverse: function() {
     this.message('<h2>reverse</h2>');
+    this.top = (this.top == 0 ? 1 : 0);
+alert('game.top became ' + this.top);
+    this.board.reverse(this.top);
+    this.controlPanel.reverse();
   },
   start: function() {
     this.player1.initialArrange(this.board);
     this.player2.initialArrange(this.board);
+    this.determineTop();
+    this.controlPanel.update();
     this.board.show();
   },
   nextTurn: function() {
