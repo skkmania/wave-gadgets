@@ -15,6 +15,18 @@ ControlPanel = Class.create({
       }                    
     this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
     this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
+
+    if ($('my-captured').childElements().size() > 0 ||
+        $('opponent-captured').childElements().size() > 0) {
+       var tmp = $('top-captured').innerHTML;
+       $('top-captured').innerHTML = $('bottom-captured').innerHTML;
+       $('bottom-captured').innerHTML = tmp;
+       $$('#top-captured img').invoke('addClassName', 'top');
+       $$('#top-captured img').invoke('removeClassName', 'bottom');
+       $$('#bottom-captured img').invoke('addClassName', 'bottom');
+       $$('#bottom-captured img').invoke('removeClassName', 'top');
+       $$('#bottom-captured img').invoke('removeClassName', 'opponent');
+    }
   }, 
   update: function() {              
     if (!this.elm) {                          
@@ -61,9 +73,11 @@ Piece.prototype = {
       });
     }
   },
-  initialArrange: function(board) {
+  initialArrange: function(board, atTop) {
     var pos = this.initialPosition;
-    if (!this.isMine()) pos = [2 - pos[0], 3 - pos[1]];
+    if (atTop) pos = [2 - pos[0], 3 - pos[1]];
+    //if (!this.isMine()) pos = [2 - pos[0], 3 - pos[1]];
+//alert('piece : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     board.cells[pos[1]][pos[0]].put(this);
   },
   setPlayer: function(player) {
@@ -145,7 +159,7 @@ Piece.prototype = {
       var xy = window.game.upsideDownIfNeeded(this.cell.x, this.cell.y);
       ret += xy[0] + ',' + xy[1];
     }
-alert('Piece:toString -> ' + ret);
+//alert('Piece:toString -> ' + ret);
     return ret;
   },
 };
@@ -217,11 +231,12 @@ Chick = Class.create(Piece, {
 Cell = Class.create();
 Cell.all = $A();
 Cell.prototype = {
-  initialize: function(board, x, y) {
+  initialize: function(board, x, y, top) {
     Cell.all.push(this);
     this.board = board;
     this.x = x;
     this.y = y;
+    this.top = top;
   },
   put: function(piece) {
     this.piece = piece;
@@ -295,6 +310,27 @@ Cell.prototype = {
     }
     if (this.piece) {
       this.elm.appendChild(this.piece.elm);
+      if(this.piece.player.id == 'player1'){
+        if(this.top == 0){
+          this.piece.elm.addClassName('bottom');
+          this.piece.elm.removeClassName('top');
+          this.piece.elm.removeClassName('opponent');
+        } else {
+          this.piece.elm.addClassName('top');
+          this.piece.elm.removeClassName('bottom');
+          this.piece.elm.addClassName('opponent');
+        }
+      } else {
+        if(this.top == 0){
+          this.piece.elm.addClassName('top');
+          this.piece.elm.removeClassName('bottom');
+          this.piece.elm.addClassName('opponent');
+        } else {
+          this.piece.elm.addClassName('bottom');
+          this.piece.elm.removeClassName('top');
+          this.piece.elm.removeClassName('opponent');
+        }
+      }
     }
   },
   isOpponentFirstLine: function(player) {
@@ -327,7 +363,8 @@ Cell.prototype = {
 };
 
 Board = Class.create({
-  initialize: function(elm) {
+  initialize: function(elm, game) {
+    this.top = game.top;
     this.width = 3;
     this.height = 4;
     this.boardData = [];
@@ -338,7 +375,7 @@ Board = Class.create({
     for (var r = 0; r < this.height; r++) {
       var row = [];
       for (var c = 0; c < this.width; c++) {
-        row.push(new Cell(this, c, r));
+        row.push(new Cell(this, c, r, this.top));
       }
       this.cells.push(row);
     }
@@ -383,18 +420,18 @@ Board = Class.create({
     tmpAry.each(function(c){
       if (c.piece) {
 /*
-alert('piece name : ' + c.piece.name);
+//alert('piece name : ' + c.piece.name);
 if(c.piece.elm.hasClassName('opponent')){
-  alert('opponent found -> ' + c.piece.player);
+  //alert('opponent found -> ' + c.piece.player);
 }
 if(c.piece.elm.hasClassName('mine')){
-  alert('mine found -> ' + c.piece.player);
+  //alert('mine found -> ' + c.piece.player);
 }
 if(c.piece.elm.hasClassName('top')){
-  alert('top found -> ' + c.piece.player);
+  //alert('top found -> ' + c.piece.player);
 }
 if(c.piece.elm.hasClassName('bottom')){
-  alert('bottom found -> ' + c.piece.player);
+  //alert('bottom found -> ' + c.piece.player);
 }
 */
         if (c.piece.player.id == 'player1') {
@@ -429,7 +466,7 @@ if(c.piece.elm.hasClassName('bottom')){
 });
 
 Player = Class.create({
-  initialize: function(id, name, mine) {
+  initialize: function(id, name, mine, top) {
     this.id = id;
     this.name = name;
     this.mine = mine;
@@ -439,10 +476,17 @@ Player = Class.create({
       new Elephant(this),
       new Chick(this)
     ];
+    if (id == 'player1'){  this.atTop = (top == 1); 
+//alert('id : ' + this.id + ',  atTop : ' + this.atTop);
+    }
+    if (id == 'player2'){  this.atTop = (top != 1); 
+//alert('id : ' + this.id + ',  atTop : ' + this.atTop);
+    }
   },
   initialArrange: function(board) {
+    var atTop = this.atTop;
     this.pieces.each(function(piece) {
-      piece.initialArrange(board);
+      piece.initialArrange(board, atTop);
     });
   },
   shortName: function() {
@@ -469,17 +513,18 @@ Stand = Class.create({
 
 AnimalShogiGame = Class.create({
   initialize: function(settings) {
-alert('initialize game object settings : ' + settings.containerId);
+////alert('initialize game object settings : ' + settings.containerId);
     this.settings = settings;
     this.container = $(settings.containerId);
+    this.determineTop();
     this.controlPanel = new ControlPanel(this);
-    this.board = new Board(this.container);
+    this.board = new Board(this.container, this);
     this.mode = 'init';
     this.message(t('click_join_button'));
     this.turn = null;
-    this.top = 0; // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
   },
   determineTop: function() {
+     // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
     if(this.player1 && this.player1.name == wave.getViewer().getId()){
       this.top = 0; 
     } else if (this.player2 && this.player2.name == wave.getViewer().getId()){
@@ -489,7 +534,7 @@ alert('initialize game object settings : ' + settings.containerId);
   },
   setPlayer: function(name, opponent) {
     if (!this.player1) {
-      this.player1 = new Player('player1', name, !opponent);
+      this.player1 = new Player('player1', name, !opponent, this.top);
       if (!opponent) this.myPlayer = this.player1;
       this.turn = this.player1
       this.controlPanel.update();
@@ -499,7 +544,7 @@ alert('initialize game object settings : ' + settings.containerId);
       });
     }
     else if (!this.player2) {
-      this.player2 = new Player('player2', name, !opponent);
+      this.player2 = new Player('player2', name, !opponent, this.top);
       if (!opponent) this.myPlayer = this.player2;
       this.controlPanel.update();
       this.start();
@@ -526,9 +571,8 @@ alert('initialize game object settings : ' + settings.containerId);
     //this.board.show();
   },
   reverse: function() {
-    this.message('<h2>reverse</h2>');
+    this.message('game.top became ' + this.top);
     this.top = (this.top == 0 ? 1 : 0);
-alert('game.top became ' + this.top);
     this.board.reverse(this.top);
     this.controlPanel.reverse();
   },
@@ -560,12 +604,15 @@ alert('game.top became ' + this.top);
     return this.myPlayer && this.myPlayer.name == this.player2.name;
   },
   upsideDownIfNeeded: function(x, y) {
+//alert('entered upsideDownIfNeeded : x, y -> ' + x + ', ' + y);
     x = parseInt(x);
     y = parseInt(y);
     if (this.needUpsideDown()) {
+//alert('leaving upsideDownIfNeeded : x, y -> ' + (2-x) + ', ' + (3-y));
       return [2 - x, 3 - y];
     }
     else {
+//alert('leaving upsideDownIfNeeded : x, y -> ' + x + ', ' + y);
       return [x, y];
     }
   },
@@ -583,7 +630,7 @@ alert('game.top became ' + this.top);
   },
   stateChanged: function() {
     var state = wave.getState();
-alert('stateChanged: ' + state.toString());
+//alert('stateChanged: ' + state.toString());
     this.fromState(state);
   },
   toString: function() {
@@ -618,15 +665,15 @@ alert('stateChanged: ' + state.toString());
   },
   fromState: function(state) {
     var viewer = wave.getViewer().getId();
-alert('fromState: viewer: ' + viewer);
+//alert('fromState: viewer: ' + viewer);
     if (!this.player1 && state.get('player1')) {
       var isMe = state.get('player1') == viewer;
-      this.player1 = new Player('player1', state.get('player1'), isMe);
+      this.player1 = new Player('player1', state.get('player1'), isMe, this.top);
       this.controlPanel.update();
     }
     if (!this.player2 && state.get('player2')) {
       var isMeMaybe = state.get('player1') != viewer;
-      this.player2 = new Player('player2', state.get('player2'), isMeMaybe);
+      this.player2 = new Player('player2', state.get('player2'), isMeMaybe, this.top);
       this.controlPanel.update();
       this.start();
     }
@@ -650,7 +697,8 @@ alert('fromState: viewer: ' + viewer);
       var name = names[i];
       var piece = Piece.selectByName(name);
       var pieceData = state.get(name); // owner,x,y
-      if (piece && pieceData) {
+      if (piece){
+       if(pieceData) { // stateに情報がある駒
 
         pieceData = pieceData.split(',');
 //alert('piece:' + name + ' data:' + pieceData);
@@ -689,7 +737,35 @@ alert('fromState: viewer: ' + viewer);
             });
           }
         }
-      }
+      } else { // stateに情報がない駒 = 初期盤面から動いていない駒
+               // bottom playerなら初期配置のままで、top playerなら座標変換が必要
+          var tx = piece.initialPosition[0];
+          var ty = piece.initialPosition[1];
+          if (this.needUpsideDown()) {
+            if (piece.player.id == 'player1'){
+              var xy = this.upsideDownIfNeeded(tx, ty);
+              var fromCell = piece.cell;
+              var toCell = this.board.getCell(xy[0], xy[1]);
+              if (fromCell != toCell) {
+                piece.move(fromCell, toCell, true);
+                window.game.nextTurn();
+              }
+            }
+          } else {
+            if (piece.player.id == 'player2'){
+              var xy = this.upsideDownIfNeeded(tx, ty);
+              var fromCell = piece.cell;
+              var toCell = this.board.getCell(xy[0], xy[1]);
+              if (fromCell != toCell) {
+                piece.move(fromCell, toCell, true);
+                window.game.nextTurn();
+              }
+            }
+          }
+       }
+     } else { // 存在しないpiece ? こんなケースがあるかどうか不明
+     }
+
     }
     if (state.get('turn')) this.turn = this[state.get('turn')];
     if (!this.turn) this.turn = this.player1;

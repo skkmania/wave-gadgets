@@ -52,15 +52,18 @@ alert('game start.');
 
   <div id="captured" class="sidebar-panel">
     <h2 class="t">captured</h2>
-    <div id="opponent-captured"></div>
-
+    <div id="top-captured">
+      <div id="opponent-captured"></div>
+    </div>
     <div id="message" class="sidebar-panel">
       <h2 class="t">message</h2>
       <div id="message-body"></div>
     </div>
 
     <h2 class="t">captured</h2>
-    <div id="my-captured"></div>
+    <div id="bottom-captured">
+      <div id="my-captured"></div>
+    </div>
   </div>
 
     <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
