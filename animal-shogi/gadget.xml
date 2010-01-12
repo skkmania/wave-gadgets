@@ -17,7 +17,6 @@
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
 <script>
   function init() {
-alert('game start.');
     window.game = new AnimalShogiGame({containerId:'animal-shogi'});
     if (wave && wave.isInWaveContainer()) {
       wave.setStateCallback(window.game.stateChanged.bind(window.game));
@@ -35,6 +34,7 @@ alert('game start.');
   <script>
     function invokeMove() {
       var value = eval('({' + $('state').value + '})');
+alert('value: ' + value);
       var piece = Piece.selectByName(value.piece);
       var fromCell = window.game.board.getCell(value.from[0], value.from[1]);
       var toCell = window.game.board.getCell(value.to[0], value.to[1]);
@@ -71,6 +71,9 @@ alert('game start.');
 
       <div style="text-align:left;">
     	<button id="reverse-button" class="reverse t" onclick="window.game.reverse();">reverse</button>
+      </div>
+      <div style="text-align:right;">
+    	<button id="dump-button" class="dump t" onclick="window.game.debug_dump();">dump</button>
       </div>
 
   <div style="text-align:right;">

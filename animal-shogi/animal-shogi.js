@@ -75,7 +75,9 @@ Piece.prototype = {
   },
   initialArrange: function(board, atTop) {
     var pos = this.initialPosition;
+alert('piece initialArrange : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     if (atTop) pos = [2 - pos[0], 3 - pos[1]];
+alert('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     //if (!this.isMine()) pos = [2 - pos[0], 3 - pos[1]];
 //alert('piece : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     board.cells[pos[1]][pos[0]].put(this);
@@ -160,6 +162,13 @@ Piece.prototype = {
       ret += xy[0] + ',' + xy[1];
     }
 //alert('Piece:toString -> ' + ret);
+    return ret;
+  },
+  toDebugString: function() {
+    var ret = this.player.id + ',';
+    if (this.cell) {
+      ret += this.cell.x + ',' + this.cell.y;
+    }
     return ret;
   },
 };
@@ -266,9 +275,10 @@ Cell.prototype = {
       onDrop: function(draggable) {
         var fromCell = draggable.parentNode.obj;
         var toCell = this;
+alert('onDrop called. from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString());
         var piece = draggable.obj;
 
-        if (!window.game.isMyTurn()) {
+        if (!window.game.isViewersTurn()) {
           window.game.message(t('not_your_turn')); return;
         }
         if (!fromCell && toCell.piece) {
@@ -292,6 +302,7 @@ Cell.prototype = {
           window.game.finish(piece.player);
         }
         else {
+alert('ordinary turn change?');
           window.game.nextTurn();
         }
 
@@ -309,6 +320,7 @@ Cell.prototype = {
       this.createElm();
     }
     if (this.piece) {
+alert(this.piece.toDebugString());
       this.elm.appendChild(this.piece.elm);
       if(this.piece.player.id == 'player1'){
         if(this.top == 0){
@@ -359,6 +371,11 @@ Cell.prototype = {
     else {
       return '';
     }
+  },
+  toDebugString: function(){
+    var ret = '';
+    ret += '[' + this.x + ',' + this.y + ']';
+    return ret;
   }
 };
 
@@ -470,6 +487,7 @@ Player = Class.create({
     this.id = id;
     this.name = name;
     this.mine = mine;
+    this.isViewer = mine;
     this.pieces = [
       new Giraffe(this),
       new Lion(this),
@@ -493,12 +511,15 @@ Player = Class.create({
     return this.name.split('@').first();
   },
   statusHtml: function() {
-    var classNames = this.mine ? 'mine' : '';
+    var classNames = this.isViewer ? 'mine' : '';
     if (window.game.getTurn() == this) classNames += ' turn';
     return '<span class="' + classNames + '">' + this.shortName() + '</span>';
   },
   toString: function() {
     return this.name;
+  },
+  toDebugString: function() {
+    return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop + ', ' + this.pieces.invoke('toDebugString').join(':'); 
   }
 });
 
@@ -578,7 +599,9 @@ AnimalShogiGame = Class.create({
   },
   start: function() {
     this.player1.initialArrange(this.board);
+//alert('start 1 : ' + this.player1.toDebugString());
     this.player2.initialArrange(this.board);
+//alert('start 2 : ' + this.player2.toDebugString());
     this.determineTop();
     this.controlPanel.update();
     this.board.show();
@@ -592,13 +615,14 @@ AnimalShogiGame = Class.create({
     }
     window.game.controlPanel.update();
     window.game.clearMessage();
+alert('leaving nextTurn');
   },
   getTurn: function() {
     if (!this.turn) this.turn = this.player1;
     return this.turn;
   },
-  isMyTurn: function() {
-    return this.myPlayer && this.myPlayer.name == this.getTurn().name;
+  isViewersTurn: function() {
+    return this.turn.name == wave.getViewer().getId();
   },
   needUpsideDown: function() {
     return this.myPlayer && this.myPlayer.name == this.player2.name;
@@ -630,7 +654,7 @@ AnimalShogiGame = Class.create({
   },
   stateChanged: function() {
     var state = wave.getState();
-//alert('stateChanged: ' + state.toString());
+alert('stateChanged: ' + state.toString());
     this.fromState(state);
   },
   toString: function() {
@@ -708,12 +732,14 @@ AnimalShogiGame = Class.create({
 //alert('owner:' + owner + ' x:[' + x + '] y:[' + y + ']');
 
         piece.setPlayer(owner);
-        if (x && x != '') {
+        if (x && x != '') { // 盤上の駒
           var xy = this.upsideDownIfNeeded(x, y);
+          // var xy = [x, y];
           var fromCell = piece.cell;
           var toCell = this.board.getCell(xy[0], xy[1]);
           if (fromCell != toCell) {
             piece.move(fromCell, toCell, true);
+alert('piece: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 1');
             window.game.nextTurn();
           }
         }
@@ -739,15 +765,18 @@ AnimalShogiGame = Class.create({
         }
       } else { // stateに情報がない駒 = 初期盤面から動いていない駒
                // bottom playerなら初期配置のままで、top playerなら座標変換が必要
+alert('not moving piece: ' + piece.toDebugString());
           var tx = piece.initialPosition[0];
           var ty = piece.initialPosition[1];
           if (this.needUpsideDown()) {
             if (piece.player.id == 'player1'){
+alert('piece.player.id : ' + piece.player.id);
               var xy = this.upsideDownIfNeeded(tx, ty);
               var fromCell = piece.cell;
               var toCell = this.board.getCell(xy[0], xy[1]);
               if (fromCell != toCell) {
                 piece.move(fromCell, toCell, true);
+alert('piece: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 2');
                 window.game.nextTurn();
               }
             }
@@ -758,6 +787,7 @@ AnimalShogiGame = Class.create({
               var toCell = this.board.getCell(xy[0], xy[1]);
               if (fromCell != toCell) {
                 piece.move(fromCell, toCell, true);
+alert('piece: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 3');
                 window.game.nextTurn();
               }
             }
@@ -770,6 +800,17 @@ AnimalShogiGame = Class.create({
     if (state.get('turn')) this.turn = this[state.get('turn')];
     if (!this.turn) this.turn = this.player1;
     this.controlPanel.update();
+  },
+  debug_dump: function(){
+    var ret = '';
+    this.board.cells.each(function(r){
+      r.each(function(c){
+        ret += c.toDebugString(); 
+        ret += (c.piece ? c.piece.toDebugString() : 'no p');
+      });
+      ret += '\n';
+    });
+    alert(ret);
   }
 });
 
