@@ -6,6 +6,7 @@ ControlPanel = Class.create({
     this.game = game;
   },
   reverse: function() {              
+     window.game.dw.dw_func('start'); 
       if (this.game.top == 1){                                                
         this.player1Elm = $('top-panel');
         this.player2Elm = $('bottom-panel');
@@ -27,6 +28,7 @@ ControlPanel = Class.create({
        $$('#bottom-captured img').invoke('removeClassName', 'top');
        $$('#bottom-captured img').invoke('removeClassName', 'opponent');
     }
+     window.game.dw.dw_func('end'); 
   }, 
   update: function() {              
     if (!this.elm) {                          
@@ -64,7 +66,8 @@ Piece.prototype = {
     this.elm.id = this.name;
     this.elm.addClassName('piece');
     this.setPlayer(player);
-    if (this.isMine()) {
+    //if (this.isMine()) {
+    if (this.isViewersP()) {
       new Draggable(this.elm, {
         onEnd: function() {
           this.elm.style.top = 0;
@@ -99,7 +102,8 @@ window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  at
     this.cell = null;
     if (this.becomeNormal) this.becomeNormal();
 
-    if (this.isMine()) {
+    if (this.isViewersP()) {
+    //if (this.isMine()) {
       if (window.game.isPlayer()) {
         new Draggable(this.elm, {
           onEnd: function() {
@@ -142,6 +146,11 @@ window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  at
       this.becomeSpecial();
     }
     return capturedPiece;
+  },
+  isViewersP: function() {
+//window.game.dw.dw('isViewersP: player.name  ' + this.player.name);
+//window.game.dw.dw('isViewersP: getViewer.getId  ' + wave.getViewer().getId());
+    return this.player.name == wave.getViewer().getId();
   },
   isMine: function() {
     return this.player.mine;
@@ -311,6 +320,7 @@ window.game.dw.dw('ordinary turn change?');
         var delta = {};
         delta['turn'] = window.game.getTurn().id;
         delta[piece.name] = piece.toString();
+	delta['board'] = '3'; // { '00':'b','01':'c' };
         if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
         wave.getState().submitDelta(delta);
       }.bind(this)
@@ -628,7 +638,7 @@ window.game.dw.dw('leaving nextTurn');
     return this.turn.name == wave.getViewer().getId();
   },
   needUpsideDown: function() {
-window.game.dw.dw('myPlayer: ' + this.myPlayer + ', name: ' + this.myPlayer.name);
+window.game.dw.dw('entered needUpsideDown. now, myPlayer is ' + this.myPlayer + ', this.top is ' + this.top + ', player1 is ' + this.player1 + ', player2 is ' + this.player2);
     if(this.myPlayer){
       if(this.top == 0)
         return  this.myPlayer.name == this.player2.name;
@@ -643,11 +653,11 @@ window.game.dw.dw('entered upsideDownIfNeeded : x, y -> ' + x + ', ' + y);
     x = parseInt(x);
     y = parseInt(y);
     if (this.needUpsideDown()) {
-window.game.dw.dw('leaving upsideDownIfNeeded : x, y -> ' + (2-x) + ', ' + (3-y));
+window.game.dw.dw('---leaving with data converted : x, y -> ' + (2-x) + ', ' + (3-y));
       return [2 - x, 3 - y];
     }
     else {
-//alert('leaving upsideDownIfNeeded : x, y -> ' + x + ', ' + y);
+window.game.dw.dw('---leaving without change : x, y -> ' + x + ', ' + y);
       return [x, y];
     }
   },
@@ -737,26 +747,27 @@ window.game.dw.dw('entered the loop of all pieces: ');
        if(pieceData) { // stateに情報がある駒
 
         pieceData = pieceData.split(',');
-window.game.dw.dw('piece:' + name + ' data:' + pieceData);
         var owner = this[pieceData[0]];
         var x = pieceData[1];
         var y = pieceData[2];
-window.game.dw.dw('piece on state:' + name + ', data:' + pieceData + ', owner:' + owner + ' x:[' + x + '] y:[' + y + ']');
+window.game.dw.dw('piece on state:' + name + ', data:' + pieceData + ', owner:' + owner + 'data on state is  x:[' + x + '] y:[' + y + ']');
 
         piece.setPlayer(owner);
         if (x && x != '') { // 盤上の駒
           var xy = this.upsideDownIfNeeded(x, y);
+window.game.dw.dw('data after upsideDown is  x: ' + xy[0] + ', y:' + y);
           // var xy = [x, y];
           var fromCell = piece.cell;
           var toCell = this.board.getCell(xy[0], xy[1]);
           if (fromCell != toCell) {
             piece.move(fromCell, toCell, true);
-window.game.dw.dw('piece: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 1');
+window.game.dw.dw('piece on board: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 1');
             window.game.nextTurn();
           }
         }
         else {
           // captured
+window.game.dw.dw('captured piece : ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 1');
           var prefix = 'my';
           if (this.needUpsideDown()) {
             if (piece.player.id == 'player1') prefix = 'opponent';
@@ -777,7 +788,7 @@ window.game.dw.dw('piece: ' + piece.toDebugString() + ' moved from ' + fromCell.
         }
       } else { // stateに情報がない駒 = 初期盤面から動いていない駒
                // bottom playerなら初期配置のままで、top playerなら座標変換が必要
-window.game.dw.dw('not moving piece: ' + piece.toDebugString());
+/* window.game.dw.dw('not moving piece: ' + piece.toDebugString());
           var tx = piece.initialPosition[0];
           var ty = piece.initialPosition[1];
           if (this.needUpsideDown()) {
@@ -804,6 +815,7 @@ window.game.dw.dw('piece: ' + piece.toDebugString() + ' moved from ' + fromCell.
               }
             }
           }
+*/
        }
      } else { // 存在しないpiece ? こんなケースがあるかどうか不明
      }

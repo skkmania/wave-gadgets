@@ -5,7 +5,7 @@ DebugWindow = Class.create({
   initialize: function(game, title){
     this.game = game;
     this.dw_flag = false;
-    this.dw_func_flag = false;
+    this.dw_func_flag = true;
     this.dw_arg_flag = false;
     this.func_name_flag = false;
     this.func_msg_flag = false;
