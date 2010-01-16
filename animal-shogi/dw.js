@@ -20,12 +20,16 @@ DebugWindow = Class.create({
   },
 
   dw : function dw(str){
+         var d = new Date();
+         var ts = d.toLocaleTimeString();
          if (this.dw_flag | this.dw_All){
            if (arguments.length == 1){
-             this.debugDoc.writeln(str + '<br/>');
+             this.debugDoc.writeln(ts + '---' + str + '<br/>');
+             //this.debugDoc.writeln(Date.toTimeString() + '---' + str + '<br/>');
            } else {
              var level = arguments[1]
-             this.debugDoc.writeln('<span class="level' + level + '">' + str + '</span><br/>');
+             this.debugDoc.writeln(ts + '---' + '<span class="level' + level + '">' + str + '</span><br/>');
+             //this.debugDoc.writeln(Date.toTimeString() + '---' + '<span class="level' + level + '">' + str + '</span><br/>');
            }
            this.debugWindow.scrollBy(0,30 + str.length/100);
          }

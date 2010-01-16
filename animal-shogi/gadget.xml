@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
 <Module>
-<ModulePrefs title="State Example" height="440">
+<ModulePrefs title="State Example" height="450">
   <Require feature="rpc" /> 
   <Require feature="wave" /> 
 </ModulePrefs>

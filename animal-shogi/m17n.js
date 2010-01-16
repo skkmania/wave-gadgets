@@ -20,6 +20,7 @@ M17N = {
       already_occupied: '駒のある場所には打てません',
       not_allowed: 'そんな動きはできません',
       cannot_capture_yourown_piece: '自分の駒は取れません',
+      cannot_play_with_same_person: '同じ人との対局はできません',
       click_join_button: '参加ボタンを押してください',
       win: 'さんの勝ちです'
     },
@@ -38,6 +39,7 @@ M17N = {
       already_occupied: 'Already occupied',
       not_allowed: 'Not allowed',
       cannot_capture_yourown_piece: 'Cannot capture yourown piece',
+      cannot_play_with_same_person: 'Cannot play with the same person',
       click_join_button: 'Click Join button',
       win: ' Win!!'
     }
