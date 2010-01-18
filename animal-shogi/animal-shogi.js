@@ -6,7 +6,7 @@ ControlPanel = Class.create({
     this.game = game;
   },
   reverse: function() {              
-     window.game.dw.dw_func('start'); 
+     this.game.dw.dw('start reverse cp'); 
       if (this.game.top == 1){                                                
         this.player1Elm = $('top-panel');
         this.player2Elm = $('bottom-panel');
@@ -24,25 +24,26 @@ ControlPanel = Class.create({
        $('bottom-captured').innerHTML = tmp;
        $$('#top-captured img').invoke('addClassName', 'top');
        $$('#top-captured img').invoke('removeClassName', 'bottom');
+       $$('#top-captured img').invoke('removeClassName', 'mine');
        $$('#bottom-captured img').invoke('addClassName', 'bottom');
        $$('#bottom-captured img').invoke('removeClassName', 'top');
        $$('#bottom-captured img').invoke('removeClassName', 'opponent');
     }
-     window.game.dw.dw_func('end'); 
+     this.game.dw.dw('end'); 
   }, 
   update: function() {              
-    if (!this.elm) {                          
-      this.elm = $('control-panel');                         
-      if (this.game.top == 1){                                                
-        this.player1Elm = $('top-panel');
-        this.player2Elm = $('bottom-panel');
-      } else {       
-        this.player2Elm = $('top-panel');
-        this.player1Elm = $('bottom-panel');
-      }                    
-    }                           
+     this.game.dw.dw('cp update entered. top is ' + this.game.top); 
+    if (!this.elm) this.elm = $('control-panel');                         
+    if (this.game.top == 1){                                                
+      this.player1Elm = $('top-panel');
+      this.player2Elm = $('bottom-panel');
+    } else {       
+      this.player2Elm = $('top-panel');
+      this.player1Elm = $('bottom-panel');
+    }                    
     this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
     this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
+     this.game.dw.dw('cp update leaving'); 
   } 
 });
 
@@ -55,6 +56,10 @@ Piece.selectByName = function(name) {
   }
   return null;
 };
+// これは
+// Piece.all.find(function(e){ return e.name == name; })
+// とかけばよいのでは？ しかも1ヶ所でしかつかってないし。undefinedにしたくない、nullがいいという理由があるかどうかチェック。
+
 Piece.prototype = {
   initialize: function(player) {
     Piece.all.push(this);
@@ -66,7 +71,6 @@ Piece.prototype = {
     this.elm.id = this.name;
     this.elm.addClassName('piece');
     this.setPlayer(player);
-    //if (this.isMine()) {
     if (this.isViewersP()) {
       new Draggable(this.elm, {
         onEnd: function() {
@@ -79,23 +83,32 @@ Piece.prototype = {
   initialArrange: function(board, atTop) {
     var pos = this.initialPosition;
 window.game.dw.dw('piece initialArrange : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
-//alert('piece initialArrange : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     if (atTop) pos = [2 - pos[0], 3 - pos[1]];
 window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
-    //if (!this.isMine()) pos = [2 - pos[0], 3 - pos[1]];
-//alert('piece : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     board.cells[pos[1]][pos[0]].put(this);
   },
   setPlayer: function(player) {
     this.player = player;
-    if (this.player.mine) {
+    // if (this.player.mine) {
+    // 書き換えをためす
+    if (!this.player.atTop()) {
       this.elm.addClassName('mine');
+      this.elm.addClassName('bottom');
       this.elm.removeClassName('opponent');
+      this.elm.removeClassName('top');
     }
     else {
       this.elm.removeClassName('mine');
+      this.elm.removeClassName('bottom');
       this.elm.addClassName('opponent');
+      this.elm.addClassName('top');
     }
+  },
+  atTop : function(){
+    if (window.game.top == 1)
+      return this.player.id == 'player1';
+    else
+      return this.player.id == 'player2';
   },
   capturedBy: function(player) {
     this.setPlayer(player);
@@ -122,7 +135,7 @@ window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  at
     if (!fromCell) return true; // 打ち駒はどこでもOK
     var dx = fromCell.x - toCell.x;
     var dy = fromCell.y - toCell.y;
-    if (1 < Math.abs(dx) || 1 < Math.abs(dy)) return false
+    if (1 < Math.abs(dx) || 1 < Math.abs(dy)) return false;
     if (!this.mine) dy *= -1;
     return this.movableArea[dy + 1][dx + 1];
   },
@@ -148,30 +161,19 @@ window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  at
     return capturedPiece;
   },
   isViewersP: function() {
-//window.game.dw.dw('isViewersP: player.name  ' + this.player.name);
-//window.game.dw.dw('isViewersP: getViewer.getId  ' + wave.getViewer().getId());
     return this.player.name == wave.getViewer().getId();
   },
-  isMine: function() {
-    return this.player.mine;
-  },
   isGoal: function(cell) {
-    if (this.isMine()) {
-      return cell.y == 0;
-    }
-    else {
-      return cell.y == 3;
-    }
+    return ( this.atTop() ? (cell.y == 3) : (cell.y == 0) );
   },
   toString: function() {
     var ret = this.player.id + ',';
     var parentElm = this.elm.parentNode;
-
+// このような大事な処理をtoStringなどという関数の中で行うのはよくない
     if (this.cell) {
       var xy = window.game.upsideDownIfNeeded(this.cell.x, this.cell.y);
       ret += xy[0] + ',' + xy[1];
     }
-//alert('Piece:toString -> ' + ret);
     return ret;
   },
   toDebugString: function() {
@@ -181,8 +183,8 @@ window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  at
     }
     ret += ', cn: ' + this.elm.className;
     return ret;
-  },
-};
+  }
+}
 
 Lion = Class.create(Piece, {
   imageUrl: HOST + 'lion.png',
@@ -337,20 +339,24 @@ window.game.dw.dw(this.piece.toDebugString());
       if(this.piece.player.id == 'player1'){
         if(this.top == 0){
           this.piece.elm.addClassName('bottom');
+          this.piece.elm.addClassName('mine');
           this.piece.elm.removeClassName('top');
           this.piece.elm.removeClassName('opponent');
         } else {
           this.piece.elm.addClassName('top');
-          this.piece.elm.removeClassName('bottom');
           this.piece.elm.addClassName('opponent');
+          this.piece.elm.removeClassName('bottom');
+          this.piece.elm.removeClassName('mine');
         }
       } else {
         if(this.top == 0){
           this.piece.elm.addClassName('top');
-          this.piece.elm.removeClassName('bottom');
           this.piece.elm.addClassName('opponent');
+          this.piece.elm.removeClassName('bottom');
+          this.piece.elm.removeClassName('mine');
         } else {
           this.piece.elm.addClassName('bottom');
+          this.piece.elm.addClassName('mine');
           this.piece.elm.removeClassName('top');
           this.piece.elm.removeClassName('opponent');
         }
@@ -399,7 +405,7 @@ Board = Class.create({
     this.boardData = [];
     this.blackStand = '';
     this.whiteStand = '';
-    this.elm = elm || document.body;;
+    this.elm = elm || document.body;
     this.cells = [];
     for (var r = 0; r < this.height; r++) {
       var row = [];
@@ -466,18 +472,26 @@ if(c.piece.elm.hasClassName('bottom')){
         if (c.piece.player.id == 'player1') {
           if (top ==  0){
             c.piece.elm.removeClassName('opponent');
+            c.piece.elm.removeClassName('top');
             c.piece.elm.addClassName('mine');
+            c.piece.elm.addClassName('bottom');
           } else {
             c.piece.elm.removeClassName('mine');
+            c.piece.elm.removeClassName('bottom');
             c.piece.elm.addClassName('opponent');
+            c.piece.elm.addClassName('top');
           }
         } else {
           if (top ==  0){
             c.piece.elm.removeClassName('mine');
+            c.piece.elm.removeClassName('bottom');
             c.piece.elm.addClassName('opponent');
+            c.piece.elm.addClassName('top');
           } else {
             c.piece.elm.removeClassName('opponent');
+            c.piece.elm.removeClassName('top');
             c.piece.elm.addClassName('mine');
+            c.piece.elm.addClassName('bottom');
           }
         }
       }
@@ -495,7 +509,7 @@ if(c.piece.elm.hasClassName('bottom')){
 });
 
 Player = Class.create({
-  initialize: function(id, name, mine, top) {
+  initialize: function(id, name, mine ) {
     this.id = id;
     this.name = name;
     this.mine = mine;
@@ -506,17 +520,16 @@ Player = Class.create({
       new Elephant(this),
       new Chick(this)
     ];
-    if (id == 'player1'){  this.atTop = (top == 1); 
-//alert('id : ' + this.id + ',  atTop : ' + this.atTop);
-    }
-    if (id == 'player2'){  this.atTop = (top != 1); 
-//alert('id : ' + this.id + ',  atTop : ' + this.atTop);
-    }
+  },
+  atTop: function(){
+    if (this.id == 'player1')
+      return (window.game.top == 1);
+    else
+      return (window.game.top != 1);
   },
   initialArrange: function(board) {
-    var atTop = this.atTop;
     this.pieces.each(function(piece) {
-      piece.initialArrange(board, atTop);
+      piece.initialArrange(board, this.atTop());
     });
   },
   shortName: function() {
@@ -531,7 +544,7 @@ Player = Class.create({
     return this.name;
   },
   toDebugString: function() {
-    return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop + ', ' + this.pieces.invoke('toDebugString').join(':'); 
+    return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop() + ', ' + this.pieces.invoke('toDebugString').join(':'); 
   }
 });
 
@@ -546,28 +559,36 @@ Stand = Class.create({
 
 AnimalShogiGame = Class.create({
   initialize: function(settings) {
+alert('01');
     this.dw = new DebugWindow(this, 'debug 1');
     this.dw.dw('start info');
     this.settings = settings;
     this.container = $(settings.containerId);
-    this.determineTop();
+this.dw.dw('00');
     this.controlPanel = new ControlPanel(this);
+this.dw.dw('01');
     this.board = new Board(this.container, this);
+this.dw.dw('02');
     this.mode = 'init';
+this.dw.dw('03');
     this.message(t('click_join_button'));
+this.dw.dw('04');
     this.turn = null;
+this.dw.dw('05');
   },
   determineTop: function() {
      // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
      // はじめからtop が１になるのはplayer2がviewerのときだけ
      // あとはviewerが反転ボタンで指定したとき
     this.top = 0; 
+this.dw.dw('top : ' + this.top);
     if (this.player2 && this.player2.name == wave.getViewer().getId())
       this.top = 1;
+this.dw.dw('player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top);
   },
   setPlayer: function(name, opponent) {
     if (!this.player1) {
-      this.player1 = new Player('player1', name, !opponent, this.top);
+      this.player1 = new Player('player1', name, !opponent);
       if (!opponent) this.myPlayer = this.player1;
       this.turn = this.player1
       this.controlPanel.update();
@@ -578,7 +599,7 @@ AnimalShogiGame = Class.create({
     }
     else if (!this.player2) {
       if (name != this.player1.name){
-        this.player2 = new Player('player2', name, !opponent, this.top);
+        this.player2 = new Player('player2', name, !opponent);
         if (!opponent) this.myPlayer = this.player2;
         this.controlPanel.update();
         this.start();
@@ -604,13 +625,17 @@ AnimalShogiGame = Class.create({
     this.message('');
   },
   show: function() {
+this.dw.dw('game.show');
     //this.board.show();
   },
   reverse: function() {
-    this.message('game.top became ' + this.top);
     this.top = (this.top == 0 ? 1 : 0);
+    this.message('game.top became ' + this.top);
+this.dw.dw('1');
     this.board.reverse(this.top);
+this.dw.dw('2');
     this.controlPanel.reverse();
+this.dw.dw('3');
   },
   start: function() {
     this.dw.dw('game.start was called.');
@@ -686,16 +711,16 @@ this.dw.dw('stateChanged: ' + state.toString());
     var ret = '';
     var json = this.toJSON();
     for (var key in json) {
-      ret += key + ' : ' + json[key] + '\n'
-    };
+      ret += key + ' : ' + json[key] + '\n';
+    }
     return ret;
   },
   toHTML: function() {
     var ret = '<table>';
     var json = this.toJSON();
     for (var key in json) {
-      ret += '<tr><td>' + key + '</td><td>' + json[key] + '</td></tr>\n'
-    };
+      ret += '<tr><td>' + key + '</td><td>' + json[key] + '</td></tr>\n';
+    }
     ret += '</table>';
     return ret;
   },
@@ -716,13 +741,19 @@ this.dw.dw('stateChanged: ' + state.toString());
     var viewer = wave.getViewer().getId();
 this.dw.dw('entered processPlayer: viewer: ' + viewer);
     if (!this.player1 && state.get('player1')) {
+this.dw.dw('processPlayer: processing Player1: ');
       var isMe = state.get('player1') == viewer;
-      this.player1 = new Player('player1', state.get('player1'), isMe, this.top);
+      var top = (isMe ? 0 : 1);
+      this.player1 = new Player('player1', state.get('player1'), isMe, top);
       this.controlPanel.update();
     }
     if (!this.player2 && state.get('player2')) {
+this.dw.dw('processPlayer: processing Player2: ');
       var isMeMaybe = state.get('player1') != viewer;
-      this.player2 = new Player('player2', state.get('player2'), isMeMaybe, this.top);
+      top = (state.get('player2') == viewer ? 1 : 0);
+      this.player2 = new Player('player2', state.get('player2'), isMeMaybe, top);
+this.debug_dump();
+      this.determineTop();
       this.controlPanel.update();
       this.start();
     }
@@ -737,21 +768,31 @@ this.dw.dw('myPlayer is defined : ' + this.myPlayer);
     if (this.player1 && this.player2) {
       $('join-button').hide();
     }
+this.dw.dw('leaving processPlayer: viewer: ' + viewer);
   },
   fromState: function(state) {
-this.dw.dw('entered fromState');
+    this.dw.dw('entered fromState');
     this.processPlayer(state);
     var names = [
       'lion_player1', 'giraffe_player1', 'elephant_player1', 'chick_player1',
       'lion_player2', 'giraffe_player2', 'elephant_player2', 'chick_player2'
     ];
+/*
+this.dw.dw('-----Before entering piece loop, check contents.');
+this.dw.dw('Piece.all -- this list is taken from Piece.all :');
+this.dw.dw('<br>' + Piece.all.invoke('toDebugString').join('<br>'));
+this.dw.dw('Piece.all -- this list is taken from Cell.all :');
+Cell.all.each(function(c){
+  window.game.dw.dw('<br>' + c.piece.toDebugString()); });
+this.dw.dw('-----Check end.');
+*/
     for (var i = 0; i < names.length; i++) {
 this.dw.dw('entered the loop of all pieces: ');
       var name = names[i];
       var piece = Piece.selectByName(name);
       var pieceData = state.get(name); // owner,x,y
       if (piece){
-this.dw.dw('piece: ' + piece.toDebugString());
+this.dw.dw('selected piece: ' + piece.toDebugString());
        if(pieceData) { // stateに情報がある駒
 
         pieceData = pieceData.split(',');
@@ -761,7 +802,7 @@ this.dw.dw('piece: ' + piece.toDebugString());
 this.dw.dw('piece on state:' + name + ', data:' + pieceData + ', owner:' + owner + 'data on state is  x:[' + x + '] y:[' + y + ']');
 
         piece.setPlayer(owner);
-        if (x && x != '') { // 盤上の駒
+        if (x && (x != '')) { // 盤上の駒
           var xy = this.upsideDownIfNeeded(x, y);
 this.dw.dw('data after upsideDown is  x: ' + xy[0] + ', y:' + y);
           // var xy = [x, y];
@@ -772,8 +813,7 @@ this.dw.dw('data after upsideDown is  x: ' + xy[0] + ', y:' + y);
 this.dw.dw('piece on board: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 1');
             this.nextTurn();
           }
-        }
-        else {
+        } else {
           // captured
 this.dw.dw('captured piece : ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 1');
           var prefix = 'my';
@@ -794,41 +834,10 @@ this.dw.dw('captured piece : ' + piece.toDebugString() + ' moved from ' + fromCe
             });
           }
         }
-      } else { // stateに情報がない駒 = 初期盤面から動いていない駒
-               // bottom playerなら初期配置のままで、top playerなら座標変換が必要
-/* this.dw.dw('not moving piece: ' + piece.toDebugString());
-          var tx = piece.initialPosition[0];
-          var ty = piece.initialPosition[1];
-          if (this.needUpsideDown()) {
-            if (piece.player.id == 'player1'){
-this.dw.dw('piece.player.id : ' + piece.player.id);
-              var xy = this.upsideDownIfNeeded(tx, ty);
-              var fromCell = piece.cell;
-              var toCell = this.board.getCell(xy[0], xy[1]);
-              if (fromCell != toCell) {
-                piece.move(fromCell, toCell, true);
-this.dw.dw('piece: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 2');
-                this.nextTurn();
-              }
-            }
-          } else {
-            if (piece.player.id == 'player2'){
-              var xy = this.upsideDownIfNeeded(tx, ty);
-              var fromCell = piece.cell;
-              var toCell = this.board.getCell(xy[0], xy[1]);
-              if (fromCell != toCell) {
-                piece.move(fromCell, toCell, true);
-this.dw.dw('piece: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 3');
-                this.nextTurn();
-              }
-            }
-          }
-*/
-       }
-     } else { // 存在しないpiece ? こんなケースがあるかどうか不明
-     }
-
+      }
+       // stateに情報がない駒 = 初期盤面から動いていない駒はinitialArrangeが済んでいる
     }
+    } // end of for
     if (state.get('turn')) this.turn = this[state.get('turn')];
     if (!this.turn) this.turn = this.player1;
     this.controlPanel.update();
@@ -849,7 +858,7 @@ this.dw.dw('piece: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebug
       ret += '<br>';
     });
     this.dw.dw(ret);
-    this.dw.dw('debugString of each piece start :');
+    this.dw.dw('debugString of each piece start - this list is taken from Piece.all :');
     this.dw.dw('<br>' + Piece.all.invoke('toDebugString').join('<br>'));
     this.dw.dw('debug_dump end');
   }
