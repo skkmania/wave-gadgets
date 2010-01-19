@@ -32,6 +32,7 @@ ControlPanel = Class.create({
      this.game.dw.dw('end'); 
   }, 
   update: function() {              
+    this.game.determineTop();
      this.game.dw.dw('cp update entered. top is ' + this.game.top); 
     if (!this.elm) this.elm = $('control-panel');                         
     if (this.game.top == 1){                                                
@@ -80,8 +81,9 @@ Piece.prototype = {
       });
     }
   },
-  initialArrange: function(board, atTop) {
+  initialArrange: function(board) {
     var pos = this.initialPosition;
+    var atTop = this.player.atTop();
 window.game.dw.dw('piece initialArrange : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     if (atTop) pos = [2 - pos[0], 3 - pos[1]];
 window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
@@ -455,22 +457,22 @@ Board = Class.create({
     tmpAry.each(function(c){
       if (c.piece) {
 /*
-//alert('piece name : ' + c.piece.name);
+window.game.dw.dw('piece name : ' + c.piece.name);
 if(c.piece.elm.hasClassName('opponent')){
-  //alert('opponent found -> ' + c.piece.player);
+  window.game.dw.dw('opponent found -> ' + c.piece.player);
 }
 if(c.piece.elm.hasClassName('mine')){
-  //alert('mine found -> ' + c.piece.player);
+  window.game.dw.dw('mine found -> ' + c.piece.player);
 }
 if(c.piece.elm.hasClassName('top')){
-  //alert('top found -> ' + c.piece.player);
+  window.game.dw.dw('top found -> ' + c.piece.player);
 }
 if(c.piece.elm.hasClassName('bottom')){
-  //alert('bottom found -> ' + c.piece.player);
+  window.game.dw.dw('bottom found -> ' + c.piece.player);
 }
 */
         if (c.piece.player.id == 'player1') {
-          if (top ==  0){
+          if (window.game.top ==  0){
             c.piece.elm.removeClassName('opponent');
             c.piece.elm.removeClassName('top');
             c.piece.elm.addClassName('mine');
@@ -482,7 +484,7 @@ if(c.piece.elm.hasClassName('bottom')){
             c.piece.elm.addClassName('top');
           }
         } else {
-          if (top ==  0){
+          if (window.game.top ==  0){
             c.piece.elm.removeClassName('mine');
             c.piece.elm.removeClassName('bottom');
             c.piece.elm.addClassName('opponent');
@@ -528,8 +530,11 @@ Player = Class.create({
       return (window.game.top != 1);
   },
   initialArrange: function(board) {
+window.game.dw.dw('entered initialArrange of Player');
+window.game.dw.dw(this.id + ': ' + this.name);
+window.game.dw.dw('pieces: ' + this.pieces.invoke('toDebugString').join('<br>'));
     this.pieces.each(function(piece) {
-      piece.initialArrange(board, this.atTop());
+      piece.initialArrange(board);
     });
   },
   shortName: function() {
@@ -559,7 +564,6 @@ Stand = Class.create({
 
 AnimalShogiGame = Class.create({
   initialize: function(settings) {
-alert('01');
     this.dw = new DebugWindow(this, 'debug 1');
     this.dw.dw('start info');
     this.settings = settings;
@@ -575,16 +579,39 @@ this.dw.dw('03');
 this.dw.dw('04');
     this.turn = null;
 this.dw.dw('05');
+    this.top_by_viewer = false;
+this.dw.dw('06');
+      // viewerが反転ボタンでtopを決定したとき、その値を持つ。
+      // それまではfalse. したがって、これがfalseのあいだはplayerとviewerの関係のみで
+      // topを決めることができる。
+      // すなわち、
+      //  viewer == player1 のとき、top = 0 (player1がbottomなので)
+      //  viewer == player2 のとき、top = 1 (player2がbottomなので)
+      //  viewer がplayerでないとき、top = 0 （先手がbottomがデフォルトであるので)
+    this.determineTop();
+this.dw.dw('07');
   },
   determineTop: function() {
+this.dw.dw('06.1');
      // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
      // はじめからtop が１になるのはplayer2がviewerのときだけ
      // あとはviewerが反転ボタンで指定したとき
-    this.top = 0; 
-this.dw.dw('top : ' + this.top);
-    if (this.player2 && this.player2.name == wave.getViewer().getId())
-      this.top = 1;
-this.dw.dw('player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top);
+this.dw.dw('06.2');
+    if (this.top_by_viewer){
+this.dw.dw('06.3');
+       this.top = this.top_by_viewer;
+    } else {
+this.dw.dw('06.4');
+      this.top = 0;  // by default
+this.dw.dw('this.top : ' + this.top);
+      if (this.player2){
+this.dw.dw('06.5');
+        if (this.player2.name == wave.getViewer().getId())
+this.dw.dw('06.6');
+          this.top = 1;
+      }
+   }
+if (this.player2) this.dw.dw('leaving determinTop: player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top);
   },
   setPlayer: function(name, opponent) {
     if (!this.player1) {
@@ -630,6 +657,7 @@ this.dw.dw('game.show');
   },
   reverse: function() {
     this.top = (this.top == 0 ? 1 : 0);
+    this.top_by_viewer = this.top;
     this.message('game.top became ' + this.top);
 this.dw.dw('1');
     this.board.reverse(this.top);
@@ -739,21 +767,22 @@ this.dw.dw('stateChanged: ' + state.toString());
   },
   processPlayer: function(state){
     var viewer = wave.getViewer().getId();
+    var pl1 = state.get('player1');
+    var pl2 = state.get('player2');
 this.dw.dw('entered processPlayer: viewer: ' + viewer);
-    if (!this.player1 && state.get('player1')) {
+    if (!this.player1 && pl1) {
 this.dw.dw('processPlayer: processing Player1: ');
-      var isMe = state.get('player1') == viewer;
-      var top = (isMe ? 0 : 1);
-      this.player1 = new Player('player1', state.get('player1'), isMe, top);
+      var isMe = (pl1 == viewer);
+      this.top = (isMe ? 0 : 1);
+      this.player1 = new Player('player1', pl1, isMe, this.top);
       this.controlPanel.update();
     }
-    if (!this.player2 && state.get('player2')) {
+    if (!this.player2 && pl2) {
 this.dw.dw('processPlayer: processing Player2: ');
-      var isMeMaybe = state.get('player1') != viewer;
-      top = (state.get('player2') == viewer ? 1 : 0);
-      this.player2 = new Player('player2', state.get('player2'), isMeMaybe, top);
+      var isMeMaybe = (pl1 != viewer);
+      this.top = (pl2 == viewer ? 1 : 0);
+      this.player2 = new Player('player2', pl2, isMeMaybe, this.top);
 this.debug_dump();
-      this.determineTop();
       this.controlPanel.update();
       this.start();
     }
@@ -764,6 +793,7 @@ this.debug_dump();
     else if (this.player2 && this.player2.name == viewer) {
       this.myPlayer = this.player2;
     }
+    this.determineTop();
 this.dw.dw('myPlayer is defined : ' + this.myPlayer);
     if (this.player1 && this.player2) {
       $('join-button').hide();
@@ -847,7 +877,7 @@ this.dw.dw('captured piece : ' + piece.toDebugString() + ' moved from ' + fromCe
     this.dw.dw('player1 : ' + this.player1.toDebugString());
     this.dw.dw('player2 : ' + (this.player2 ? this.player2.toDebugString() : null));
     this.dw.dw('turn : ' + this.turn);
-    this.dw.dw('debugString of each cell start : ');
+    this.dw.dw('debugString of each cell from board.cells.each start : ');
     var ret = '<br>';
     this.board.cells.each(function(r){
       r.each(function(c){
@@ -858,6 +888,13 @@ this.dw.dw('captured piece : ' + piece.toDebugString() + ' moved from ' + fromCe
       ret += '<br>';
     });
     this.dw.dw(ret);
+    this.dw.dw('----------------');
+    this.dw.dw('debugString of each cell from Cell.all start : ');
+    this.dw.dw('<br>' + Cell.all.invoke('toDebugString').join('<br>'));
+    this.dw.dw('debugString of each piece of Player1 start - from player1.pieces.all :');
+    this.dw.dw('<br>' + this.player1.pieces.invoke('toDebugString').join('<br>'));
+    this.dw.dw('debugString of each piece of Player2 start - from player2.pieces.all :');
+    this.dw.dw('<br>' + this.player2.pieces.invoke('toDebugString').join('<br>'));
     this.dw.dw('debugString of each piece start - this list is taken from Piece.all :');
     this.dw.dw('<br>' + Piece.all.invoke('toDebugString').join('<br>'));
     this.dw.dw('debug_dump end');

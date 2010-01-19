@@ -18,16 +18,16 @@
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
 <script>
   function init() {
-alert('init 00');
+//alert('init 00');
     window.game = new AnimalShogiGame({containerId:'animal-shogi'});
-alert('init 01');
+//alert('init 01');
     if (wave && wave.isInWaveContainer()) {
       wave.setStateCallback(window.game.stateChanged.bind(window.game));
     }
-alert('init 02');
+//alert('init 02');
     window.game.show();
   }
-alert('init 03');
+//alert('init 03');
   gadgets.util.registerOnLoadHandler(init);
 </script>
 <link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.css" type="text/css" />
