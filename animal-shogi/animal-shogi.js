@@ -53,6 +53,7 @@ Piece.all = $A();
 Piece.selectByName = function(name) {
   for (var i = 0; i < Piece.all.length; i++) {
     var piece = Piece.all[i];
+window.game.dw.dw('selectByName: ' + piece.toDebugString());
     if (piece.name == name) return piece;
   }
   return null;
@@ -83,17 +84,18 @@ Piece.prototype = {
   },
   initialArrange: function(board) {
     var pos = this.initialPosition;
-    var atTop = this.player.atTop();
-window.game.dw.dw('piece initialArrange : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
-    if (atTop) pos = [2 - pos[0], 3 - pos[1]];
-window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
+//    var atTop = this.player.atTop();
+// window.game.dw.dw('piece initialArrange : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
+    if (this.player.id == 'player2') pos = [2 - pos[0], 3 - pos[1]];
+// window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     board.cells[pos[1]][pos[0]].put(this);
   },
   setPlayer: function(player) {
     this.player = player;
+if (window.game) window.game.dw.dw('piece setPlayer entered: ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
     // if (this.player.mine) {
     // 書き換えをためす
-    if (!this.player.atTop()) {
+    if (!this.atTop()) {
       this.elm.addClassName('mine');
       this.elm.addClassName('bottom');
       this.elm.removeClassName('opponent');
@@ -105,6 +107,7 @@ window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  at
       this.elm.addClassName('opponent');
       this.elm.addClassName('top');
     }
+if (window.game) window.game.dw.dw('leaving piece setPlayer : ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
   },
   atTop : function(){
     if (window.game.top == 1)
@@ -332,14 +335,15 @@ window.game.dw.dw('ordinary turn change?');
     });
   },
   show: function() {
+window.game.dw.dw('entered show of Cell: ' + this.toDebugString());
     if (!this.elm) {
       this.createElm();
     }
     if (this.piece) {
-window.game.dw.dw(this.piece.toDebugString());
+window.game.dw.dw('in show of Cell, processing -> ' + this.piece.toDebugString());
       this.elm.appendChild(this.piece.elm);
       if(this.piece.player.id == 'player1'){
-        if(this.top == 0){
+        if(window.game.top == 0){
           this.piece.elm.addClassName('bottom');
           this.piece.elm.addClassName('mine');
           this.piece.elm.removeClassName('top');
@@ -351,7 +355,7 @@ window.game.dw.dw(this.piece.toDebugString());
           this.piece.elm.removeClassName('mine');
         }
       } else {
-        if(this.top == 0){
+        if(window.game.top == 0){
           this.piece.elm.addClassName('top');
           this.piece.elm.addClassName('opponent');
           this.piece.elm.removeClassName('bottom');
@@ -363,6 +367,7 @@ window.game.dw.dw(this.piece.toDebugString());
           this.piece.elm.removeClassName('opponent');
         }
       }
+window.game.dw.dw('in show of Cell, after process -> ' + this.piece.toDebugString());
     }
   },
   isOpponentFirstLine: function(player) {
@@ -395,6 +400,8 @@ window.game.dw.dw(this.piece.toDebugString());
   toDebugString: function(){
     var ret = '';
     ret += '[' + this.x + ',' + this.y + ']';
+    if(this.top) ret += ', top: ' + this.top;
+    if(this.elm) ret += ', elm: ' + this.elm.id;
     return ret;
   }
 };
@@ -412,9 +419,34 @@ Board = Class.create({
     for (var r = 0; r < this.height; r++) {
       var row = [];
       for (var c = 0; c < this.width; c++) {
-        row.push(new Cell(this, c, r, this.top));
+        row.push(new Cell(this, c, r, game.top));
       }
       this.cells.push(row);
+    }
+  },
+  adjust: function() {
+    if(!this.cells[0][0].elm) return;
+    if(!window.game) return;
+window.game.dw.dw('-------board.adjust entered--top is ' + window.game.top + '  --------------------------------');
+    var marginTop = 0;
+    var marginLeft = 0;
+    var width = 90;
+    if(window.game.top != 1){
+      for (var r = 0; r < this.height; r++) {
+        for (var c = 0; c < this.width; c++) {
+          this.cells[r][c].elm.style.left =  (marginLeft + width * c) + 'px';
+          //this.cells[r][c].elm.style.left =  (marginLeft + width * (this.width - 1 - c)) + 'px';
+          this.cells[r][c].elm.style.top =  (marginLeft + width * r) + 'px';
+          //this.cells[r][c].elm.style.top =  (marginLeft + width * (this.height - 1 - r)) + 'px';
+        }
+      }
+    } else {
+      for (var r = 0; r < this.height; r++) {
+        for (var c = 0; c < this.width; c++) {
+          this.cells[r][c].elm.style.left =  (marginLeft + width * (this.width - 1 - c)) + 'px';
+          this.cells[r][c].elm.style.top =  (marginLeft + width * (this.height - 1 - r)) + 'px';
+        }
+      }
     }
   },
   show: function() {
@@ -447,15 +479,17 @@ Board = Class.create({
     return ret;
   },
   reverse: function(top) {
-
+this.board.adjust();
+/*
     for (var r = 0; r < this.height; r++) {
       for (var c = 0; c < this.width; c++) {
         this.cells[r][c].move(this.height - r - 1,this.width - c - 1); 
       }
     }
-    var tmpAry = this.cells.flatten().reverse();
-    tmpAry.each(function(c){
-      if (c.piece) {
+*/
+//    var tmpAry = this.cells.flatten().reverse();
+//    tmpAry.each(function(c){
+//      if (c.piece) {
 /*
 window.game.dw.dw('piece name : ' + c.piece.name);
 if(c.piece.elm.hasClassName('opponent')){
@@ -471,7 +505,7 @@ if(c.piece.elm.hasClassName('bottom')){
   window.game.dw.dw('bottom found -> ' + c.piece.player);
 }
 */
-        if (c.piece.player.id == 'player1') {
+/*        if (c.piece.player.id == 'player1') {
           if (window.game.top ==  0){
             c.piece.elm.removeClassName('opponent');
             c.piece.elm.removeClassName('top');
@@ -497,8 +531,9 @@ if(c.piece.elm.hasClassName('bottom')){
           }
         }
       }
-    });
-
+*/
+//    });
+/*
     this.cells = [];
     for (var r = 0; r < this.height; r++) {
       var row = [];
@@ -507,6 +542,22 @@ if(c.piece.elm.hasClassName('bottom')){
       }
       this.cells.push(row);
     }
+*/
+  },
+  toDebugString: function(){
+    var ret = '';
+    for (var r = 0; r < this.height; r++) {
+      for (var c = 0; c < this.width; c++) {
+        ret += ('rc:' + r.toString() + c.toString());
+        if(this.cells[r][c].elm){
+          ret += (',left:' + this.cells[r][c].elm.style.left);
+          ret += (',top:' + this.cells[r][c].elm.style.top);
+        }
+        ret += '.';
+      }
+      ret += '<br>';
+    }
+    return ret;
   }
 });
 
@@ -589,6 +640,9 @@ this.dw.dw('06');
       //  viewer == player2 のとき、top = 1 (player2がbottomなので)
       //  viewer がplayerでないとき、top = 0 （先手がbottomがデフォルトであるので)
     this.determineTop();
+      //  Boardのinitializeにおいてはtop=0を前提にstyle.top, style.leftを決めている
+      //  ので、topが決まったこの時点で必要なら修正しておく必要がある
+    this.board.adjust();
 this.dw.dw('07');
   },
   determineTop: function() {
@@ -605,13 +659,15 @@ this.dw.dw('06.4');
       this.top = 0;  // by default
 this.dw.dw('this.top : ' + this.top);
       if (this.player2){
-this.dw.dw('06.5');
-        if (this.player2.name == wave.getViewer().getId())
+this.dw.dw('06.5 this.top is ' + this.top);
+        if (this.player2.name == wave.getViewer().getId()){
 this.dw.dw('06.6');
           this.top = 1;
+        }
+this.dw.dw('after 06.5 this.top : ' + this.top);
       }
    }
-if (this.player2) this.dw.dw('leaving determinTop: player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top);
+if (this.player2) this.dw.dw('leaving determineTop: player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top);
   },
   setPlayer: function(name, opponent) {
     if (!this.player1) {
@@ -660,7 +716,8 @@ this.dw.dw('game.show');
     this.top_by_viewer = this.top;
     this.message('game.top became ' + this.top);
 this.dw.dw('1');
-    this.board.reverse(this.top);
+    // this.board.reverse(this.top);
+    this.board.adjust();
 this.dw.dw('2');
     this.controlPanel.reverse();
 this.dw.dw('3');
@@ -803,19 +860,11 @@ this.dw.dw('leaving processPlayer: viewer: ' + viewer);
   fromState: function(state) {
     this.dw.dw('entered fromState');
     this.processPlayer(state);
+    if(!this.top_by_viewer) this.determineTop();
     var names = [
       'lion_player1', 'giraffe_player1', 'elephant_player1', 'chick_player1',
       'lion_player2', 'giraffe_player2', 'elephant_player2', 'chick_player2'
     ];
-/*
-this.dw.dw('-----Before entering piece loop, check contents.');
-this.dw.dw('Piece.all -- this list is taken from Piece.all :');
-this.dw.dw('<br>' + Piece.all.invoke('toDebugString').join('<br>'));
-this.dw.dw('Piece.all -- this list is taken from Cell.all :');
-Cell.all.each(function(c){
-  window.game.dw.dw('<br>' + c.piece.toDebugString()); });
-this.dw.dw('-----Check end.');
-*/
     for (var i = 0; i < names.length; i++) {
 this.dw.dw('entered the loop of all pieces: ');
       var name = names[i];
@@ -873,10 +922,11 @@ this.dw.dw('captured piece : ' + piece.toDebugString() + ' moved from ' + fromCe
     this.controlPanel.update();
   },
   debug_dump: function(){
-    this.dw.dw('debug_dump start');
+    this.dw.dw('debug_dump start...');
     this.dw.dw('player1 : ' + this.player1.toDebugString());
     this.dw.dw('player2 : ' + (this.player2 ? this.player2.toDebugString() : null));
-    this.dw.dw('turn : ' + this.turn);
+    this.dw.dw('top : ' + this.top + ', turn : ' + this.turn);
+    this.dw.dw('board : ' + this.board.toDebugString());
     this.dw.dw('debugString of each cell from board.cells.each start : ');
     var ret = '<br>';
     this.board.cells.each(function(r){
