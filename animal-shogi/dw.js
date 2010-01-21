@@ -16,7 +16,26 @@ DebugWindow = Class.create({
     this.debugDoc = this.debugWindow.document;
     this.debugIndent = 0;
     this.holdedSign = 'start';
+    this.write_header(title);
     return this;
+  },
+
+  write_header : function write_header(title){
+    this.debugDoc.writeln('<title>' + title + '</title>');
+    this.debugDoc.writeln('<link rel="stylesheet" type="text/css" href="dw.css" media="screen,projection,tv" />');
+  },
+
+  dump_list : function dump_list(obj){
+    var ret = '<div class="dump_list">';
+    ret += '<table>';
+    for (key in obj){
+      ret += '<tr>';
+      ret += ('<td>' + key + '</td>'); 
+      ret += ('<td>' + obj[key] + '</td>'); 
+      ret += '</tr>';
+    }
+    ret += '</table></div>';
+    this.debugDoc.writeln(ret);
   },
 
   dw : function dw(str){
