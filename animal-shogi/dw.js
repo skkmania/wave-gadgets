@@ -11,18 +11,37 @@ DebugWindow = Class.create({
     this.func_msg_flag = false;
     this.debug_msg_flag = false;
     this.dw_All = true;
-
-    this.debugWindow = window.open('', title, 'height=600,left=680,resizable,scrollbars,top=400,width=600');
+    this.debugWindow = window.open('', title, 'resizable,scrollbars,height=800,left=10,top=10,width=600');
     this.debugDoc = this.debugWindow.document;
+    this.debugDoc.writeln('02');
+//    var element = debugDoc.createElement('style');
+//    element.appendChild(debugDoc.createTextNode(''));
+//    debugDoc.getElementsByTagName('head')[0].appendChild(element);
+//    var sheet = element.sheet;
+    
+    // 以下のように CSSStyleSheet の先頭に二つのルールを挿入していく
+//    sheet.insertRule('html body { background: gray }', 0); // 0 番目にこのルールを挿入
+//    sheet.insertRule('html body { background: red }', 0);  // 0 番目にこのルールを挿入
+    this.debugDoc.writeln('01');
+    this.addCss();
+    this.debugDoc.writeln('02');
     this.debugIndent = 0;
     this.holdedSign = 'start';
     this.write_header(title);
     return this;
   },
 
+  addCss : function addCss(){
+  },
+
   write_header : function write_header(title){
     this.debugDoc.writeln('<title>' + title + '</title>');
     this.debugDoc.writeln('<link rel="stylesheet" type="text/css" href="dw.css" media="screen,projection,tv" />');
+    for ( key in this.css ){
+    this.debugDoc.writeln(key);
+    this.debugDoc.writeln(this.css[key]);
+    }
+    this.debugDoc.writeln('');
   },
 
   dump_list : function dump_list(obj){
