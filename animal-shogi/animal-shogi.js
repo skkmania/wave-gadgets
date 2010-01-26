@@ -1,6 +1,13 @@
 HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
 //HOST = '';
 
+function arrange(state){
+  var str = state.toString();
+  var pattern = /\w: '.*'\,/;
+  var ret = str.replace(/\n/g, "<br>");
+  return '<div style="color: #FF0000">' + ret + '</div>';
+}
+
 ControlPanel = Class.create({
   initialize: function(game) {
     this.game = game;
@@ -29,8 +36,30 @@ ControlPanel = Class.create({
        $$('#bottom-captured img').invoke('removeClassName', 'top');
        $$('#bottom-captured img').invoke('removeClassName', 'opponent');
     }
-     this.game.dw.dw('end'); 
+    this._addDrag();
+    this.game.dw.dw('end'); 
   }, 
+  _addDrag: function() {
+window.game.dw.dw('enterd _addDrag');
+    if(this.game.myPlayer){
+      // viewerかつplayer側のpieceにDraggableを追加する
+      Piece.all.each(function(piece){
+        // cellのないpieceが持ち駒。盤上の駒にはすでにDraggableがあるのでさわらない
+        if(!piece.cell && piece.player == this.game.myPlayer)
+          new Draggable(piece.elm, {
+              onStart: function() {
+                window.game.dw.dw('drag started 00 cp _addDrag');
+              },
+            onEnd: function() {
+              this.elm.style.top = 0;
+              this.elm.style.left = 0;
+            }.bind(piece)
+          });
+      });
+    } else {
+      // viewerはplayerではないのでなにもしない
+    }
+  },
   update: function() { // ControlPanel             
     this.game.determineTop();
      this.game.dw.dw('cp update entered. top is ' + this.game.top); 
@@ -64,6 +93,9 @@ Piece.selectByName = function(name) {
 
 Piece.prototype = {
   initialize: function(player) {
+if(window.game) window.game.dw.dw('entered Piece#initialize: ' + this.type + '_' + player.id);
+else
+alert('window.game does not exist.');
     Piece.all.push(this);
     this.name = this.type + '_' + player.id;
     this.cell = null;
@@ -74,6 +106,7 @@ Piece.prototype = {
     this.elm.addClassName('piece');
     this.setPlayer(player);
     if (this.isViewersP()) {
+if(window.game) window.game.dw.dw('adding Draggable in Piece#initialize:' + this.toDebugString());
       new Draggable(this.elm, {
           onStart: function() {
             // alert('drag started 02 piece initialize');
@@ -112,7 +145,7 @@ if (window.game) window.game.dw.dw('piece setPlayer entered: ' + this.name + ', 
     }
 if (window.game) window.game.dw.dw('leaving piece setPlayer : ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
   },
-  atTop : function(){
+  atTop : function(){ // Piece
     if (window.game.top == 1)
       return this.player.id == 'player1';
     else
@@ -128,7 +161,7 @@ window.game.dw.dw('entered Piece.capturedBy: ' + this.name + ' is captured by ' 
     if (this.isViewersP()) {
     //if (this.isMine()) {
       if (window.game.isPlayer()) {
-window.game.dw.dw('adding Draggable');
+window.game.dw.dw('adding Draggable in captureBy piece: ' + this.toDebugString());
         new Draggable(this.elm, {
           onStart: function() {
             // alert('drag started 03 piece capturedBy');
@@ -140,11 +173,11 @@ window.game.dw.dw('adding Draggable');
         });
       }
       $('my-captured').appendChild(this.elm);
-window.game.dw.dw(this.elm.id + ' was appended to my-captured');
+window.game.dw.dw(this.elm.id + ' was appended to my-captured Piece#captured');
     }
     else {
       $('opponent-captured').appendChild(this.elm);
-window.game.dw.dw(this.elm.id + ' was appended to opponent-captured');
+window.game.dw.dw(this.elm.id + ' was appended to opponent-captured Piece#captured');
     }
   },
   canMove: function(fromCell, toCell) {
@@ -162,8 +195,9 @@ window.game.dw.dw('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
     return this.movableArea[dy + 1][dx + 1];
   },
   move: function(fromCell, toCell, notCapture) {  // Piece
-window.game.dw.dw('move entered. this -> ' + this.toDebugString() + ', notCapture: ' + notCapture);
-window.game.dw.dw('from: ' + fromCell.toDebugString() + ', to: ' + toCell.toDebugString() + ', notCapture: ' + notCapture);
+window.game.dw.dw('move entered. piece: ' + this.toDebugString() + ', notCapture: ' + notCapture);
+if(fromCell) window.game.dw.dw('from: ' + fromCell.toDebugString());
+if(toCell) window.game.dw.dw(', to: ' + toCell.toDebugString());
     var capturedPiece = null;
     if (notCapture != undefined){
     if (!notCapture) {
@@ -182,6 +216,7 @@ window.game.dw.dw('this.elm.parentNode -> ' + this.elm.parentNode);
     toCell.elm.appendChild(this.elm);
     if (fromCell) {
       fromCell.piece = null;
+window.game.dw.dw('piece of fromCell:' + fromCell.toDebugString() + ' was nulled.');
     }
 window.game.dw.dw('this is to put to toCell: ' + toCell.toDebugString());
     toCell.put(this);
@@ -198,8 +233,9 @@ window.game.dw.dw('leaving isViewersP.');
 window.game.dw.dw('player: ' + this.player.name + ', viewer: ' + wave.getViewer().getId());
     return this.player.name == wave.getViewer().getId();
   },
-  isGoal: function(cell) {
-    return ( this.atTop() ? (cell.y == 3) : (cell.y == 0) );
+  isGoal: function(cell) { // Piece
+window.game.dw.dw('entered Piece#isGoal: player.id is ' + this.player.id);
+    return ( this.player.id == 'player1' ? (cell.y == 0) : (cell.y == 3) );
   },
   toString: function() { // Piece
     var ret = this.player.id + ',';
@@ -305,7 +341,7 @@ Cell.prototype = {
     this.elm.style.left = (marginLeft + width * toX) + 'px';
     this.elm.style.top = (marginTop + width * toY) + 'px';
   },
-  createElm: function() {
+  createElm: function() {  // Cell
     var marginTop = 0;
     var marginLeft = 0;
     var width = 90;
@@ -325,13 +361,14 @@ window.game.dw.dw('Cell createElm called. game.top is ' + window.game.top);
       this.elm.style.top = (marginTop + width * this.y) + 'px';
     }
     this.board.elm.appendChild(this.elm);
-window.game.dw.dw('Droppables to add ' + this.toDebugString());
+window.game.dw.dw('Droppables to add ' + this.elm.id);
     Droppables.add(this.elm, {
       accept: 'piece',
       onDrop: function(draggable) {
         var fromCell = draggable.parentNode.obj;
         var toCell = this;
-window.game.dw.dw('onDrop called. from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString());
+window.game.dw.dw('onDrop called.');
+// window.game.dw.dw('from ' + fromCell.toString() + ' to ' + toCell.toString());
         var piece = draggable.obj;
 
         if (!window.game.isViewersTurn()) {
@@ -376,6 +413,7 @@ window.game.dw.dw('ordinary turn change?');
         delta[piece.name] = piece.toString();
 	delta['board'] = '3'; // { '00':'b','01':'c' };
         if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
+window.game.dw.dw('<div style="color:#FF0000">sending delta</div>');
         wave.getState().submitDelta(delta);
       }.bind(this)
     });
@@ -833,7 +871,7 @@ this.dw.dw('---leaving without change : x, y -> ' + x + ', ' + y);
   },
   stateChanged: function() {
     var state = wave.getState();
-this.dw.dw('stateChanged: ' + state.toString());
+this.dw.dw('stateChanged: ' + arrange(state));
     this.fromState(state);
 this.dw.dw('leaving stateChanged:');
   },
@@ -905,8 +943,33 @@ this.dw.dw('myPlayer is defined : ' + this.myPlayer);
     }
 this.dw.dw('leaving processPlayer: viewer: ' + viewer);
   },
+  putPieceOnBoard: function(piece, x, y){
+          var xy = this.upsideDownIfNeeded(x, y);
+this.dw.dw('data after upsideDown is  x: ' + xy[0] + ', y:' + y);
+          // var xy = [x, y];
+          var fromCell = piece.cell;
+          var toCell = this.board.getCell(xy[0], xy[1]);
+          if (fromCell != toCell) {
+            piece.move(fromCell, toCell, true);
+this.dw.dw('put piece on board without capturing : ' + piece.toDebugString());
+if(fromCell) this.dw.dw(' moved from ' + fromCell.toDebugString());
+if(toCell) this.dw.dw(' to ' + toCell.toDebugString());
+            this.nextTurn();
+          }
+  },
   sendPieceToStand: function(piece){
 this.dw.dw('entered sendPieceToStand: ' + piece.toDebugString());
+/*
+for (key in piece)
+if(typeof piece[key] != 'function') this.dw.dw('key:' + key + ', piece[' + key + ']:' + piece[key]);
+*/
+    // いまpieceがいるcellのpieceプロパティは消しておく
+if(piece.cell && piece.cell.piece){
+this.dw.dw('piece.cell: ' + piece.cell.toDebugString() + 'is going to be nulled.');
+    piece.cell.piece = null;
+} else {
+this.dw.dw('this piece has no cell.');
+}
     var prefix = 'my';
     if (this.top == 1) {
       if (piece.player.id == 'player1'){
@@ -928,14 +991,17 @@ this.dw.dw('entered sendPieceToStand: ' + piece.toDebugString());
     // まだこの時点ではpiece.cellにはinitialArrangeの情報が残ってしまっているので消す
     piece.cell = null;
     $(prefix + '-captured').appendChild(piece.elm);
+this.dw.dw('piece:' + piece.name + ' was added to ' + prefix + '-captured in Game#sendPieceToStand');
 
     if (prefix == 'my' && this.isPlayer()) {
-this.dw.dw('adding Draggable in sendPieceToStand:');
+window.game.dw.dw('adding Draggable in sendPieceToStand:');
       new Draggable(piece.elm, {
           onStart: function() {
+window.game.dw.dw('drag started 01 game sendPieceToStand');
             // alert('drag started 01 game sendPieceToStand');
           },
         onEnd: function() {
+window.game.dw.dw('drag ended 01 game sendPieceToStand');
           this.elm.style.top = 0;
           this.elm.style.left = 0;
         }.bind(piece)
@@ -950,9 +1016,11 @@ this.dw.dw('adding Draggable in sendPieceToStand:');
       'lion_player1', 'giraffe_player1', 'elephant_player1', 'chick_player1',
       'lion_player2', 'giraffe_player2', 'elephant_player2', 'chick_player2'
     ];
-this.dw.dw('fromState: entering the loop of all pieces: ');
+this.dw.dw('<div style="color:#00FF00">fromState: entering the loop of all pieces:</div>');
+this.dw.dw('the length of names is ' + names.length);
+this.dw.dw('the array names is ' + names.join(':'));
     for (var i = 0; i < names.length; i++) {
-this.dw.dw('***** name from array is: ' + names[i] + ' *******');
+this.dw.dw('<div style="color:#0000FF">***** name from array is: ' + names[i] + ' *******</div>');
       var name = names[i];
       var piece = Piece.selectByName(name);
       var pieceData = state.get(name); // owner,x,y
@@ -968,16 +1036,7 @@ this.dw.dw('this piece is on state:' + name + ', data:' + pieceData + ', owner:'
 
         piece.setPlayer(owner);
         if (x && (x != '')) { // 盤上の駒
-          var xy = this.upsideDownIfNeeded(x, y);
-this.dw.dw('data after upsideDown is  x: ' + xy[0] + ', y:' + y);
-          // var xy = [x, y];
-          var fromCell = piece.cell;
-          var toCell = this.board.getCell(xy[0], xy[1]);
-          if (fromCell != toCell) {
-            piece.move(fromCell, toCell, true);
-this.dw.dw('piece on board: ' + piece.toDebugString() + ' moved from ' + fromCell.toDebugString() + ' to ' + toCell.toDebugString() + 'under true. 1');
-            this.nextTurn();
-          }
+          this.putPieceOnBoard(piece, x, y);
         } else {  // captured
 this.dw.dw('captured piece : ' + piece.toDebugString());
           this.sendPieceToStand(piece);
