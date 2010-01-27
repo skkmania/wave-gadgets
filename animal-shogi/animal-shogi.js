@@ -12,7 +12,7 @@ ControlPanel = Class.create({
   initialize: function(game) {
     this.game = game;
   },
-  reverse: function() {              
+  reverse: function() { // ControlPanel              
      this.game.dw.dw('start reverse cp'); 
       if (this.game.top == 1){                                                
         this.player1Elm = $('top-panel');
@@ -30,9 +30,11 @@ ControlPanel = Class.create({
        $('top-captured').innerHTML = $('bottom-captured').innerHTML;
        $('bottom-captured').innerHTML = tmp;
        $$('#top-captured img').invoke('addClassName', 'top');
+       $$('#top-captured img').invoke('addClassName', 'opponent');
        $$('#top-captured img').invoke('removeClassName', 'bottom');
        $$('#top-captured img').invoke('removeClassName', 'mine');
        $$('#bottom-captured img').invoke('addClassName', 'bottom');
+       $$('#bottom-captured img').invoke('addClassName', 'mine');
        $$('#bottom-captured img').invoke('removeClassName', 'top');
        $$('#bottom-captured img').invoke('removeClassName', 'opponent');
     }
@@ -194,7 +196,7 @@ window.game.dw.dw('dx: ' + dx + ', dy: ' + dy);
 window.game.dw.dw('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
     return this.movableArea[dy + 1][dx + 1];
   },
-  move: function(fromCell, toCell, notCapture) {  // Piece
+  move: function(fromCell, toCell, notCapture, dropOrState) {  // Piece
 window.game.dw.dw('move entered. piece: ' + this.toDebugString() + ', notCapture: ' + notCapture);
 if(fromCell) window.game.dw.dw('from: ' + fromCell.toDebugString());
 if(toCell) window.game.dw.dw(', to: ' + toCell.toDebugString());
@@ -215,13 +217,17 @@ window.game.dw.dw('this.elm.parentNode -> ' + this.elm.parentNode);
     this.elm.parentNode.removeChild(this.elm);
     toCell.elm.appendChild(this.elm);
     if (fromCell) {
-      fromCell.piece = null;
+      if(fromCell.piece.name == this.name){
+        fromCell.piece = null;
 window.game.dw.dw('piece of fromCell:' + fromCell.toDebugString() + ' was nulled.');
+      } else {
+      }
     }
 window.game.dw.dw('this is to put to toCell: ' + toCell.toDebugString());
     toCell.put(this);
 window.game.dw.dw('this was put to toCell: ' + toCell.toDebugString());
-    if (fromCell && this.type == 'chick' && toCell.isOpponentFirstLine(this.player)) {
+    if (dropOrState == 'onDrop' && fromCell && this.type == 'chick' && toCell.isOpponentFirstLine(this.player)) {
+window.game.dw.dw('chick is becoming special');
       this.becomeSpecial();
     }
 window.game.dw.dw('leaving move.');
@@ -251,6 +257,7 @@ window.game.dw.dw('entered Piece#isGoal: player.id is ' + this.player.id);
     var ret = 'name:' + this.name + ', ';
     ret += ('player_id:' + this.player.id + ', ');
     if (this.cell && this.cell.elm) ret += ('cell_name:' + this.cell.elm.id);
+    else ret += '[no cell]';
     ret += (', cn: ' + this.elm.className);
     return ret;
   }
@@ -367,8 +374,9 @@ window.game.dw.dw('Droppables to add ' + this.elm.id);
       onDrop: function(draggable) {
         var fromCell = draggable.parentNode.obj;
         var toCell = this;
-window.game.dw.dw('onDrop called.');
-// window.game.dw.dw('from ' + fromCell.toString() + ' to ' + toCell.toString());
+window.game.dw.dw('<span style="color:#888800">onDrop called.</span>');
+if(fromCell) window.game.dw.dw('from: ' + fromCell.toDebugString());
+if(toCell) window.game.dw.dw(', to: ' + toCell.toDebugString());
         var piece = draggable.obj;
 
         if (!window.game.isViewersTurn()) {
@@ -387,11 +395,11 @@ window.game.dw.dw('canMove passed.');
             window.game.message(t('cannot_capture_yourown_piece')); return;
           } else {
 window.game.dw.dw('piece moving and capturing.');
-            capturedPiece = piece.move(fromCell, toCell, false);
+            capturedPiece = piece.move(fromCell, toCell, false, 'onDrop');
           }
         } else {
 window.game.dw.dw('piece moving without capturing.');
-          piece.move(fromCell, toCell, true);
+          piece.move(fromCell, toCell, true, 'onDrop');
         }
 
         if (
@@ -565,32 +573,7 @@ window.game.dw.dw('leaving Board.show');
     ret += ']';
     return ret;
   },
-  reverse: function(top) {
-/*
-    for (var r = 0; r < this.height; r++) {
-      for (var c = 0; c < this.width; c++) {
-        this.cells[r][c].move(this.height - r - 1,this.width - c - 1); 
-      }
-    }
-*/
-//    var tmpAry = this.cells.flatten().reverse();
-//    tmpAry.each(function(c){
-//      if (c.piece) {
-/*
-window.game.dw.dw('piece name : ' + c.piece.name);
-if(c.piece.elm.hasClassName('opponent')){
-  window.game.dw.dw('opponent found -> ' + c.piece.player);
-}
-if(c.piece.elm.hasClassName('mine')){
-  window.game.dw.dw('mine found -> ' + c.piece.player);
-}
-if(c.piece.elm.hasClassName('top')){
-  window.game.dw.dw('top found -> ' + c.piece.player);
-}
-if(c.piece.elm.hasClassName('bottom')){
-  window.game.dw.dw('bottom found -> ' + c.piece.player);
-}
-*/
+  reverse: function(top) { // Board
 window.game.dw.dw('reverse called.');
     this.cells.flatten().each(function(c){
 window.game.dw.dw('reverse called. cell is ' + c.toDebugString());
@@ -624,16 +607,6 @@ window.game.dw.dw('reverse class name called. piece is ' + c.piece.toDebugString
 window.game.dw.dw('reverse class name after process. ' + c.piece.toDebugString());
       }
     });
-/*
-    this.cells = [];
-    for (var r = 0; r < this.height; r++) {
-      var row = [];
-      for (var c = 0; c < this.width; c++) {
-        row.push(tmpAry[c + r*this.width]);
-      }
-      this.cells.push(row);
-    }
-*/
   },
   toDebugString: function(){
     var ret = '';
@@ -767,6 +740,7 @@ if (this.player2) this.dw.dw('leaving determineTop: player2.name : ' + this.play
         if (!opponent) this.myPlayer = this.player2;
         this.determineTop();
         this.controlPanel.update();
+        this.message('');
         this.start();
         wave.getState().submitDelta({
           player2:name
@@ -939,6 +913,7 @@ this.dw.dw('leaving processPlayer: processing Player2: ');
     this.determineTop();
 this.dw.dw('myPlayer is defined : ' + this.myPlayer);
     if (this.player1 && this.player2) {
+      this.message('');
       $('join-button').hide();
     }
 this.dw.dw('leaving processPlayer: viewer: ' + viewer);
@@ -950,7 +925,7 @@ this.dw.dw('data after upsideDown is  x: ' + xy[0] + ', y:' + y);
           var fromCell = piece.cell;
           var toCell = this.board.getCell(xy[0], xy[1]);
           if (fromCell != toCell) {
-            piece.move(fromCell, toCell, true);
+            piece.move(fromCell, toCell, true, 'fromState');
 this.dw.dw('put piece on board without capturing : ' + piece.toDebugString());
 if(fromCell) this.dw.dw(' moved from ' + fromCell.toDebugString());
 if(toCell) this.dw.dw(' to ' + toCell.toDebugString());
@@ -963,10 +938,14 @@ this.dw.dw('entered sendPieceToStand: ' + piece.toDebugString());
 for (key in piece)
 if(typeof piece[key] != 'function') this.dw.dw('key:' + key + ', piece[' + key + ']:' + piece[key]);
 */
-    // いまpieceがいるcellのpieceプロパティは消しておく
 if(piece.cell && piece.cell.piece){
+  if(piece.name == piece.cell.piece.name){
+    // いまpieceがいるcellのpieceプロパティが、自分をさしているなら、それは消しておく
 this.dw.dw('piece.cell: ' + piece.cell.toDebugString() + 'is going to be nulled.');
     piece.cell.piece = null;
+  } else {
+    // fromStateの処理からここにきたとき、このcellにはすでに他の駒がきている場合があるのでそのときはなにもしない
+  }
 } else {
 this.dw.dw('this piece has no cell.');
 }
