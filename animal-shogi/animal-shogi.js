@@ -87,8 +87,6 @@ Piece.selectByName = function(name) {
 
 Piece.prototype = {
   initialize: function(player) {
-else
-alert('window.game does not exist.');
     Piece.all.push(this);
     this.name = this.type + '_' + player.id;
     this.cell = null;
@@ -210,14 +208,6 @@ alert('window.game does not exist.');
       var xy = window.game.upsideDownIfNeeded(this.cell.x, this.cell.y);
       ret += xy[0] + ',' + xy[1];
     }
-    return ret;
-  },
-  toDebugString: function() {  // Piece
-    var ret = 'name:' + this.name + ', ';
-    ret += ('player_id:' + this.player.id + ', ');
-    if (this.cell && this.cell.elm) ret += ('cell_name:' + this.cell.elm.id);
-    else ret += '[no cell]';
-    ret += (', cn: ' + this.elm.className);
     return ret;
   }
 }
@@ -434,14 +424,6 @@ Cell.prototype = {
     else {
       return '';
     }
-  },
-  toDebugString: function(){  // Cell
-    var ret = '';
-    ret += '[' + this.x + ',' + this.y + ']';
-    if(this.top) ret += ', top: ' + this.top;
-    if(this.elm) ret += ', elm: ' + this.elm.id;
-    if(this.piece) ret += ', piece: ' + this.piece.name;
-    return ret;
   }
 };
 
@@ -546,21 +528,6 @@ Board = Class.create({
         }
       }
     });
-  },
-  toDebugString: function(){
-    var ret = '';
-    for (var r = 0; r < this.height; r++) {
-      for (var c = 0; c < this.width; c++) {
-        ret += ('rc:' + r.toString() + c.toString());
-        if(this.cells[r][c].elm){
-          ret += (',left:' + this.cells[r][c].elm.style.left);
-          ret += (',top:' + this.cells[r][c].elm.style.top);
-        }
-        ret += '.';
-      }
-      ret += '<br>';
-    }
-    return ret;
   }
 });
 
@@ -598,9 +565,6 @@ Player = Class.create({
   },
   toString: function() { // Player
     return this.name;
-  },
-  toDebugString: function() {
-    return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop() + ', ' + this.pieces.invoke('toDebugString').join(':'); 
   }
 });
 
@@ -696,7 +660,6 @@ AnimalShogiGame = Class.create({
   reverse: function() {
     this.top = (this.top == 0 ? 1 : 0);
     this.top_by_viewer = this.top;
-    this.message('game.top became ' + this.top);
     this.board.reverse();
     this.board.adjust();
     this.controlPanel.reverse();
@@ -805,7 +768,6 @@ AnimalShogiGame = Class.create({
       var isMeMaybe = (pl1 != viewer);
       this.top = (pl2 == viewer ? 1 : 0);
       this.player2 = new Player('player2', pl2, isMeMaybe, this.top);
-this.debug_dump();
       this.controlPanel.update();
       this.start();
     }
