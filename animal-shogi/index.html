@@ -40,23 +40,34 @@
       <button onclick="javascript:$('json').innerHTML = window.game.toHTML()">toJSON</button>
     </div>
     <div id="sidebar">
-      <div id="player1-panel" class="player"><script>it('sente');it('waiting');</script></div>
+      <div id="control-panel" class="sidebar-panel">
+        <h2><script>it('player')</script></h2>
+      </div>
+
+      <div id="player1-panel" class="player">
+        <script>it('sente');it('waiting');</script>
+      </div>
       <div id="captured-top" class="sidebar-panel">
-        <h2><script>it('others_captured')</script></h2>
+        <h2><script>it('captured')</script></h2>
         <div id="top-captured"></div>
       </div>
       <div id="message" class="sidebar-panel">
         <h2><script>it('message')</script></h2>
         <div id="message-body"></div>
       </div>
-      <div id="player2-panel" class="player"><script>it('gote');it('waiting');</script></div>
+
+      <div id="player2-panel" class="player">
+        <script>it('gote');it('waiting');</script>
+      </div>
       <div id="captured-bottom" class="sidebar-panel">
-        <h2><script>it('my_captured')</script></h2>
+        <h2><script>it('captured')</script></h2>
         <div id="bottom-captured"></div>
       </div>
+
       <div style="text-align:left;">
     	<button id="reverse-button" class="reverse" onclick="window.game.reverse()); this.hide();"><script>it('reverse')</script></button>
       </div>
+
       <div style="text-align:right;">
         <a href="http://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi" target="_blank">Help</a>
       </div>
