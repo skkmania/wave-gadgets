@@ -378,6 +378,10 @@ Player = Class.create({
     return this.name.split('@').first();
   },
   statusHtml: function() {
+// playerのshort nameのspan のHTMLを返す。mine, turnのどちらかあるいは両方をclassとして指定する。
+// classの意味（効果はcssで次のように定義されている。）
+// mine は下線をひく
+// turn は背景色を黄色にする
     var classNames = this.mine ? 'mine' : '';
     if (window.game.getTurn() == this) classNames += ' turn';
     return '<span class="' + classNames + '">' + this.shortName() + '</span>';
