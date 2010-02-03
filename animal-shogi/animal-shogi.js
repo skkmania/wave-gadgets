@@ -1,5 +1,4 @@
 HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
-//HOST = '';
 
 function arrange(state){
   var str = state.toString();
@@ -8,6 +7,46 @@ function arrange(state){
   return '<div style="color: #FF0000">' + ret + '</div>';
 }
 
+function sendDelta(piece, capturedPiece){
+        // 送信
+        var delta = {};
+        delta['turn'] = window.game.getTurn().id;
+        delta[piece.name] = piece.toString();
+        if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
+window.game.dw.dw('<div style="color:#FF0000">sending delta</div>');
+        wave.getState().submitDelta(delta);
+}
+
+function moveValidate(piece, fromCell, toCell){
+
+        if (!window.game.isViewersTurn()) {
+          window.game.message(t('not_your_turn')); return false;
+        }
+        if (!fromCell && toCell.piece) {
+          window.game.message(t('already_occupied')); return false;
+        }
+        if (!piece.canMove(fromCell, toCell)) {
+          window.game.message(t('not_allowed')); return false;
+        }
+	return true;
+}
+
+function checkFinish(capturedPiece, piece, toCell){
+          return (
+          // 相手のライオンを捕獲
+          (capturedPiece && capturedPiece.type == 'lion') || 
+          // 自分のライオンが最奥に到達
+          (piece.type == 'lion' && piece.isGoal(toCell) && window.game.isSafety(piece))
+	  );
+}
+
+ControlPanel = Class.create({
+  initialize: function(game) {
+    this.game = game;
+  },
+  reverse: function() { // ControlPanel              
+     this.game.dw.dw('start reverse cp'); 
+      if (this.game.top == 1){                                                
 ControlPanel = Class.create({
   initialize: function(game) {
     this.game = game;
