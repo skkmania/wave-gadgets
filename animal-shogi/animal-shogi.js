@@ -7,46 +7,6 @@ function arrange(state){
   return '<div style="color: #FF0000">' + ret + '</div>';
 }
 
-function sendDelta(piece, capturedPiece){
-        // 送信
-        var delta = {};
-        delta['turn'] = window.game.getTurn().id;
-        delta[piece.name] = piece.toString();
-        if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
-window.game.dw.dw('<div style="color:#FF0000">sending delta</div>');
-        wave.getState().submitDelta(delta);
-}
-
-function moveValidate(piece, fromCell, toCell){
-
-        if (!window.game.isViewersTurn()) {
-          window.game.message(t('not_your_turn')); return false;
-        }
-        if (!fromCell && toCell.piece) {
-          window.game.message(t('already_occupied')); return false;
-        }
-        if (!piece.canMove(fromCell, toCell)) {
-          window.game.message(t('not_allowed')); return false;
-        }
-	return true;
-}
-
-function checkFinish(capturedPiece, piece, toCell){
-          return (
-          // 相手のライオンを捕獲
-          (capturedPiece && capturedPiece.type == 'lion') || 
-          // 自分のライオンが最奥に到達
-          (piece.type == 'lion' && piece.isGoal(toCell) && window.game.isSafety(piece))
-	  );
-}
-
-ControlPanel = Class.create({
-  initialize: function(game) {
-    this.game = game;
-  },
-  reverse: function() { // ControlPanel              
-     this.game.dw.dw('start reverse cp'); 
-      if (this.game.top == 1){                                                
 ControlPanel = Class.create({
   initialize: function(game) {
     this.game = game;
@@ -418,15 +378,7 @@ if(fromCell) window.game.dw.dw('from: ' + fromCell.toDebugString());
 if(toCell) window.game.dw.dw(', to: ' + toCell.toDebugString());
         var piece = draggable.obj;
 
-        if (!window.game.isViewersTurn()) {
-          window.game.message(t('not_your_turn')); return;
-        }
-        if (!fromCell && toCell.piece) {
-          window.game.message(t('already_occupied')); return;
-        }
-        if (!piece.canMove(fromCell, toCell)) {
-          window.game.message(t('not_allowed')); return;
-        }
+        if (!moveValidate(piece, fromCell, toCell)) return;
 window.game.dw.dw('canMove passed.');
         var capturedPiece = null;
         if (toCell.piece){
@@ -441,27 +393,11 @@ window.game.dw.dw('piece moving without capturing.');
           piece.move(fromCell, toCell, true, 'onDrop');
         }
 
-        if (
-          // 相手のライオンを捕獲
-          (capturedPiece && capturedPiece.type == 'lion') || 
-          // 自分のライオンが最奥に到達
-          (piece.type == 'lion' && piece.isGoal(toCell) && window.game.isSafety(piece))
-        ) {
+        if (checkFinish(capturedPiece, piece, toCell))
           window.game.finish(piece.player);
-        }
-        else {
-window.game.dw.dw('ordinary turn change?');
+        else 
           window.game.nextTurn();
-        }
-
-        // 送信
-        var delta = {};
-        delta['turn'] = window.game.getTurn().id;
-        delta[piece.name] = piece.toString();
-	delta['board'] = '3'; // { '00':'b','01':'c' };
-        if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
-window.game.dw.dw('<div style="color:#FF0000">sending delta</div>');
-        wave.getState().submitDelta(delta);
+        sendDelta(piece, capturedPiece);
       }.bind(this)
     });
   },
@@ -1087,4 +1023,35 @@ this.dw.dw('leaving fromState : ');
     this.dw.dump_list(obj);
   }
 });
+function sendDelta(piece, capturedPiece){
+        // 送信
+        var delta = {};
+        delta['turn'] = window.game.getTurn().id;
+        delta[piece.name] = piece.toString();
+        if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
+window.game.dw.dw('<div style="color:#FF0000">sending delta</div>');
+        wave.getState().submitDelta(delta);
+}
 
+function moveValidate(piece, fromCell, toCell){
+
+        if (!window.game.isViewersTurn()) {
+          window.game.message(t('not_your_turn')); return false;
+        }
+        if (!fromCell && toCell.piece) {
+          window.game.message(t('already_occupied')); return false;
+        }
+        if (!piece.canMove(fromCell, toCell)) {
+          window.game.message(t('not_allowed')); return false;
+        }
+	return true;
+}
+
+function checkFinish(capturedPiece, piece, toCell){
+          return (
+          // 相手のライオンを捕獲
+          (capturedPiece && capturedPiece.type == 'lion') || 
+          // 自分のライオンが最奥に到達
+          (piece.type == 'lion' && piece.isGoal(toCell) && window.game.isSafety(piece))
+	  );
+}
