@@ -1,4 +1,4 @@
-HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
+HOST = 'http://skkmania.github.com/wave-gadgets/animal-shogi/';
 
 function arrange(state){
   var str = state.toString();

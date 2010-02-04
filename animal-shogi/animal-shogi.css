@@ -1,9 +1,10 @@
 @charset "UTF-8";
 @import "dw.css";
+/*
 #test {
   display: none;
 }
-
+*/
 #animal-shogi {
   margin: 20px;
   width: 270px;

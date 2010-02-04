@@ -6,15 +6,15 @@
 </ModulePrefs>
 <Content type="html">
 <![CDATA[ 
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/prototype.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/scriptaculous.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/builder.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/effects.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/controls.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/slider.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/dragdrop.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/m17n.js" charset="UTF-8"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
+<script src="http://skkmania.github.com/wave-gadgets/animal-shogi/prototype.js"></script>
+<script src="http://skkmania.github.com/wave-gadgets/animal-shogi/scriptaculous.js"></script>
+<script src="http://skkmania.github.com/wave-gadgets/animal-shogi/builder.js"></script>
+<script src="http://skkmania.github.com/wave-gadgets/animal-shogi/effects.js"></script>
+<script src="http://skkmania.github.com/wave-gadgets/animal-shogi/controls.js"></script>
+<script src="http://skkmania.github.com/wave-gadgets/animal-shogi/slider.js"></script>
+<script src="http://skkmania.github.com/wave-gadgets/animal-shogi/dragdrop.js"></script>
+<script src="http://skkmania.github.com/wave-gadgets/animal-shogi/m17n.js" charset="UTF-8"></script>
+<script src="http://skkmania.github.com/wave-gadgets/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
 <script>
   function init() {
     window.game = new AnimalShogiGame({containerId:'animal-shogi'});
@@ -25,7 +25,7 @@
   }
   gadgets.util.registerOnLoadHandler(init);
 </script>
-<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.css" type="text/css" />
+<link rel="stylesheet" href="http://skkmania.github.com/wave-gadgets/animal-shogi/animal-shogi.css" type="text/css" />
 
 <div id="sidebar">
   <div id="control-panel" class="sidebar-panel">
