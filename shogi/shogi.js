@@ -159,18 +159,12 @@ if(window.game) window.game.dw.dw('adding Draggable in Piece#initialize:' + this
   setPlayer: function(player) {
     this.player = player;
 if (window.game) window.game.dw.dw('piece setPlayer entered: ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
-    // if (this.player.mine) {
-    // 書き換えをためす
     if (!this.atTop()) {
-      this.elm.addClassName('mine');
       this.elm.addClassName('bottom');
-      this.elm.removeClassName('opponent');
       this.elm.removeClassName('top');
     }
     else {
-      this.elm.removeClassName('mine');
       this.elm.removeClassName('bottom');
-      this.elm.addClassName('opponent');
       this.elm.addClassName('top');
     }
 if (window.game) window.game.dw.dw('leaving piece setPlayer : ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
@@ -578,26 +572,18 @@ window.game.dw.dw('reverse called. cell is ' + c.toDebugString());
 window.game.dw.dw('reverse class name called. piece is ' + c.piece.toDebugString());
         if (c.piece.player.id == 'player1') {
           if (window.game.top ==  0){
-            c.piece.elm.removeClassName('opponent');
             c.piece.elm.removeClassName('top');
-            c.piece.elm.addClassName('mine');
             c.piece.elm.addClassName('bottom');
           } else {
-            c.piece.elm.removeClassName('mine');
             c.piece.elm.removeClassName('bottom');
-            c.piece.elm.addClassName('opponent');
             c.piece.elm.addClassName('top');
           }
         } else {
           if (window.game.top ==  0){
-            c.piece.elm.removeClassName('mine');
             c.piece.elm.removeClassName('bottom');
-            c.piece.elm.addClassName('opponent');
             c.piece.elm.addClassName('top');
           } else {
-            c.piece.elm.removeClassName('opponent');
             c.piece.elm.removeClassName('top');
-            c.piece.elm.addClassName('mine');
             c.piece.elm.addClassName('bottom');
           }
         }
@@ -953,16 +939,12 @@ this.dw.dw('this piece has no cell.');
       if (piece.player.id == 'player1'){
         prefix = 'opponent';
         piece.elm.addClassName('top');
-        piece.elm.addClassName('opponent');
-        piece.elm.removeClassName('mine');
         piece.elm.removeClassName('bottom');
       }
     } else {
       if (piece.player.id == 'player2'){
         prefix = 'opponent';
         piece.elm.addClassName('top');
-        piece.elm.addClassName('opponent');
-        piece.elm.removeClassName('mine');
         piece.elm.removeClassName('bottom');
       }
     }
