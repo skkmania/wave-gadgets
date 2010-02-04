@@ -62,13 +62,9 @@ ControlPanel = Class.create({
        $('top-captured').innerHTML = $('bottom-captured').innerHTML;
        $('bottom-captured').innerHTML = tmp;
        $$('#top-captured img').invoke('addClassName', 'top');
-       $$('#top-captured img').invoke('addClassName', 'opponent');
        $$('#top-captured img').invoke('removeClassName', 'bottom');
-       $$('#top-captured img').invoke('removeClassName', 'mine');
        $$('#bottom-captured img').invoke('addClassName', 'bottom');
-       $$('#bottom-captured img').invoke('addClassName', 'mine');
        $$('#bottom-captured img').invoke('removeClassName', 'top');
-       $$('#bottom-captured img').invoke('removeClassName', 'opponent');
     }
     this._addDrag();
     this.game.dw.dw('end'); 

@@ -30,12 +30,13 @@ img.piece {
   margin: 5px;
 */
 }
+/*
 img.opponent {
   -moz-transform: rotate(180deg);
   -webkit-transform: rotate(180deg);
   filter: progid:DXImageTransform.Microsoft.basicimage(rotation=2);
 }
-/*
+*/
 img.top {
   -moz-transform: rotate(180deg);
   -webkit-transform: rotate(180deg);
@@ -45,7 +46,6 @@ img.bottom {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
 }
-*/
 .sidebar-panel {
   border: 1px solid black;
   width: 170px;
