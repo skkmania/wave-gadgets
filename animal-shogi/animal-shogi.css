@@ -6,14 +6,14 @@
 
 #animal-shogi {
   margin: 20px;
-  width: 270px;
-  height: 360px;
+  width: 450px;
+  height: 450px;
   position: relative;
   background-image: url(savanna.png);
 }
 div.cell {
-  width: 80px;
-  height: 80px;
+  width: 40px;
+  height: 40px;
   padding: 5px;
   border: 1px solid white;
   position: absolute;
@@ -69,7 +69,7 @@ span.turn {
 }
 #sidebar {
   margin: 20px;
-  margin-left: 300px;
+  margin-left: 480px;
   margin-top: 0;
   float: left;
 }
