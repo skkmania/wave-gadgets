@@ -322,23 +322,19 @@ Cell.prototype = {
     this.x = x;
     this.y = y;
     this.top = top;
+    this.marginTop = 0;
+    this.marginLeft = 0;
+    this.width = 40;
   },
   put: function(piece) {
     this.piece = piece;
     this.piece.cell = this;
   },
   move: function(toY,toX){
-    var marginTop = 0;
-    var marginLeft = 0;
-    var width = 90;
-    this.elm.style.left = (marginLeft + width * toX) + 'px';
-    this.elm.style.top = (marginTop + width * toY) + 'px';
+    this.elm.style.left = (this.marginLeft + this.width * toX) + 'px';
+    this.elm.style.top = (this.marginTop + this.width * toY) + 'px';
   },
   createElm: function() {  // Cell
-    var marginTop = 0;
-    var marginLeft = 0;
-    var width = 90;
-
     this.elm = document.createElement('div');
     this.elm.id = 'cell-' + this.x + '-' + this.y;
     this.elm.obj = this;
@@ -347,11 +343,11 @@ window.game.dw.dw('Cell createElm called. game.top is ' + window.game.top);
     if (window.game.top == 1){
       var bw = window.game.board.width;
       var bh = window.game.board.height;
-      this.elm.style.left = (marginLeft + width * (bw - 1 - this.x)) + 'px';
-      this.elm.style.top = (marginTop + width * (bh - 1 - this.y)) + 'px';
+      this.elm.style.left = (this.marginLeft + this.width * (bw - 1 - this.x)) + 'px';
+      this.elm.style.top = (this.marginTop + this.width * (bh - 1 - this.y)) + 'px';
     } else {
-      this.elm.style.left = (marginLeft + width * this.x) + 'px';
-      this.elm.style.top = (marginTop + width * this.y) + 'px';
+      this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
+      this.elm.style.top = (this.marginTop + this.width * this.y) + 'px';
     }
     this.board.elm.appendChild(this.elm);
 window.game.dw.dw('Droppables to add ' + this.elm.id);
@@ -457,8 +453,8 @@ window.game.dw.dw('entered Cell.capturedBy: player is ' + player.toDebugString()
 Board = Class.create({
   initialize: function(elm, game) {
     this.top = game.top;
-    this.width = 3;
-    this.height = 4;
+    this.width = 9;
+    this.height = 9;
     this.boardData = [];
     this.blackStand = '';
     this.whiteStand = '';
@@ -476,9 +472,9 @@ Board = Class.create({
     if(!this.cells[0][0].elm) return;
     if(!window.game) return;
 window.game.dw.dw('-------board.adjust entered--top is ' + window.game.top + '  --------------------------------');
-    var marginTop = 0;
-    var marginLeft = 0;
-    var width = 90;
+    var marginTop = this.cells[0][0].marginTop;
+    var marginLeft = this.cells[0][0].marginLeft;
+    var width = this.cells[0][0].width;
     if(window.game.top != 1){
       for (var r = 0; r < this.height; r++) {
         for (var c = 0; c < this.width; c++) {

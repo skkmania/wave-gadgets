@@ -54,7 +54,7 @@
       <div style="text-align:left;">
     	<button id="reverse-button" class="reverse t" onclick="window.game.reverse();">reverse</button>
       </div>
-      <div style="text-align:right;">
+      <div style="float:right;text-align:right;">
     	<button id="dump-button" class="dump t" onclick="window.game.debug_dump();">dump</button>
       </div>
 
