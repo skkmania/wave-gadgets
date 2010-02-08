@@ -19,6 +19,13 @@ div.cell {
   position: absolute;
   /*background-image: url(savanna.png);*/
 }
+div.colNum {
+  margin-top: 20px;
+  margin-left: 15px;
+}
+div.rowNum {
+  margin-top: 10px;
+}
 img.piece {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;

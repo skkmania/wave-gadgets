@@ -335,6 +335,32 @@ Cell.prototype = {
     this.elm.style.left = (this.marginLeft + this.width * toX) + 'px';
     this.elm.style.top = (this.marginTop + this.width * toY) + 'px';
   },
+  createDummyElm: function() {  // Cell
+    this.elm = document.createElement('div');
+    this.elm.id = 'dummyCell-' + this.x + '-' + this.y;
+    this.elm.obj = this;
+    this.elm.addClassName('dummyCell');
+    if (window.game.top == 1){
+      var bw = window.game.board.width;
+      var bh = window.game.board.height;
+      this.elm.style.left = (this.marginLeft + this.width * (bw - 1 - this.x)) + 'px';
+      this.elm.style.top = (this.marginTop + this.width * (bh - 1 - this.y)) + 'px';
+    } else {
+      this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
+      this.elm.style.top = (this.marginTop + this.width * this.y) + 'px';
+    }
+    this.dummyPiece = document.createElement('div');
+    if(this.x === 0){
+      this.dummyPiece.addClassName('colNum');
+      this.dummyPiece.innerHTML = this.y;
+    }
+    if(this.y === 0){
+      this.dummyPiece.addClassName('rowNum');
+      this.dummyPiece.innerHTML = this.x;
+    }
+    this.elm.appendChild(this.dummyPiece);
+    this.board.elm.appendChild(this.elm);
+  },
   createElm: function() {  // Cell
     this.elm = document.createElement('div');
     this.elm.id = 'cell-' + this.x + '-' + this.y;
@@ -385,10 +411,10 @@ window.game.dw.dw('piece moving without capturing.');
       }.bind(this)
     });
   },
-  show: function() {
+  show: function() { // Cell
 window.game.dw.dw('entered show of Cell: ' + this.toDebugString());
     if (!this.elm) {
-      this.createElm();
+      (this.x === 0 || this.y === 0) ? this.createDummyElm() : this.createElm();
     }
     if (this.piece) {
 window.game.dw.dw('in show of Cell, processing -> ' + this.piece.toDebugString());
@@ -453,6 +479,7 @@ window.game.dw.dw('entered Cell.capturedBy: player is ' + player.toDebugString()
 
 Board = Class.create({
   initialize: function(elm, game) {
+    this.game = game;
     this.top = game.top;
     this.width = 10;  // 0 is dummy
     this.height = 10;
@@ -472,11 +499,11 @@ Board = Class.create({
   adjust: function() {
     if(!this.cells[0][0].elm) return;
     if(!window.game) return;
-window.game.dw.dw('-------board.adjust entered--top is ' + window.game.top + '  --------------------------------');
+this.game.dw.dw('-------board.adjust entered--top is ' + this.game.top + '  --------------------------------');
     var marginTop = this.cells[0][0].marginTop;
     var marginLeft = this.cells[0][0].marginLeft;
     var width = this.cells[0][0].width;
-    if(window.game.top != 1){
+    if(this.game.top != 1){
       for (var r = 0; r < this.height; r++) {
         for (var c = 0; c < this.width; c++) {
           this.cells[r][c].elm.style.left =  (marginLeft + width * c) + 'px';
@@ -498,7 +525,7 @@ window.game.dw.dw('-------board.adjust entered--top is ' + window.game.top + '  
     this.each(function(cell) {
       cell.show();
     });
-window.game.dw.dw('leaving Board.show');
+this.game.dw.dw('leaving Board.show');
   },
   each: function(block) {
     for (var r = 0; r < this.height; r++) {
@@ -525,11 +552,11 @@ window.game.dw.dw('leaving Board.show');
     return ret;
   },
   reverse: function(top) { // Board
-window.game.dw.dw('reverse called.');
+this.game.dw.dw('reverse called.');
     this.cells.flatten().each(function(c){
-window.game.dw.dw('reverse called. cell is ' + c.toDebugString());
+this.game.dw.dw('reverse called. cell is ' + c.toDebugString());
       if (c.piece) {
-window.game.dw.dw('reverse class name called. piece is ' + c.piece.toDebugString());
+this.game.dw.dw('reverse class name called. piece is ' + c.piece.toDebugString());
         if (c.piece.player.id == 'player1') {
           if (window.game.top === 0){
             c.piece.elm.removeClassName('top');
@@ -547,7 +574,7 @@ window.game.dw.dw('reverse class name called. piece is ' + c.piece.toDebugString
             c.piece.elm.addClassName('bottom');
           }
         }
-window.game.dw.dw('reverse class name after process. ' + c.piece.toDebugString());
+this.game.dw.dw('reverse class name after process. ' + c.piece.toDebugString());
       }
     });
   },
@@ -631,7 +658,9 @@ AnimalShogiGame = Class.create({
     this.settings = settings;
     this.container = $(settings.containerId);
     this.controlPanel = new ControlPanel(this);
+    this.dw.dw('CP created.');
     this.board = new Board(this.container, this);
+    this.dw.dw('Board created.');
     this.mode = 'init';
     this.message(t('click_join_button'));
     this.turn = null;
@@ -705,7 +734,7 @@ if (this.player2) this.dw.dw('leaving determineTop: player2.name : ' + this.play
   clearMessage: function() {
     this.message('');
   },
-  show: function() {
+  show: function() { // game
 this.dw.dw('game.show');
     //this.board.show();
   },
