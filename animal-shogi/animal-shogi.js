@@ -114,10 +114,11 @@ if(window.game) window.game.dw.dw('adding Draggable in Piece#initialize:' + this
     }
   },
   initialArrange: function(board) {  // Piece
+window.game.dw.dw('entered piece initialArrange : ');
     var pos = this.initialPosition;
-//    var atTop = this.player.atTop();
-// window.game.dw.dw('piece initialArrange : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
-    if (this.player.id == 'player2') pos = [2 - pos[0], 3 - pos[1]];
+    var atTop = this.player.atTop();
+window.game.dw.dw('piece initialArrange : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
+    if (this.player.id == 'player2') pos = [3 - pos[0], 4 - pos[1]];
 // window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     board.cells[pos[1]][pos[0]].put(this);
   },
@@ -227,7 +228,7 @@ window.game.dw.dw('player: ' + this.player.name + ', viewer: ' + wave.getViewer(
   },
   isGoal: function(cell) { // Piece
 window.game.dw.dw('entered Piece#isGoal: player.id is ' + this.player.id);
-    return ( this.player.id == 'player1' ? (cell.y === 0) : (cell.y === 3) );
+    return ( this.player.id == 'player1' ? (cell.y === 1) : (cell.y === 4) );
   },
   toString: function() { // Piece
     var ret = this.player.id + ',';
@@ -240,7 +241,7 @@ window.game.dw.dw('entered Piece#isGoal: player.id is ' + this.player.id);
     return ret;
   },
   toDebugString: function() {  // Piece
-    var ret = 'name:' + this.name + ', ';
+    var ret = 'name:<span style="color: #3F8080">' + this.name + '</span>, ';
     ret += ('player_id:' + this.player.id + ', ');
     if (this.cell && this.cell.elm) ret += ('cell_name:' + this.cell.elm.id);
     else ret += '[no cell]';
@@ -252,7 +253,7 @@ window.game.dw.dw('entered Piece#isGoal: player.id is ' + this.player.id);
 Lion = Class.create(Piece, {
   imageUrl: HOST + 'lion.png',
   type: 'lion',
-  initialPosition: [1, 3],
+  initialPosition: [2, 4],
   movableArea: [
     [ true,  true,  true],
     [ true, false,  true],
@@ -263,7 +264,7 @@ Lion = Class.create(Piece, {
 Elephant = Class.create(Piece, {
   imageUrl: HOST + 'elephant.png',
   type: 'elephant',
-  initialPosition: [0, 3],
+  initialPosition: [1, 4],
   movableArea: [
     [ true, false,  true],
     [false, false, false],
@@ -274,7 +275,7 @@ Elephant = Class.create(Piece, {
 Giraffe = Class.create(Piece, {
   imageUrl: HOST + 'giraffe.png',
   type: 'giraffe',
-  initialPosition: [2, 3],
+  initialPosition: [3, 4],
   movableArea: [
     [false,  true, false],
     [ true, false,  true],
@@ -285,7 +286,7 @@ Giraffe = Class.create(Piece, {
 Chick = Class.create(Piece, {
   imageUrl: HOST + 'chick.png',
   type: 'chick',
-  initialPosition: [1, 2],
+  initialPosition: [2, 3],
   movableArea: [
     [false,  true, false],
     [false, false, false],
@@ -414,10 +415,10 @@ window.game.dw.dw('in show of Cell, after process -> ' + this.piece.toDebugStrin
   },
   isOpponentFirstLine: function(player) {
     if (window.game.player1.id == player.id) {
-      return this.y === 0;
+      return this.y === 1;
     }
     else if (window.game.player2.id == player.id) {
-      return this.y === 3;
+      return this.y === 4;
     }
     else {
       throw 'not reach: ' + player.id;
@@ -453,8 +454,8 @@ window.game.dw.dw('entered Cell.capturedBy: player is ' + player.toDebugString()
 Board = Class.create({
   initialize: function(elm, game) {
     this.top = game.top;
-    this.width = 9;
-    this.height = 9;
+    this.width = 10;  // 0 is dummy
+    this.height = 10;
     this.boardData = [];
     this.blackStand = '';
     this.whiteStand = '';
@@ -761,8 +762,8 @@ this.dw.dw('entered upsideDownIfNeeded : x, y -> ' + x + ', ' + y);
     x = parseInt(x);
     y = parseInt(y);
     if (this.needUpsideDown()) {
-this.dw.dw('---leaving with data converted : x, y -> ' + (2-x) + ', ' + (3-y));
-      return [2 - x, 3 - y];
+this.dw.dw('---leaving with data converted : x, y -> ' + (3-x) + ', ' + (4-y));
+      return [3 - x, 4 - y];
     }
     else {
 this.dw.dw('---leaving without change : x, y -> ' + x + ', ' + y);
