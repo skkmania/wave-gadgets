@@ -522,17 +522,7 @@ this.game.dw.dw('-------board.adjust entered--top is ' + this.game.top + '  ----
     }
   },
   show: function() {  // Board
-    this.each(function(cell) {
-      cell.show();
-    });
-this.game.dw.dw('leaving Board.show');
-  },
-  each: function(block) {
-    for (var r = 0; r < this.height; r++) {
-      for (var c = 0; c < this.width; c++) {
-        block(this.cells[r][c], r, c);
-      }
-    }
+    this.cells.flatten().invoke('show');
   },
   getCell: function(x, y) {
     return this.cells[y][x];
