@@ -4,27 +4,70 @@
   display: none;
 }
 
+div#container {
+  background-color: #cc8;
+  width: 560px;
+  float: left;
+}
+div#top-stand {
+  background-color: #c8c;
+  float: left;
+  margin: 10px;
+  width: 30px;
+  height: 300px;
+}
 #animal-shogi {
-  margin: 20px;
+  margin: 10px 10px 20px 0px;
   width: 450px;
   height: 450px;
+  float: left;
   position: relative;
-  background-image: url(savanna.png);
+  /*background-image: url(savanna.png);*/
+}
+div#bottom-stand {
+  background-color: #c8c;
+  float: left;
+  margin: 150px 10px 10px 0px;
+  width: 30px;
+  height: 300px;
 }
 div.cell {
   width: 40px;
-  height: 40px;
+  height: 42px;
+  margin-top: -1px;
+  margin-left: -1px;
   /*padding: 1px;*/
-  border: 1px solid white;
+  border: 1px solid black;
+  border-right: 0px;
+  border-top: 0px;
   position: absolute;
   /*background-image: url(savanna.png);*/
 }
+div.rightCell {
+  border-right: 1px solid black;
+}
+div.topCell {
+  border-top: 1px solid black;
+}
+div.dummyCell {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  background-color: #aaa;
+}
 div.colNum {
-  margin-top: 20px;
-  margin-left: 15px;
+  width: 30px;
+  height: 20px;
+  margin-top: 10px;
+  margin-left: 20px;
 }
 div.rowNum {
+  width: 20px;
+  height: 20px;
   margin-top: 10px;
+}
+div#cornerDummy {
+  background-color: #008;
 }
 img.piece {
   -moz-border-radius: 10px;
@@ -76,7 +119,7 @@ span.turn {
 }
 #sidebar {
   margin: 20px;
-  margin-left: 480px;
+  margin-left: 20px;
   margin-top: 0;
   float: left;
 }
@@ -100,12 +143,18 @@ span.turn {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
 }
+div#joinButton {
+  width: 150px;
+}
 button.join {
-  width: 450px;
+  width: 150px;
   padding: 5px;
   border: 1px solid black;
   color: yellow;
   background-color: black;
   margin-left: 20px;
   font-size: large;
+}
+pre#json {
+  clear: both;
 }

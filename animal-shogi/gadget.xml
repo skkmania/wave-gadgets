@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
 <Module>
-<ModulePrefs title="State Example" height="450">
+<ModulePrefs title="State Example" height="850">
   <Require feature="rpc" /> 
   <Require feature="wave" /> 
 </ModulePrefs>
@@ -28,6 +28,11 @@
 </script>
 <link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.css" type="text/css" />
 
+<div id="container">
+  <div id="top-stand"></div>
+  <div id="animal-shogi"></div>
+  <div id="bottom-stand"></div>
+</div>
 <div id="sidebar">
   <div id="control-panel" class="sidebar-panel">
     <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
@@ -62,7 +67,6 @@
     <a href="http://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi" target="_blank" class="t">help</a>
   </div>
 </div>
-<div id="animal-shogi"></div>
 
 <button id="join-button" class="join t" onclick="window.game.setPlayer(wave.getViewer().getId()); this.hide();">join</button>
 

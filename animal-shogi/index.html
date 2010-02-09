@@ -39,6 +39,11 @@
       <button onclick="javascript:invokeMove(); $('state').value = 'piece:\'giraffe_player2\', from:[0,1], to:[0,2]'">Move</button>
       <button onclick="javascript:$('json').innerHTML = window.game.toHTML()">toJSON</button>
     </div>
+<div id="container">
+  <div id="top-stand"></div>
+  <div id="animal-shogi"></div>
+  <div id="bottom-stand"></div>
+</div>
     <div id="sidebar">
       <div id="control-panel" class="sidebar-panel">
         <h2><script>it('player')</script></h2>
@@ -71,9 +76,10 @@
       <div style="text-align:right;">
         <a href="http://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi" target="_blank">Help</a>
       </div>
+      <div id="joinButton">
+        <button id="join-button" class="join" onclick="window.game.setPlayer(wave.getViewer().getId()); this.hide();"><script>it('join')</script></button>
+      </div>
     </div>
-    <div id="animal-shogi"></div>
-    <button id="join-button" class="join" onclick="window.game.setPlayer(wave.getViewer().getId()); this.hide();"><script>it('join')</script></button>
     <pre id="json" style="margin-top:380px;"></pre>
   </body>
 </html>

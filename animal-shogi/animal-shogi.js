@@ -326,6 +326,7 @@ Cell.prototype = {
     this.marginTop = 0;
     this.marginLeft = 0;
     this.width = 40;
+    this.hight = 42;
   },
   put: function(piece) {
     this.piece = piece;
@@ -335,28 +336,36 @@ Cell.prototype = {
     this.elm.style.left = (this.marginLeft + this.width * toX) + 'px';
     this.elm.style.top = (this.marginTop + this.width * toY) + 'px';
   },
+  getPosition: function(){ // Cell
+    if (window.game.top == 1){
+      var bh = window.game.board.height;
+      this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
+      this.elm.style.top = (this.marginTop + this.hight * (bh - 1 - this.y)) + 'px';
+    } else {
+      var bw = window.game.board.width;
+      this.elm.style.left = (this.marginLeft + this.width * (bw - 1 - this.x)) + 'px';
+      this.elm.style.top = (this.marginTop + this.hight * this.y) + 'px';
+    }
+  },
   createDummyElm: function() {  // Cell
     this.elm = document.createElement('div');
     this.elm.id = 'dummyCell-' + this.x + '-' + this.y;
     this.elm.obj = this;
     this.elm.addClassName('dummyCell');
-    if (window.game.top == 1){
-      var bw = window.game.board.width;
-      var bh = window.game.board.height;
-      this.elm.style.left = (this.marginLeft + this.width * (bw - 1 - this.x)) + 'px';
-      this.elm.style.top = (this.marginTop + this.width * (bh - 1 - this.y)) + 'px';
-    } else {
-      this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
-      this.elm.style.top = (this.marginTop + this.width * this.y) + 'px';
-    }
+    this.getPosition();
     this.dummyPiece = document.createElement('div');
-    if(this.x === 0){
-      this.dummyPiece.addClassName('colNum');
-      this.dummyPiece.innerHTML = this.y;
-    }
-    if(this.y === 0){
-      this.dummyPiece.addClassName('rowNum');
-      this.dummyPiece.innerHTML = this.x;
+    if(this.x === 0 && this.y === 0){
+      this.dummyPiece.id = 'cornerDummy';
+      this.dummyPiece.innerHTML = '';
+    } else {
+      if(this.x === 0){
+        this.dummyPiece.addClassName('rowNum');
+        this.dummyPiece.innerHTML = this.y;
+      }
+      if(this.y === 0){
+        this.dummyPiece.addClassName('colNum');
+        this.dummyPiece.innerHTML = this.x;
+      }
     }
     this.elm.appendChild(this.dummyPiece);
     this.board.elm.appendChild(this.elm);
@@ -366,16 +375,7 @@ Cell.prototype = {
     this.elm.id = 'cell-' + this.x + '-' + this.y;
     this.elm.obj = this;
     this.elm.addClassName('cell');
-window.game.dw.dw('Cell createElm called. game.top is ' + window.game.top);
-    if (window.game.top == 1){
-      var bw = window.game.board.width;
-      var bh = window.game.board.height;
-      this.elm.style.left = (this.marginLeft + this.width * (bw - 1 - this.x)) + 'px';
-      this.elm.style.top = (this.marginTop + this.width * (bh - 1 - this.y)) + 'px';
-    } else {
-      this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
-      this.elm.style.top = (this.marginTop + this.width * this.y) + 'px';
-    }
+    this.getPosition();
     this.board.elm.appendChild(this.elm);
 window.game.dw.dw('Droppables to add ' + this.elm.id);
     Droppables.add(this.elm, {
@@ -497,27 +497,32 @@ Board = Class.create({
     }
   },
   adjust: function() {
-    if(!this.cells[0][0].elm) return;
+    if(!this.cells[1][1].elm) return;
     if(!window.game) return;
 this.game.dw.dw('-------board.adjust entered--top is ' + this.game.top + '  --------------------------------');
-    var marginTop = this.cells[0][0].marginTop;
-    var marginLeft = this.cells[0][0].marginLeft;
-    var width = this.cells[0][0].width;
-    if(this.game.top != 1){
-      for (var r = 0; r < this.height; r++) {
-        for (var c = 0; c < this.width; c++) {
-          this.cells[r][c].elm.style.left =  (marginLeft + width * c) + 'px';
-          //this.cells[r][c].elm.style.left =  (marginLeft + width * (this.width - 1 - c)) + 'px';
-          this.cells[r][c].elm.style.top =  (marginLeft + width * r) + 'px';
-          //this.cells[r][c].elm.style.top =  (marginLeft + width * (this.height - 1 - r)) + 'px';
-        }
+    this.cells.flatten().invoke('getPosition');
+    this.adjustBorder();
+  },
+  adjustBorder: function() {
+    if(!this.cells[1][1].elm) return;
+    if(!window.game) return;
+    if(this.game.top === 0){
+      for (var r = 1; r < this.height; r++) {
+        this.cells[r][1].addClassName('rightCell');
+        this.cells[r][9].removeClassName('rightCell');
+      }
+      for (var c = 0; c < this.width; c++) {
+        this.cells[1][c].addClassName('topCell');
+        this.cells[9][c].removeClassName('topCell');
       }
     } else {
-      for (var r = 0; r < this.height; r++) {
-        for (var c = 0; c < this.width; c++) {
-          this.cells[r][c].elm.style.left =  (marginLeft + width * (this.width - 1 - c)) + 'px';
-          this.cells[r][c].elm.style.top =  (marginLeft + width * (this.height - 1 - r)) + 'px';
-        }
+      for (var r = 1; r < this.height; r++) {
+        this.cells[r][9].addClassName('rightCell');
+        this.cells[r][1].removeClassName('rightCell');
+      }
+      for (var c = 0; c < this.width; c++) {
+        this.cells[9][c].addClassName('topCell');
+        this.cells[1][c].removeClassName('topCell');
       }
     }
   },
