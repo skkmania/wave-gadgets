@@ -122,9 +122,10 @@ if(window.game) window.game.dw.dw('adding Draggable in Piece#initialize:' + this
 window.game.dw.dw('entered piece initialArrange : ');
     var pos = this.initialPosition;
     var atTop = this.player.atTop();
-window.game.dw.dw('piece initialArrange : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
-    if (this.player.id == 'player2') pos = [3 - pos[0], 4 - pos[1]];
-// window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
+window.game.dw.dw('piece initialArrange : name -> ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
+window.game.dw.dw('piece initialArrange : player.id -> ' + this.player.id);
+    if (this.player.id == 'player2') pos = [4 - pos[0], 5 - pos[1]];
+window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     board.cells[pos[1]][pos[0]].put(this);
   },
   setPlayer: function(player) {
@@ -332,6 +333,16 @@ Cell.prototype = {
     this.marginLeft = 0;
     this.width = 40;
     this.hight = 42;
+  },
+  say: function(){
+    // このセルにいるpieceの状態を文字にして返す
+    if (!this.peace) return 'x';
+    var charList = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
+    var retChar = charList[this.peace.type];
+    if(this.peace.player.id == 'player1')
+      return retChar.toUpperCase();
+    else
+      return retChar; 
   },
   put: function(piece) {
     this.piece = piece;
@@ -542,6 +553,16 @@ this.game.dw.dw('------- Board#adjustBoarder leaving -----------');
   getCell: function(x, y) {
     return this.cells[y][x];
   },
+  toString: function(){
+    // stateに載せる文字列を返す
+    var ret = '';
+    for (var c = 1; c < this.width; c++) {
+      for (var r = 1; r < this.height; r++) {
+        ret += this.cells[r][c].say();
+      }
+    }
+    return ret;
+  },
   toJSON: function() {
     var ret = '[';
     for (var r = 0; r < this.height; r++) {
@@ -619,7 +640,7 @@ Player = Class.create({
     else
       return (window.game.top != 1);
   },
-  initialArrange: function(board) {
+  initialArrange: function(board) { // Player
 window.game.dw.dw('entered initialArrange of Player');
 window.game.dw.dw(this.id + ': ' + this.name);
 window.game.dw.dw('pieces: ' + this.pieces.invoke('toDebugString').join('<br>'));
@@ -796,8 +817,8 @@ this.dw.dw('entered upsideDownIfNeeded : x, y -> ' + x + ', ' + y);
     x = parseInt(x);
     y = parseInt(y);
     if (this.needUpsideDown()) {
-this.dw.dw('---leaving with data converted : x, y -> ' + (3-x) + ', ' + (4-y));
-      return [3 - x, 4 - y];
+this.dw.dw('---leaving with data converted : x, y -> ' + (4-x) + ', ' + (5-y));
+      return [4 - x, 5 - y];
     }
     else {
 this.dw.dw('---leaving without change : x, y -> ' + x + ', ' + y);
@@ -1000,6 +1021,7 @@ this.dw.dw('fromState: went out of the loop of all pieces: ');
     if (!this.turn) this.turn = this.player1;
     this.controlPanel.update();
 this.dw.dw('leaving fromState : ');
+this.dw.dw('Board#toString : ' + this.board.toString());
   },
   debug_dump: function(){
     var obj = {};
