@@ -7,6 +7,11 @@ function arrange(state){
   return '<div style="color: #FF0000">' + ret + '</div>';
 }
 
+Number.prototype.toKanji = function(){
+  var stock = ['','一','二','三', '四','五', '六','七', '八','九']
+  return stock[this];
+}
+
 ControlPanel = Class.create({
   initialize: function(game) {
     this.game = game;
@@ -337,6 +342,7 @@ Cell.prototype = {
     this.elm.style.top = (this.marginTop + this.width * toY) + 'px';
   },
   getPosition: function(){ // Cell
+if(this.x === 1 && this.y === 1) window.game.dw.dw('-------Cell#getPosition -----------');
     if (window.game.top == 1){
       var bh = window.game.board.height;
       this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
@@ -360,7 +366,7 @@ Cell.prototype = {
     } else {
       if(this.x === 0){
         this.dummyPiece.addClassName('rowNum');
-        this.dummyPiece.innerHTML = this.y;
+        this.dummyPiece.innerHTML = this.y.toKanji();
       }
       if(this.y === 0){
         this.dummyPiece.addClassName('colNum');
@@ -502,32 +508,36 @@ Board = Class.create({
 this.game.dw.dw('-------board.adjust entered--top is ' + this.game.top + '  --------------------------------');
     this.cells.flatten().invoke('getPosition');
     this.adjustBorder();
+this.game.dw.dw('-------Board#adjust ended. -----------');
   },
   adjustBorder: function() {
+this.game.dw.dw('-------Board#adjustBoarder entered -----------');
     if(!this.cells[1][1].elm) return;
     if(!window.game) return;
     if(this.game.top === 0){
       for (var r = 1; r < this.height; r++) {
-        this.cells[r][1].addClassName('rightCell');
-        this.cells[r][9].removeClassName('rightCell');
+        this.cells[r][1].elm.addClassName('rightCell');
+        this.cells[r][9].elm.removeClassName('rightCell');
       }
-      for (var c = 0; c < this.width; c++) {
-        this.cells[1][c].addClassName('topCell');
-        this.cells[9][c].removeClassName('topCell');
+      for (var c = 1; c < this.width; c++) {
+        this.cells[1][c].elm.addClassName('topCell');
+        this.cells[9][c].elm.removeClassName('topCell');
       }
     } else {
       for (var r = 1; r < this.height; r++) {
-        this.cells[r][9].addClassName('rightCell');
-        this.cells[r][1].removeClassName('rightCell');
+        this.cells[r][9].elm.addClassName('rightCell');
+        this.cells[r][1].elm.removeClassName('rightCell');
       }
-      for (var c = 0; c < this.width; c++) {
-        this.cells[9][c].addClassName('topCell');
-        this.cells[1][c].removeClassName('topCell');
+      for (var c = 1; c < this.width; c++) {
+        this.cells[9][c].elm.addClassName('topCell');
+        this.cells[1][c].elm.removeClassName('topCell');
       }
     }
+this.game.dw.dw('------- Board#adjustBoarder leaving -----------');
   },
   show: function() {  // Board
     this.cells.flatten().invoke('show');
+    this.adjustBorder();
   },
   getCell: function(x, y) {
     return this.cells[y][x];
