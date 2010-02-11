@@ -10,7 +10,7 @@ div#container {
   float: left;
 }
 div#top-stand {
-  background-color: #c8c;
+  background-color: #c80;
   float: left;
   margin: 10px;
   width: 30px;
@@ -28,6 +28,16 @@ div#bottom-stand {
   background-color: #c8c;
   float: left;
   margin: 150px 10px 10px 0px;
+  width: 30px;
+  height: 300px;
+}
+div#black-stand {
+  background-color: #c80;
+  width: 30px;
+  height: 300px;
+}
+div#white-stand {
+  background-color: #c8c;
   width: 30px;
   height: 300px;
 }
