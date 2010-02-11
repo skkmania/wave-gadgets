@@ -336,10 +336,10 @@ Cell.prototype = {
   },
   say: function(){
     // このセルにいるpieceの状態を文字にして返す
-    if (!this.peace) return 'x';
+    if (!this.piece) return 'x';
     var charList = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
-    var retChar = charList[this.peace.type];
-    if(this.peace.player.id == 'player1')
+    var retChar = charList[this.piece.type];
+    if(this.piece.player.id == 'player1')
       return retChar.toUpperCase();
     else
       return retChar; 
@@ -553,7 +553,7 @@ this.game.dw.dw('------- Board#adjustBoarder leaving -----------');
   getCell: function(x, y) {
     return this.cells[y][x];
   },
-  toString: function(){
+  toString: function(){ // Board
     // stateに載せる文字列を返す
     var ret = '';
     for (var c = 1; c < this.width; c++) {
@@ -927,22 +927,18 @@ if(toCell) this.dw.dw(' to ' + toCell.toDebugString());
           }
   },
   sendPieceToStand: function(piece){
-this.dw.dw('entered sendPieceToStand: ' + piece.toDebugString());
-/*
-for (key in piece)
-if(typeof piece[key] != 'function') this.dw.dw('key:' + key + ', piece[' + key + ']:' + piece[key]);
-*/
-if(piece.cell && piece.cell.piece){
-  if(piece.name == piece.cell.piece.name){
-    // いまpieceがいるcellのpieceプロパティが、自分をさしているなら、それは消しておく
-this.dw.dw('piece.cell: ' + piece.cell.toDebugString() + 'is going to be nulled.');
-    piece.cell.piece = null;
-  } else {
-    // fromStateの処理からここにきたとき、このcellにはすでに他の駒がきている場合があるのでそのときはなにもしない
-  }
-} else {
-this.dw.dw('this piece has no cell.');
-}
+    this.dw.dw('entered sendPieceToStand: ' + piece.toDebugString());
+    if(piece.cell && piece.cell.piece){
+      if(piece.name == piece.cell.piece.name){
+        // いまpieceがいるcellのpieceプロパティが、自分をさしているなら、それは消しておく
+    this.dw.dw('piece.cell: ' + piece.cell.toDebugString() + 'is going to be nulled.');
+        piece.cell.piece = null;
+      } else {
+        // fromStateの処理からここにきたとき、このcellにはすでに他の駒がきている場合があるのでそのときはなにもしない
+      }
+    } else {
+    this.dw.dw('this piece has no cell.');
+    }
     var prefix = 'my';
     if (this.top == 1) {
       if (piece.player.id == 'player1'){
@@ -1025,12 +1021,13 @@ this.dw.dw('Board#toString : ' + this.board.toString());
   },
   debug_dump: function(){
     var obj = {};
-    obj['player1']	 = this.player1.toDebugString();
-    obj['player2']	 = (this.player2 ? this.player2.toDebugString() : null);
+    obj['player1']	 = (this.player1 ? this.player1.toDebugString():null);
+    obj['player2']	 = (this.player2 ? this.player2.toDebugString():null);
     obj['top']		 = this.top;
     obj['turn']		 = this.turn;
-    obj['board']	 = this.board.toDebugString();
-    obj['Cell']		 = Cell.all.invoke('toDebugString').join('<br>');
+    //obj['board']	 = this.board.toDebugString();
+    obj['board']	 = this.board.toString();
+    //obj['Cell']	 = Cell.all.invoke('toDebugString').join('<br>');
     obj['Piece']	 = Piece.all.invoke('toDebugString').join('<br>');
     this.dw.dump_list(obj);
   }
