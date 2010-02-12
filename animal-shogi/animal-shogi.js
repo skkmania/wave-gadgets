@@ -164,7 +164,7 @@ window.game.dw.dw(this.elm.id + ' was appended to my-captured Piece#captured');
 window.game.dw.dw(this.elm.id + ' was appended to opponent-captured Piece#captured');
     }
   },
-  canMove: function(fromCell, toCell) {
+  canMove: function(fromCell, toCell) { // Piece
 window.game.dw.dw('canMove entered.');
     if (!fromCell) return true; // 打ち駒はどこでもOK
     var dx = toCell.x - fromCell.x;
@@ -174,24 +174,29 @@ window.game.dw.dw('canMove entered.');
 window.game.dw.dw('from: ' + fromCell.toDebugString() + ', to: ' + toCell.toDebugString());
 window.game.dw.dw('dx: ' + dx + ', dy: ' + dy);
     if (1 < Math.abs(dx) || 1 < Math.abs(dy)) return false;
-//    if (!this.mine) dy *= -1;
+    if (this.player.id == 'player2') dy *= -1;
 window.game.dw.dw('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
     return this.movableArea[dy + 1][dx + 1];
   },
   move: function(fromCell, toCell, notCapture, dropOrState) {  // Piece
+window.game.dw.dw('Piece#move 1 : ');
+    var capturedPiece = null;
+    fromCell.remove(this);
+window.game.dw.dw('Piece#move 2 : ');
+    capturedPiece = toCell.replace(this);
+window.game.dw.dw('Piece#move 3 : ');
+    return capturedPiece;
+  },
+  move_orig: function(fromCell, toCell, notCapture, dropOrState) {  // Piece
 window.game.dw.dw('move entered. piece: ' + this.toDebugString() + ', notCapture: ' + notCapture);
 if(fromCell) window.game.dw.dw('from: ' + fromCell.toDebugString());
 if(toCell) window.game.dw.dw(', to: ' + toCell.toDebugString());
     var capturedPiece = null;
-    if (notCapture != undefined){
-    if (!notCapture) {
+    if (notCapture != undefined && !notCapture) {
       if (toCell.piece) {
-window.game.dw.dw('there is captured piece: ' + toCell.piece.toDebugString());
-        if (this.player == toCell.piece.player) throw t('cannot_get_own_piece');
         capturedPiece = toCell.piece;
         toCell.capturedBy(this.player);
       }
-    }
     }
 
 window.game.dw.dw('this.elm.id -> ' + this.elm.id);
@@ -232,6 +237,7 @@ window.game.dw.dw('entered Piece#isGoal: player.id is ' + this.player.id);
       var xy = window.game.upsideDownIfNeeded(this.cell.x, this.cell.y);
       ret += xy[0] + ',' + xy[1];
     }
+window.game.dw.dw('leaving Piece#toString with : ' + ret);
     return ret;
   },
   toDebugString: function() {  // Piece
@@ -322,7 +328,7 @@ Cell.prototype = {
     this.width = 40;
     this.hight = 42;
   },
-  say: function(){
+  say: function(){ // Cell
     // このセルにいるpieceの状態を文字にして返す
     if (!this.piece) return 'x';
     var retChar = CharList[this.piece.type];
@@ -331,9 +337,12 @@ Cell.prototype = {
     else
       return retChar; 
   },
-  put: function(piece) {
+  put: function(piece) { // Cell
+window.game.dw.dw('Cell#put entered');
     this.piece = piece;
     this.piece.cell = this;
+    if(this.elm) this.elm.appendChild(piece.elm);
+window.game.dw.dw('Cell#put leaving');
   },
   move: function(toY,toX){
     this.elm.style.left = (this.marginLeft + this.width * toX) + 'px';
@@ -402,6 +411,7 @@ window.game.dw.dw('canMove passed.');
           } else {
 window.game.dw.dw('piece moving and capturing.');
             capturedPiece = piece.move(fromCell, toCell, false, 'onDrop');
+window.game.dw.dw('piece moved and captured is : ' + capturedPiece.toDebugString());
           }
         } else {
 window.game.dw.dw('piece moving without capturing.');
@@ -454,6 +464,24 @@ window.game.dw.dw('in show of Cell, after process -> ' + this.piece.toDebugStrin
     else {
       throw 'not reach: ' + player.id;
     }
+  },
+  remove: function(piece){  // Cell
+    piece.cell = null;
+    this.elm.removeChild(piece.elm);
+    this.piece = null;
+  },
+  replace: function(newPiece){  // Cell
+    var tmp = null;
+    if(this.piece){
+      tmp = this.piece;
+      this.piece.player = newPiece.player;
+      newPiece.player.stand().put(this.piece);
+      this.piece = null;
+    }
+    this.piece = newPiece;
+    this.put(newPiece);
+if (tmp) window.game.dw.dw('leaving Cell#replace with : ' + tmp.toDebugString());
+    return tmp;
   },
   capturedBy: function(player) { // Cell
 window.game.dw.dw('entered Cell.capturedBy: player is ' + player.toDebugString());
@@ -629,19 +657,10 @@ Stand = Class.create({
   },
   put: function(piece){ // Stand
     // 駒台に持ち駒を載せる
-    this.game.dw.dw('entered Stand#put');
+    this.game.dw.dw('entered Stand#put : ' + this.id);
     this.pieces.push(piece);
-    if(piece.cell && piece.cell.piece){
-      if(piece.name == piece.cell.piece.name){
-        // いまpieceがいるcellのpieceプロパティが、自分をさしているなら、それは消しておく
-    this.game.dw.dw('piece.cell: ' + piece.cell.toDebugString() + 'is going to be nulled.');
-        piece.cell.piece = null;
-      } else {
-        // fromStateの処理からここにきたとき、このcellにはすでに他の駒がきている場合があるのでそのときはなにもしない
-      }
-    } else {
-    this.game.dw.dw('this piece has no cell.');
-    }
+    piece.cell = null;
+    this.elm.appendChild(piece.elm);
   },
   pull: function(piece){ // Stand
     // 駒台から持ち駒を離す
@@ -675,6 +694,11 @@ Player = Class.create({
       new Elephant(this),
       new Chick(this)
     ];
+  },
+  stand: function(){
+    return (this.id == 'player1') ?
+        window.game.blackStand
+      : window.game.whiteStand;
   },
   atTop: function(){
     if (this.id == 'player1')
@@ -963,7 +987,7 @@ this.dw.dw('myPlayer is defined : ' + this.myPlayer);
     }
 this.dw.dw('leaving processPlayer: viewer: ' + viewer);
   },
-  putPieceOnBoard: function(piece, x, y){
+  putPieceOnBoard: function(piece, x, y){ // game
           var xy = this.upsideDownIfNeeded(x, y);
 this.dw.dw('data after upsideDown is  x: ' + xy[0] + ', y:' + y);
           // var xy = [x, y];
@@ -1084,28 +1108,49 @@ this.dw.dw('Board#toString : ' + this.board.toString());
   }
 });
 function sendDelta(piece, capturedPiece){
-        // 送信
-        var delta = {};
-        delta['turn'] = window.game.getTurn().id;
-        delta[piece.name] = piece.toString();
-        if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
-window.game.dw.dw('<div style="color:#FF0000">sending delta</div>');
-        wave.getState().submitDelta(delta);
+   // 送信
+   var delta = {};
+   delta['turn'] = window.game.getTurn().id;
+   delta[piece.name] = piece.toString();
+   if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
+window.game.dw.dw('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
+   wave.getState().submitDelta(delta);
 }
 
 function moveValidate(piece, fromCell, toCell){
-        if (!window.game.isViewersTurn()) {
-          window.game.message(t('not_your_turn')); return false;
-        }
-        if(!fromCell && toCell.piece) {
-          window.game.message(t('already_occupied')); return false;
-        }
-        if (!piece.canMove(fromCell, toCell)) {
-          window.game.message(t('not_allowed')); return false;
-        }
-	return true;
+window.game.dw.dw('moveValidate entered: piece: ' + piece.toDebugString());
+   if (!window.game.isViewersTurn()) {
+     window.game.message(t('not_your_turn')); return false;
+   }
+window.game.dw.dw('moveValidate 1');
+   if (toCell.piece) {
+     if (piece.player == toCell.piece.player){
+       window.game.message(t('cannot_get_own_piece')); return false;
+     }
+   }
+window.game.dw.dw('moveValidate 2');
+   if(!fromCell && toCell.piece) {
+     window.game.message(t('already_occupied')); return false;
+   }
+window.game.dw.dw('moveValidate 3');
+   if (!piece.canMove(fromCell, toCell)) {
+     window.game.message(t('not_allowed')); return false;
+   }
+window.game.dw.dw('moveValidate 4');
+   return true;
 }
 
+function checkFinish_new(piece, toCell){
+window.game.dw.dw('checkFinish 1');
+   var ret = (
+   // 相手のライオンを捕獲
+   (toCell.piece.type == 'lion') || 
+   // 自分のライオンが最奥に到達
+   (piece.type == 'lion' && piece.isGoal(toCell) && window.game.isSafety(piece))
+  );
+window.game.dw.dw('checkFinish leaving with : ' + ret);
+  return ret;
+}
 function checkFinish(capturedPiece, piece, toCell){
           return (
           // 相手のライオンを捕獲
