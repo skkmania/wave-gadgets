@@ -2,6 +2,18 @@ HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
 
 var CharList = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
 
+function addDraggable(piece, startMessage){
+      new Draggable(piece.elm, {
+        onStart: function() {
+          window.game.dw.dw(startMessage);
+        },
+        onEnd: function() {
+          this.elm.style.top = 0;
+          this.elm.style.left = 0;
+        }.bind(piece)
+      });
+}
+
 function arrange(state){
   var str = state.toString();
   var pattern = /\w: '.*'\,/;
@@ -50,15 +62,7 @@ window.game.dw.dw('enterd _addDrag');
       Piece.all.each(function(piece){
         // cellのないpieceが持ち駒。盤上の駒にはすでにDraggableがあるのでさわらない
         if(!piece.cell && piece.player == this.game.myPlayer)
-          new Draggable(piece.elm, {
-              onStart: function() {
-                window.game.dw.dw('drag started 00 cp _addDrag');
-              },
-            onEnd: function() {
-              this.elm.style.top = 0;
-              this.elm.style.left = 0;
-            }.bind(piece)
-          });
+          addDraggable(piece,'drag started 00 cp _addDrag');
       });
     }
     // 上のifに合致しない->このviewerはplayerに非ずDraggableは必要ない
@@ -108,16 +112,7 @@ alert('window.game does not exist.');
     this.elm.addClassName('piece');
     this.setPlayer(player);
     if (this.isViewersP()) {
-if(window.game) window.game.dw.dw('adding Draggable in Piece#initialize:' + this.toDebugString());
-      new Draggable(this.elm, {
-          onStart: function() {
-            // alert('drag started 02 piece initialize');
-          },
-        onEnd: function() {
-          this.elm.style.top = 0;
-          this.elm.style.left = 0;
-        }.bind(this)
-      });
+      addDraggable(this,'Draggable when initialize');
     }
   },
   initialArrange: function(board) {  // Piece
@@ -157,18 +152,9 @@ window.game.dw.dw('entered Piece.capturedBy: ' + this.name + ' is captured by ' 
     if (this.becomeNormal) this.becomeNormal();
 
     if (this.isViewersP()) {
-    //if (this.isMine()) {
       if (window.game.isPlayer()) {
 window.game.dw.dw('adding Draggable in captureBy piece: ' + this.toDebugString());
-        new Draggable(this.elm, {
-          onStart: function() {
-            // alert('drag started 03 piece capturedBy');
-          },
-          onEnd: function() {
-            this.elm.style.top = 0;
-            this.elm.style.left = 0;
-          }.bind(this)
-        });
+        addDraggable(this, 'drag started 03 piece capturedBy');
       }
       $('my-captured').appendChild(this.elm);
 window.game.dw.dw(this.elm.id + ' was appended to my-captured Piece#captured');
@@ -400,6 +386,7 @@ window.game.dw.dw('Droppables to add ' + this.elm.id);
       accept: 'piece',
       onDrop: function(draggable) {
         var fromCell = draggable.parentNode.obj;
+        if(fromCell.type && fromCell.type == 'stand') fromCell = null;
         var toCell = this;
 window.game.dw.dw('<span style="color:#888800">onDrop called.</span>');
 if(fromCell) window.game.dw.dw('from: ' + fromCell.toDebugString());
@@ -626,6 +613,7 @@ Stand = Class.create({
     this.width = 1; 
     this.height = 10;
     this.id = id;
+    this.type = 'stand';
     this.pieces = $A([]);
     this.createElm();
   },
@@ -643,6 +631,17 @@ Stand = Class.create({
     // 駒台に持ち駒を載せる
     this.game.dw.dw('entered Stand#put');
     this.pieces.push(piece);
+    if(piece.cell && piece.cell.piece){
+      if(piece.name == piece.cell.piece.name){
+        // いまpieceがいるcellのpieceプロパティが、自分をさしているなら、それは消しておく
+    this.game.dw.dw('piece.cell: ' + piece.cell.toDebugString() + 'is going to be nulled.');
+        piece.cell.piece = null;
+      } else {
+        // fromStateの処理からここにきたとき、このcellにはすでに他の駒がきている場合があるのでそのときはなにもしない
+      }
+    } else {
+    this.game.dw.dw('this piece has no cell.');
+    }
   },
   pull: function(piece){ // Stand
     // 駒台から持ち駒を離す
@@ -991,49 +990,32 @@ if(toCell) this.dw.dw(' to ' + toCell.toDebugString());
     }
  
     this.dw.dw('after Stand process');
-    if(piece.cell && piece.cell.piece){
-      if(piece.name == piece.cell.piece.name){
-        // いまpieceがいるcellのpieceプロパティが、自分をさしているなら、それは消しておく
-    this.dw.dw('piece.cell: ' + piece.cell.toDebugString() + 'is going to be nulled.');
-        piece.cell.piece = null;
-      } else {
-        // fromStateの処理からここにきたとき、このcellにはすでに他の駒がきている場合があるのでそのときはなにもしない
-      }
-    } else {
-    this.dw.dw('this piece has no cell.');
-    }
     var prefix = 'my';
+    var distination = 'black-stand'
     if (this.top == 1) {
       if (piece.player.id == 'player1'){
         prefix = 'opponent';
+        distination = 'white-stand';
         piece.elm.addClassName('top');
         piece.elm.removeClassName('bottom');
       }
     } else {
       if (piece.player.id == 'player2'){
         prefix = 'opponent';
+        distination = 'white-stand';
         piece.elm.addClassName('top');
         piece.elm.removeClassName('bottom');
       }
     }
     // まだこの時点ではpiece.cellにはinitialArrangeの情報が残ってしまっているので消す
     piece.cell = null;
-    $(prefix + '-captured').appendChild(piece.elm);
+    // $(prefix + '-captured').appendChild(piece.elm);
+    $(distination).appendChild(piece.elm);
 this.dw.dw('piece:' + piece.name + ' was added to ' + prefix + '-captured in Game#sendPieceToStand');
 
     if (prefix == 'my' && this.isPlayer()) {
 window.game.dw.dw('adding Draggable in sendPieceToStand:');
-      new Draggable(piece.elm, {
-          onStart: function() {
-window.game.dw.dw('drag started 01 game sendPieceToStand');
-            // alert('drag started 01 game sendPieceToStand');
-          },
-        onEnd: function() {
-window.game.dw.dw('drag ended 01 game sendPieceToStand');
-          this.elm.style.top = 0;
-          this.elm.style.left = 0;
-        }.bind(piece)
-      });
+      addDraggable(piece,'drag started 01 game sendPieceToStand'); 
     }
   },
   fromState: function(state) {
@@ -1112,11 +1094,10 @@ window.game.dw.dw('<div style="color:#FF0000">sending delta</div>');
 }
 
 function moveValidate(piece, fromCell, toCell){
-
         if (!window.game.isViewersTurn()) {
           window.game.message(t('not_your_turn')); return false;
         }
-        if (!fromCell && toCell.piece) {
+        if(!fromCell && toCell.piece) {
           window.game.message(t('already_occupied')); return false;
         }
         if (!piece.canMove(fromCell, toCell)) {
