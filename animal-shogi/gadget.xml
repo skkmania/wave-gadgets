@@ -13,9 +13,11 @@
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/controls.js"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/slider.js"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/dragdrop.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/unittest.js"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/m17n.js" charset="UTF-8"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/dw.js" charset="UTF-8"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/test_animal-shogi.js" charset="UTF-8"></script>
 <script>
   function init() {
     window.game = new AnimalShogiGame({containerId:'animal-shogi'});
@@ -23,10 +25,14 @@
       wave.setStateCallback(window.game.stateChanged.bind(window.game));
     }
     window.game.show();
+    new Test.Unit.Runner( testcases, 'testlog' );
   }
   gadgets.util.registerOnLoadHandler(init);
 </script>
+<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/test.css" type="text/css" />
 <link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.css" type="text/css" />
+
+<div id="testlog"> </div>
 
 <div id="message" class="sidebar-panel">
 <div id="container">
