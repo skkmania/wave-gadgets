@@ -1,12 +1,20 @@
 HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
-
+/**
+ * common functions
+ */
 var CharList = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
 
 function addDraggable(piece, startMessage){
       new Draggable(piece.elm, {
+	/**
+	 * onStart()
+	 */
         onStart: function() {
           window.game.dw.dw(startMessage);
         },
+	/**
+	 * onEnd()
+	 */
         onEnd: function() {
           this.elm.style.top = 0;
           this.elm.style.left = 0;
@@ -26,10 +34,19 @@ Number.prototype.toKanji = function(){
   return stock[this];
 }
 
+/**
+ * ControlPanel Class
+ */
 ControlPanel = Class.create({
+	/**
+	 * initialize(game)
+	 */
   initialize: function(game) {
     this.game = game;
   },
+	/**
+	 * reverse()
+	 */
   reverse: function() { // ControlPanel              
      this.game.dw.dw('start reverse cp'); 
       if (this.game.top == 1){                                                
@@ -55,6 +72,9 @@ ControlPanel = Class.create({
     this._addDrag();
     this.game.dw.dw('end'); 
   }, 
+	/**
+	 * _addDrag()
+	 */
   _addDrag: function() {
 window.game.dw.dw('enterd _addDrag');
     if(this.game.myPlayer){
@@ -67,6 +87,9 @@ window.game.dw.dw('enterd _addDrag');
     }
     // 上のifに合致しない->このviewerはplayerに非ずDraggableは必要ない
   },
+	/**
+	 * update()
+	 */
   update: function() { // ControlPanel             
     this.game.determineTop();
      this.game.dw.dw('cp update entered. top is ' + this.game.top); 
@@ -97,7 +120,13 @@ Piece.selectByName = function(name) {
 // Piece.all.find(function(e){ return e.name == name; })
 // とかけばよいのでは？ しかも1ヶ所でしかつかってないし。undefinedにしたくない、nullがいいという理由があるかどうかチェック。
 
+/**
+ * Piece Class
+ */
 Piece.prototype = {
+	/**
+	 * initialize(player)
+	 */
   initialize: function(player) {
 if(window.game) window.game.dw.dw('entered Piece#initialize: ' + this.type + '_' + player.id);
 else
@@ -115,6 +144,9 @@ alert('window.game does not exist.');
       addDraggable(this,'Draggable when initialize');
     }
   },
+	/**
+	 * initialArrange(board)
+	 */
   initialArrange: function(board) {  // Piece
 window.game.dw.dw('entered piece initialArrange : ');
     var pos = this.initialPosition;
@@ -125,6 +157,9 @@ window.game.dw.dw('piece initialArrange : player.id -> ' + this.player.id);
 window.game.dw.dw('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     board.cells[pos[1]][pos[0]].put(this);
   },
+	/**
+	 * setPlayer(player)
+	 */
   setPlayer: function(player) {
     this.player = player;
 if (window.game) window.game.dw.dw('piece setPlayer entered: ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
@@ -138,12 +173,18 @@ if (window.game) window.game.dw.dw('piece setPlayer entered: ' + this.name + ', 
     }
 if (window.game) window.game.dw.dw('leaving piece setPlayer : ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
   },
+	/**
+	 * atTop()
+	 */
   atTop : function(){ // Piece
     if (window.game.top == 1)
       return this.player.id == 'player1';
     else
       return this.player.id == 'player2';
   },
+	/**
+	 * capturedBy(player) 
+	 */
   capturedBy: function(player) { // Piece
 window.game.dw.dw('entered Piece.capturedBy: ' + this.name + ' is captured by ' + player.id);
     this.setPlayer(player);
@@ -164,6 +205,9 @@ window.game.dw.dw(this.elm.id + ' was appended to my-captured Piece#captured');
 window.game.dw.dw(this.elm.id + ' was appended to opponent-captured Piece#captured');
     }
   },
+	/**
+	 * canMove(fromCell, toCell)
+	 */
   canMove: function(fromCell, toCell) { // Piece
 window.game.dw.dw('canMove entered.');
     if (!fromCell) return true; // 打ち駒はどこでもOK
@@ -178,6 +222,9 @@ window.game.dw.dw('dx: ' + dx + ', dy: ' + dy);
 window.game.dw.dw('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
     return this.movableArea[dy + 1][dx + 1];
   },
+	/**
+	 * move(fromCell, toCell, notCapture, dropOrState)
+	 */
   move: function(fromCell, toCell, notCapture, dropOrState) {  // Piece
 window.game.dw.dw('Piece#move 1 : ');
     var capturedPiece = null;
@@ -187,6 +234,9 @@ window.game.dw.dw('Piece#move 2 : ');
 window.game.dw.dw('Piece#move 3 : ');
     return capturedPiece;
   },
+	/**
+	 * move_orig(fromCell, toCell, notCapture, dropOrState)
+	 */
   move_orig: function(fromCell, toCell, notCapture, dropOrState) {  // Piece
 window.game.dw.dw('move entered. piece: ' + this.toDebugString() + ', notCapture: ' + notCapture);
 if(fromCell) window.game.dw.dw('from: ' + fromCell.toDebugString());
@@ -220,15 +270,24 @@ window.game.dw.dw('leaving move.');
 if(capturedPiece) window.game.dw.dw('capturedPiece is ' + capturedPiece.toDebugString());
     return capturedPiece;
   },
+	/**
+	 * isViewersP()
+	 */
   isViewersP: function() {
 window.game.dw.dw('leaving isViewersP.');
 window.game.dw.dw('player: ' + this.player.name + ', viewer: ' + wave.getViewer().getId());
     return this.player.name == wave.getViewer().getId();
   },
+	/**
+	 * isGoal(cell)
+	 */
   isGoal: function(cell) { // Piece
 window.game.dw.dw('entered Piece#isGoal: player.id is ' + this.player.id);
     return ( this.player.id == 'player1' ? (cell.y === 1) : (cell.y === 4) );
   },
+	/**
+	 * toString()
+	 */
   toString: function() { // Piece
     var ret = this.player.id + ',';
     var parentElm = this.elm.parentNode;
@@ -240,6 +299,9 @@ window.game.dw.dw('entered Piece#isGoal: player.id is ' + this.player.id);
 window.game.dw.dw('leaving Piece#toString with : ' + ret);
     return ret;
   },
+	/**
+	 * toDebugString()
+	 */
   toDebugString: function() {  // Piece
     var ret = 'name:<span style="color: #3F8080">' + this.name + '</span>, ';
     ret += ('player_id:' + this.player.id + ', ');
@@ -250,6 +312,9 @@ window.game.dw.dw('leaving Piece#toString with : ' + ret);
   }
 }
 
+/**
+ * Lion
+ */
 Lion = Class.create(Piece, {
   imageUrl: HOST + 'lion.png',
   type: 'lion',
@@ -261,6 +326,9 @@ Lion = Class.create(Piece, {
   ]
 });
 
+/**
+ * Elephant
+ */
 Elephant = Class.create(Piece, {
   imageUrl: HOST + 'elephant.png',
   type: 'elephant',
@@ -272,6 +340,9 @@ Elephant = Class.create(Piece, {
   ]
 });
 
+/**
+ * Giraffe
+ */
 Giraffe = Class.create(Piece, {
   imageUrl: HOST + 'giraffe.png',
   type: 'giraffe',
@@ -283,6 +354,9 @@ Giraffe = Class.create(Piece, {
   ]
 });
 
+/**
+ * Chick
+ */
 Chick = Class.create(Piece, {
   imageUrl: HOST + 'chick.png',
   type: 'chick',
@@ -292,6 +366,9 @@ Chick = Class.create(Piece, {
     [false, false, false],
     [false, false, false]
   ],
+	/**
+	 * becomeSpecial()
+	 */
   becomeSpecial: function() {
     this.imageUrl = HOST + 'chicken.png';
     this.type = 'chicken';
@@ -302,6 +379,9 @@ Chick = Class.create(Piece, {
     ];
     this.elm.src = this.imageUrl;
   },
+	/**
+	 * becomeNormal()
+	 */
   becomeNormal: function() {
     this.imageUrl = HOST + 'chick.png';
     this.type = 'chick';
@@ -314,9 +394,15 @@ Chick = Class.create(Piece, {
   }
 });
 
+/**
+ * Cell
+ */
 Cell = Class.create();
 Cell.all = $A();
 Cell.prototype = {
+	/**
+	 * initialize(board, x, y, top)
+	 */
   initialize: function(board, x, y, top) {
     Cell.all.push(this);
     this.board = board;
@@ -328,6 +414,9 @@ Cell.prototype = {
     this.width = 40;
     this.hight = 42;
   },
+	/**
+	 * say()
+	 */
   say: function(){ // Cell
     // このセルにいるpieceの状態を文字にして返す
     if (!this.piece) return 'x';
@@ -337,6 +426,9 @@ Cell.prototype = {
     else
       return retChar; 
   },
+	/**
+	 * put(piece)
+	 */
   put: function(piece) { // Cell
 window.game.dw.dw('Cell#put entered');
     this.piece = piece;
@@ -344,10 +436,16 @@ window.game.dw.dw('Cell#put entered');
     if(this.elm) this.elm.appendChild(piece.elm);
 window.game.dw.dw('Cell#put leaving');
   },
+	/**
+	 * move(toY, toX)
+	 */
   move: function(toY,toX){
     this.elm.style.left = (this.marginLeft + this.width * toX) + 'px';
     this.elm.style.top = (this.marginTop + this.width * toY) + 'px';
   },
+	/**
+	 * getPosition()
+	 */
   getPosition: function(){ // Cell
 if(this.x === 1 && this.y === 1) window.game.dw.dw('-------Cell#getPosition -----------');
     if (window.game.top == 1){
@@ -360,6 +458,9 @@ if(this.x === 1 && this.y === 1) window.game.dw.dw('-------Cell#getPosition ----
       this.elm.style.top = (this.marginTop + this.hight * this.y) + 'px';
     }
   },
+	/**
+	 * createDummyElm()
+	 */
   createDummyElm: function() {  // Cell
     this.elm = document.createElement('div');
     this.elm.id = 'dummyCell-' + this.x + '-' + this.y;
@@ -383,6 +484,9 @@ if(this.x === 1 && this.y === 1) window.game.dw.dw('-------Cell#getPosition ----
     this.elm.appendChild(this.dummyPiece);
     this.board.elm.appendChild(this.elm);
   },
+	/**
+	 * createElm()
+	 */
   createElm: function() {  // Cell
     this.elm = document.createElement('div');
     this.elm.id = 'cell-' + this.x + '-' + this.y;
@@ -393,6 +497,9 @@ if(this.x === 1 && this.y === 1) window.game.dw.dw('-------Cell#getPosition ----
 window.game.dw.dw('Droppables to add ' + this.elm.id);
     Droppables.add(this.elm, {
       accept: 'piece',
+	/**
+	 * onDrop(draggable)
+	 */
       onDrop: function(draggable) {
         var fromCell = draggable.parentNode.obj;
         if(fromCell.type && fromCell.type == 'stand') fromCell = null;
@@ -426,6 +533,9 @@ window.game.dw.dw('piece moving without capturing.');
       }.bind(this)
     });
   },
+	/**
+	 * show()
+	 */
   show: function() { // Cell
 window.game.dw.dw('entered show of Cell: ' + this.toDebugString());
     if (!this.elm) {
@@ -454,6 +564,9 @@ window.game.dw.dw('in show of Cell, processing -> ' + this.piece.toDebugString()
 window.game.dw.dw('in show of Cell, after process -> ' + this.piece.toDebugString());
     }
   },
+	/**
+	 * isOpponentFirstLine(player)
+	 */
   isOpponentFirstLine: function(player) {
     if (window.game.player1.id == player.id) {
       return this.y === 1;
@@ -465,11 +578,17 @@ window.game.dw.dw('in show of Cell, after process -> ' + this.piece.toDebugStrin
       throw 'not reach: ' + player.id;
     }
   },
+	/**
+	 * remove(piece)
+	 */
   remove: function(piece){  // Cell
     piece.cell = null;
     this.elm.removeChild(piece.elm);
     this.piece = null;
   },
+	/**
+	 * replace(newPiece)
+	 */
   replace: function(newPiece){  // Cell
     var tmp = null;
     if(this.piece){
@@ -483,15 +602,24 @@ window.game.dw.dw('in show of Cell, after process -> ' + this.piece.toDebugStrin
 if (tmp) window.game.dw.dw('leaving Cell#replace with : ' + tmp.toDebugString());
     return tmp;
   },
+	/**
+	 * captureBy(player)
+	 */
   capturedBy: function(player) { // Cell
 window.game.dw.dw('entered Cell.capturedBy: player is ' + player.toDebugString());
     this.elm.removeChild(this.piece.elm);
     this.piece.capturedBy(player);
     this.piece = null;
   },
+	/**
+	 * toArray()
+	 */
   toArray: function() {
     return [this.x, this.y];
   },
+	/**
+	 * toJSON()
+	 */
   toJSON: function() {
     if (this.piece) {
       return this.piece.name;
@@ -500,6 +628,9 @@ window.game.dw.dw('entered Cell.capturedBy: player is ' + player.toDebugString()
       return '';
     }
   },
+	/**
+	 * toDebugString()
+	 */
   toDebugString: function(){  // Cell
     var ret = '';
     ret += '[' + this.x + ',' + this.y + ']';
@@ -510,7 +641,13 @@ window.game.dw.dw('entered Cell.capturedBy: player is ' + player.toDebugString()
   }
 };
 
+/**
+ * Board
+ */
 Board = Class.create({
+	/**
+	 * initialize(elm, game)
+	 */
   initialize: function(elm, game) {
     this.game = game;
     this.top = game.top;
@@ -526,6 +663,9 @@ Board = Class.create({
       this.cells.push(row);
     }
   },
+	/**
+	 * adjust()
+	 */
   adjust: function() {
     if(!this.cells[1][1].elm) return;
     if(!window.game) return;
@@ -534,6 +674,9 @@ this.game.dw.dw('-------board.adjust entered--top is ' + this.game.top + '  ----
     this.adjustBorder();
 this.game.dw.dw('-------Board#adjust ended. -----------');
   },
+	/**
+	 * adjustBorder()
+	 */
   adjustBorder: function() {
 this.game.dw.dw('-------Board#adjustBoarder entered -----------');
     if(!this.cells[1][1].elm) return;
@@ -559,13 +702,22 @@ this.game.dw.dw('-------Board#adjustBoarder entered -----------');
     }
 this.game.dw.dw('------- Board#adjustBoarder leaving -----------');
   },
+	/**
+	 * show()
+	 */
   show: function() {  // Board
     this.cells.flatten().invoke('show');
     this.adjustBorder();
   },
+	/**
+	 * getCell(x,y)
+	 */
   getCell: function(x, y) {
     return this.cells[y][x];
   },
+	/**
+	 * toString()
+	 */
   toString: function(){ // Board
     // stateに載せる文字列を返す
     var ret = '';
@@ -576,6 +728,9 @@ this.game.dw.dw('------- Board#adjustBoarder leaving -----------');
     }
     return ret;
   },
+	/**
+	 * toJSON()
+	 */
   toJSON: function() {
     var ret = '[';
     for (var r = 0; r < this.height; r++) {
@@ -590,6 +745,9 @@ this.game.dw.dw('------- Board#adjustBoarder leaving -----------');
     ret += ']';
     return ret;
   },
+	/**
+	 * reverse(top)
+	 */
   reverse: function(top) { // Board
 this.game.dw.dw('reverse called.');
     this.cells.flatten().each(function(c){
@@ -617,6 +775,9 @@ this.game.dw.dw('reverse class name after process. ' + c.piece.toDebugString());
       }
     });
   },
+	/**
+	 * toDebugString()
+	 */
   toDebugString: function(){ // Board
     var ret = '';
     for (var r = 0; r < this.height; r++) {
@@ -634,7 +795,13 @@ this.game.dw.dw('reverse class name after process. ' + c.piece.toDebugString());
   }
 });
 
+/**
+ * Stand
+ */
 Stand = Class.create({
+	/**
+	 * initialize(id, game)
+	 */
   initialize: function(id, game) {
     this.game = game;
     this.top = game.top;
@@ -645,16 +812,25 @@ Stand = Class.create({
     this.pieces = $A([]);
     this.createElm();
   },
+	/**
+	 * createElm()
+	 */
   createElm: function() {  // Stand
     this.elm = document.createElement('div');
     this.elm.id = this.id;
     this.elm.obj = this;
   },
+	/**
+	 * clear()
+	 */
   clear: function(){ // Stand
     // Standの内容はfromStateにより毎回更新されるので、その都度クリアする
     // この処理は本来いらないことであるべきでは？
     this.pieces.clear();
   },
+	/**
+	 * put(piece)
+	 */
   put: function(piece){ // Stand
     // 駒台に持ち駒を載せる
     this.game.dw.dw('entered Stand#put : ' + this.id);
@@ -662,12 +838,21 @@ Stand = Class.create({
     piece.cell = null;
     this.elm.appendChild(piece.elm);
   },
+	/**
+	 * pull(piece)
+	 */
   pull: function(piece){ // Stand
     // 駒台から持ち駒を離す
     this.pieces.pop(piece);
   },
+	/**
+	 * show()
+	 */
   show: function(){ // Stand
   },
+	/**
+	 * toString()
+	 */
   toString: function(){ // Stand
     // stateに載せる文字列を返す
     var ret = '';
@@ -675,6 +860,9 @@ Stand = Class.create({
       ret += this.pieces.map(function(p){ return CharList[p.type]; }).join('');
     return ret;
   },
+	/**
+	 * toDebugString()
+	 */
   toDebugString: function(){ // Stand
     var ret = '';
     ret += 'pieces.size: ' + this.pieces.size();
@@ -682,7 +870,13 @@ Stand = Class.create({
   }
 });
 
+/**
+ * Player
+ */
 Player = Class.create({
+	/**
+	 * initialize(id, name, mine)
+	 */
   initialize: function(id, name, mine ) {
     this.id = id;
     this.name = name;
@@ -695,17 +889,26 @@ Player = Class.create({
       new Chick(this)
     ];
   },
+	/**
+	 * stand()
+	 */
   stand: function(){
     return (this.id == 'player1') ?
         window.game.blackStand
       : window.game.whiteStand;
   },
-  atTop: function(){
+	/**
+	 * atTop()
+	 */
+  atTop: function(){ // Player
     if (this.id == 'player1')
       return (window.game.top == 1);
     else
       return (window.game.top != 1);
   },
+	/**
+	 * initialArrange(board)
+	 */
   initialArrange: function(board) { // Player
 window.game.dw.dw('entered initialArrange of Player');
 window.game.dw.dw(this.id + ': ' + this.name);
@@ -714,9 +917,15 @@ window.game.dw.dw('pieces: ' + this.pieces.invoke('toDebugString').join('<br>'))
       piece.initialArrange(board);
     });
   },
+	/**
+	 * shortName()
+	 */
   shortName: function() {
     return this.name.split('@').first();
   },
+	/**
+	 * statusHtml()
+	 */
   statusHtml: function() {
 // playerのshort nameのspan のHTMLを返す。mine, turnのどちらかあるいは両方をclassとして指定する。
 // classの意味（効果はcssで次のように定義されている。）
@@ -726,15 +935,27 @@ window.game.dw.dw('pieces: ' + this.pieces.invoke('toDebugString').join('<br>'))
     if (window.game.getTurn() == this) classNames += ' turn';
     return '<span class="' + classNames + '">' + this.shortName() + '</span>';
   },
+	/**
+	 * toString()
+	 */
   toString: function() { // Player
     return this.name;
   },
+	/**
+	 * toDebugString()
+	 */
   toDebugString: function() {
     return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop() + ', ' + this.pieces.invoke('toDebugString').join(':'); 
   }
 });
 
+/**
+ * AnimalShogiGame
+ */
 AnimalShogiGame = Class.create({
+	/**
+	 * initialize(settings)
+	 */
   initialize: function(settings) {
     this.dw = new DebugWindow(this, 'debug 1');
     this.dw.dw('start info');
@@ -765,6 +986,9 @@ AnimalShogiGame = Class.create({
       //  持ち駒の位置も決めておく
     this.setStandPosition();
   },
+	/**
+	 * setStandPosition()
+	 */ 
   setStandPosition: function() { // Game
     if(this.top !== 1){
       $('bottom-stand').appendChild(this.blackStand.elm);
@@ -774,6 +998,9 @@ AnimalShogiGame = Class.create({
       $('top-stand').appendChild(this.blackStand.elm);
     }
   },
+	/**
+	 * determineTop()
+	 */
   determineTop: function() { // Game
      // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
      // はじめからtop が１になるのはplayer2がviewerのときだけ
@@ -794,6 +1021,9 @@ this.dw.dw('after 06.5 this.top : ' + this.top);
    }
 if (this.player2) this.dw.dw('leaving determineTop: player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top);
   },
+	/**
+	 * setPlayer(name, opponent)
+	 */
   setPlayer: function(name, opponent) {
     if (!this.player1) {
       this.player1 = new Player('player1', name, !opponent);
@@ -822,19 +1052,31 @@ if (this.player2) this.dw.dw('leaving determineTop: player2.name : ' + this.play
       // TODO
       //throw 'Invalid Player Data';
   },
+	/**
+	 * message(message)
+	 */
   message: function(message) {
     if (!this.messageElm) {
       this.messageElm = $('message-body');
     }
     this.messageElm.innerHTML = message;
   },
+	/**
+	 * clearMessage()
+	 */
   clearMessage: function() {
     this.message('');
   },
+	/**
+	 * show()
+	 */
   show: function() { // game
 this.dw.dw('game.show');
     //this.board.show();
   },
+	/**
+	 * reverse()
+	 */
   reverse: function() { // game
     var tmp = null;
     this.top = (this.top === 0 ? 1 : 0);
@@ -847,6 +1089,9 @@ this.dw.dw('game.show');
     $('bottom-stand').innerHTML = tmp;
     this.controlPanel.reverse();
   },
+	/**
+	 * start()
+	 */
   start: function() {
     this.dw.dw('game.start was called.');
     this.player1.initialArrange(this.board);
@@ -858,6 +1103,9 @@ this.dw.dw('game.show');
     this.board.show();
     this.dw.dw('leaving game.start.');
   },
+	/**
+	 * nextTurn()
+	 */
   nextTurn: function() {
     if (this.turn == this.player1) {
       this.turn = this.player2;
@@ -869,13 +1117,22 @@ this.dw.dw('game.show');
     this.clearMessage();
 this.dw.dw('leaving nextTurn');
   },
+	/**
+	 * getTurn()
+	 */
   getTurn: function() {
     if (!this.turn) this.turn = this.player1;
     return this.turn;
   },
+	/**
+	 * isViewersTurn()
+	 */
   isViewersTurn: function() {
     return this.turn.name == wave.getViewer().getId();
   },
+	/**
+	 * needUpsideDown()
+	 */
   needUpsideDown: function() {
 this.dw.dw('entered needUpsideDown. now, myPlayer is ' + this.myPlayer + ', this.top is ' + this.top + ', player1 is ' + this.player1 + ', player2 is ' + this.player2);
     if(this.myPlayer){
@@ -887,6 +1144,9 @@ this.dw.dw('entered needUpsideDown. now, myPlayer is ' + this.myPlayer + ', this
       return false;
     }
   },
+	/**
+	 * upsideDownIfNeeded(x, y)
+	 */
   upsideDownIfNeeded: function(x, y) {
 this.dw.dw('entered upsideDownIfNeeded : x, y -> ' + x + ', ' + y);
     x = parseInt(x);
@@ -900,24 +1160,39 @@ this.dw.dw('---leaving without change : x, y -> ' + x + ', ' + y);
       return [x, y];
     }
   },
+	/**
+	 * isSafety(piece)
+	 */
   isSafety: function(piece) {
     // TODO
     return true;
   },
+	/**
+	 * isPlayer()
+	 */
   isPlayer: function() {
     var viewer = wave.getViewer().getId();
     return this.player1.name == viewer || this.player2.name == viewer;
   },
+	/**
+	 * finish(winner)
+	 */
   finish: function(winner) {
     this.message(winner.shortName() + t('win'));
     this.turn = null;
   },
+	/**
+	 * stateChanged()
+	 */
   stateChanged: function() {
     var state = wave.getState();
 this.dw.dw('stateChanged: ' + arrange(state));
     this.fromState(state);
 this.dw.dw('leaving stateChanged:');
   },
+	/**
+	 * toString()
+	 */
   toString: function() { // Game
     var ret = '';
     var json = this.toJSON();
@@ -926,6 +1201,9 @@ this.dw.dw('leaving stateChanged:');
     }
     return ret;
   },
+	/**
+	 * toHTML()
+	 */
   toHTML: function() {
     var ret = '<table>';
     var json = this.toJSON();
@@ -935,6 +1213,9 @@ this.dw.dw('leaving stateChanged:');
     ret += '</table>';
     return ret;
   },
+	/**
+	 * toJSON()
+	 */
   toJSON: function() {
     var ret = {};
     if (this.player1) ret.player1 = this.player1.toString();
@@ -948,6 +1229,9 @@ this.dw.dw('leaving stateChanged:');
     ret.result = '';
     return ret;
   },
+	/**
+	 * processPlayer(state)
+	 */
   processPlayer: function(state){
     var viewer = wave.getViewer().getId();
     var pl1 = state.get('player1');
@@ -987,6 +1271,9 @@ this.dw.dw('myPlayer is defined : ' + this.myPlayer);
     }
 this.dw.dw('leaving processPlayer: viewer: ' + viewer);
   },
+	/**
+	 * putPieceOnBoard(piece, x, y)
+	 */
   putPieceOnBoard: function(piece, x, y){ // game
           var xy = this.upsideDownIfNeeded(x, y);
 this.dw.dw('data after upsideDown is  x: ' + xy[0] + ', y:' + y);
@@ -1001,6 +1288,9 @@ if(toCell) this.dw.dw(' to ' + toCell.toDebugString());
             this.nextTurn();
           }
   },
+	/**
+	 * sendPieceToStand(piece)
+	 */
   sendPieceToStand: function(piece){
     // fromStateからのみ呼ばれる
     // pieceは持ち主の駒台におく
@@ -1042,6 +1332,9 @@ window.game.dw.dw('adding Draggable in sendPieceToStand:');
       addDraggable(piece,'drag started 01 game sendPieceToStand'); 
     }
   },
+  /**
+   *  fromState(state)
+   */
   fromState: function(state) {
     this.dw.dw('<span style="color:#00FFFF">entered fromState</span>');
     this.blackStand.clear();
@@ -1090,6 +1383,9 @@ this.dw.dw('fromState: went out of the loop of all pieces: ');
 this.dw.dw('leaving fromState : ');
 this.dw.dw('Board#toString : ' + this.board.toString());
   },
+	/**
+	 * debug_dump()
+	 */
   debug_dump: function(){
     var state = wave.getState();
     this.dw.dw(state.toString());
@@ -1107,6 +1403,10 @@ this.dw.dw('Board#toString : ' + this.board.toString());
     this.dw.dump_list(obj);
   }
 });
+
+/**
+ * common functions
+ */
 function sendDelta(piece, capturedPiece){
    // 送信
    var delta = {};

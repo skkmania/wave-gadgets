@@ -8,6 +8,12 @@
 // For details, see the script.aculo.us web site: http://script.aculo.us/
 
 // experimental, Firefox-only
+/**
+ * Event
+ */
+	/**
+	 * .simulateMouse(element,eventName)
+	 */
 Event.simulateMouse = function(element, eventName) {
   var options = Object.extend({
     pointerX: 0,
@@ -44,6 +50,9 @@ Event.simulateMouse = function(element, eventName) {
 // Note: Due to a fix in Firefox 1.0.5/6 that probably fixed "too much", this doesn't work in 1.0.6 or DP2.
 // You need to downgrade to 1.0.4 for now to get this working
 // See https://bugzilla.mozilla.org/show_bug.cgi?id=289940 for the fix that fixed too much
+	/**
+	 * .simulateKey(element, eventName)
+	 */
 Event.simulateKey = function(element, eventName) {
   var options = Object.extend({
     ctrlKey: false,
@@ -61,6 +70,9 @@ Event.simulateKey = function(element, eventName) {
   $(element).dispatchEvent(oEvent);
 };
 
+	/**
+	 * .simulateKeys(element, command)
+	 */
 Event.simulateKeys = function(element, command) {
   for(var i=0; i<command.length; i++) {
     Event.simulateKey(element,'keypress',{charCode:command.charCodeAt(i)});
@@ -72,15 +84,23 @@ Test.Unit = {};
 
 // security exception workaround
 Test.Unit.inspect = Object.inspect;
-
+/**
+ * Test.Unit.Logger
+ */
 Test.Unit.Logger = Class.create();
 Test.Unit.Logger.prototype = {
+	/**
+	 * initialize(log)
+	 */
   initialize: function(log) {
     this.log = $(log);
     if (this.log) {
       this._createLogTable();
     }
   },
+	/**
+	 * start(testName)
+	 */
   start: function(testName) {
     if (!this.log) return;
     this.testName = testName;
@@ -95,6 +115,9 @@ Test.Unit.Logger.prototype = {
     this.lastLogLine.appendChild(this.messageCell);
     this.loglines.appendChild(this.lastLogLine);
   },
+	/**
+	 * finish(status, summary)
+	 */
   finish: function(status, summary) {
     if (!this.log) return;
     this.lastLogLine.className = status;
@@ -102,14 +125,23 @@ Test.Unit.Logger.prototype = {
     this.messageCell.innerHTML = this._toHTML(summary);
     this.addLinksToResults();
   },
+	/**
+	 * message(message)
+	 */
   message: function(message) {
     if (!this.log) return;
     this.messageCell.innerHTML = this._toHTML(message);
   },
+	/**
+	 * summary(summary)
+	 */
   summary: function(summary) {
     if (!this.log) return;
     this.logsummary.innerHTML = this._toHTML(summary);
   },
+	/**
+	 * _createLogTable()
+	 */
   _createLogTable: function() {
     this.log.innerHTML =
     '<div id="logsummary"></div>' +
@@ -120,9 +152,15 @@ Test.Unit.Logger.prototype = {
     this.logsummary = $('logsummary');
     this.loglines = $('loglines');
   },
+	/**
+	 * _toHTML(txt)
+	 */
   _toHTML: function(txt) {
     return txt.escapeHTML().replace(/\n/g,"<br/>");
   },
+	/**
+	 * addLinksToResults()
+	 */
   addLinksToResults: function(){ 
     $$("tr.failed .nameCell").each( function(td){ // todo: limit to children of this.log
       td.title = "Run only this test";
@@ -135,8 +173,14 @@ Test.Unit.Logger.prototype = {
   }
 };
 
+/**
+ * Test.Unit.Runnner
+ */
 Test.Unit.Runner = Class.create();
 Test.Unit.Runner.prototype = {
+	/**
+	 * initialize(testcases)
+	 */
   initialize: function(testcases) {
     this.options = Object.extend({
       testLog: 'testlog'
@@ -181,6 +225,9 @@ Test.Unit.Runner.prototype = {
         return window.location.search.parseQuery()["tests"].split(',');
     };
   },
+	/**
+	 * getResult()
+	 */
   // Returns:
   //  "ERROR" if there was an error,
   //  "FAILURE" if there was a failure, or
@@ -201,12 +248,18 @@ Test.Unit.Runner.prototype = {
       return "SUCCESS";
     }
   },
+	/**
+	 * postResults()
+	 */
   postResults: function() {
     if (this.options.resultsURL) {
       new Ajax.Request(this.options.resultsURL, 
         { method: 'get', parameters: 'result=' + this.getResult(), asynchronous: false });
     }
   },
+	/**
+	 * runTests()
+	 */
   runTests: function() {
     var test = this.tests[this.currentTest];
     if (!test) {
@@ -229,6 +282,9 @@ Test.Unit.Runner.prototype = {
       this.runTests();
     }
   },
+	/**
+	 * summary()
+	 */
   summary: function() {
     var assertions = 0;
     var failures = 0;
@@ -248,6 +304,9 @@ Test.Unit.Runner.prototype = {
   }
 };
 
+/**
+ * Test.Unit.Assertions
+ */
 Test.Unit.Assertions = Class.create();
 Test.Unit.Assertions.prototype = {
   initialize: function() {
@@ -282,12 +341,18 @@ Test.Unit.Assertions.prototype = {
     if (this.errors > 0) return 'error';
     return 'passed';
   },
+	/**
+	 * assert(expression)
+	 */
   assert: function(expression) {
     var message = arguments[1] || 'assert: got "' + Test.Unit.inspect(expression) + '"';
     try { expression ? this.pass() : 
       this.fail(message); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertEqual(expected, actual)
+	 */
   assertEqual: function(expected, actual) {
     var message = arguments[2] || "assertEqual";
     try { (expected == actual) ? this.pass() :
@@ -295,6 +360,9 @@ Test.Unit.Assertions.prototype = {
         '", actual "' + Test.Unit.inspect(actual) + '"'); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertInspect(expected, actual)
+	 */
   assertInspect: function(expected, actual) {
     var message = arguments[2] || "assertInspect";
     try { (expected == actual.inspect()) ? this.pass() :
@@ -302,6 +370,9 @@ Test.Unit.Assertions.prototype = {
         '", actual "' + Test.Unit.inspect(actual) + '"'); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertEnumEqual(expected, actual)
+	 */
   assertEnumEqual: function(expected, actual) {
     var message = arguments[2] || "assertEnumEqual";
     try { $A(expected).length == $A(actual).length && 
@@ -310,12 +381,18 @@ Test.Unit.Assertions.prototype = {
           ', actual ' + Test.Unit.inspect(actual)); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertNotEqual(expected, actual)
+	 */
   assertNotEqual: function(expected, actual) {
     var message = arguments[2] || "assertNotEqual";
     try { (expected != actual) ? this.pass() : 
       this.fail(message + ': got "' + Test.Unit.inspect(actual) + '"'); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertIdentical(expected, actual)
+	 */
   assertIdentical: function(expected, actual) { 
     var message = arguments[2] || "assertIdentical"; 
     try { (expected === actual) ? this.pass() : 
@@ -323,6 +400,9 @@ Test.Unit.Assertions.prototype = {
         '", actual "' + Test.Unit.inspect(actual) + '"'); } 
     catch(e) { this.error(e); } 
   },
+	/**
+	 * assertNotIdentical(expected, actual)
+	 */
   assertNotIdentical: function(expected, actual) { 
     var message = arguments[2] || "assertNotIdentical"; 
     try { !(expected === actual) ? this.pass() : 
@@ -330,12 +410,18 @@ Test.Unit.Assertions.prototype = {
         '", actual "' + Test.Unit.inspect(actual) + '"'); } 
     catch(e) { this.error(e); } 
   },
+	/**
+	 * assertNull(obj)
+	 */
   assertNull: function(obj) {
     var message = arguments[1] || 'assertNull';
     try { (obj==null) ? this.pass() : 
       this.fail(message + ': got "' + Test.Unit.inspect(obj) + '"'); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertMatch(expected, actual)
+	 */
   assertMatch: function(expected, actual) {
     var message = arguments[2] || 'assertMatch';
     var regex = new RegExp(expected);
@@ -343,14 +429,23 @@ Test.Unit.Assertions.prototype = {
       this.fail(message + ' : regex: "' +  Test.Unit.inspect(expected) + ' did not match: ' + Test.Unit.inspect(actual) + '"'); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertHidden(element)
+	 */
   assertHidden: function(element) {
     var message = arguments[1] || 'assertHidden';
     this.assertEqual("none", element.style.display, message);
   },
+	/**
+	 * assertNotNull(object)
+	 */
   assertNotNull: function(object) {
     var message = arguments[1] || 'assertNotNull';
     this.assert(object != null, message);
   },
+	/**
+	 * assertType(expected, actual)
+	 */
   assertType: function(expected, actual) {
     var message = arguments[2] || 'assertType';
     try { 
@@ -359,6 +454,9 @@ Test.Unit.Assertions.prototype = {
         '", actual "' + (actual.constructor) + '"'); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertNotOfType(expected, actual)
+	 */
   assertNotOfType: function(expected, actual) {
     var message = arguments[2] || 'assertNotOfType';
     try { 
@@ -367,6 +465,9 @@ Test.Unit.Assertions.prototype = {
         '", actual "' + (actual.constructor) + '"'); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertInstanceOf(expected, actual)
+	 */
   assertInstanceOf: function(expected, actual) {
     var message = arguments[2] || 'assertInstanceOf';
     try { 
@@ -374,6 +475,9 @@ Test.Unit.Assertions.prototype = {
       this.fail(message + ": object was not an instance of the expected type"); }
     catch(e) { this.error(e); } 
   },
+	/**
+	 * assertNotInstanceOf(expected, actual)
+	 */
   assertNotInstanceOf: function(expected, actual) {
     var message = arguments[2] || 'assertNotInstanceOf';
     try { 
@@ -381,6 +485,9 @@ Test.Unit.Assertions.prototype = {
       this.fail(message + ": object was an instance of the not expected type"); }
     catch(e) { this.error(e); } 
   },
+	/**
+	 * assertRespondsTo(method, obj)
+         */
   assertRespondsTo: function(method, obj) {
     var message = arguments[2] || 'assertRespondsTo';
     try {
@@ -388,6 +495,9 @@ Test.Unit.Assertions.prototype = {
       this.fail(message + ": object doesn't respond to [" + method + "]"); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertReturnsTrue(method, obj)
+         */
   assertReturnsTrue: function(method, obj) {
     var message = arguments[2] || 'assertReturnsTrue';
     try {
@@ -397,6 +507,9 @@ Test.Unit.Assertions.prototype = {
       this.fail(message + ": method returned false"); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertReturnsFalse(method, obj)
+         */
   assertReturnsFalse: function(method, obj) {
     var message = arguments[2] || 'assertReturnsFalse';
     try {
@@ -406,6 +519,9 @@ Test.Unit.Assertions.prototype = {
       this.fail(message + ": method returned true"); }
     catch(e) { this.error(e); }
   },
+	/**
+	 * assertRaise(exceptionName, method)
+         */
   assertRaise: function(exceptionName, method) {
     var message = arguments[2] || 'assertRaise';
     try { 
@@ -415,6 +531,9 @@ Test.Unit.Assertions.prototype = {
       ((exceptionName == null) || (e.name==exceptionName)) ? this.pass() : this.error(e); 
     }
   },
+	/**
+	 * assertElementsMatch(..., ......)
+         */
   assertElementsMatch: function() {
     var expressions = $A(arguments), elements = $A(expressions.shift());
     if (elements.length != expressions.length) {
@@ -427,9 +546,15 @@ Test.Unit.Assertions.prototype = {
       this.fail('assertElementsMatch: (in index ' + index + ') expected ' + expression.inspect() + ' but got ' + element.inspect());
     }.bind(this)) && this.pass();
   },
+	/**
+	 * assertElementsMatch(element, expression)
+         */
   assertElementMatches: function(element, expression) {
     this.assertElementsMatch([element], expression);
   },
+	/**
+	 * benchmark(operation, iterations)
+	 */
   benchmark: function(operation, iterations) {
     var startAt = new Date();
     (iterations || 1).times(operation);
@@ -450,6 +575,9 @@ Test.Unit.Assertions.prototype = {
   assertNotVisible: function(element) {
     this.assert(!this._isVisible(element), Test.Unit.inspect(element) + " was not hidden and didn't have a hidden parent either. " + ("" || arguments[1]));
   },
+	/**
+	 * assertVisible(element)
+	 */
   assertVisible: function(element) {
     this.assert(this._isVisible(element), Test.Unit.inspect(element) + " was not visible. " + ("" || arguments[1]));
   },
@@ -463,8 +591,14 @@ Test.Unit.Assertions.prototype = {
   }
 };
 
+/**
+ * Test.Unit.Testcase
+ */
 Test.Unit.Testcase = Class.create();
 Object.extend(Object.extend(Test.Unit.Testcase.prototype, Test.Unit.Assertions.prototype), {
+	/**
+	 * initialize(name, test, setup, teardown)
+	 */
   initialize: function(name, test, setup, teardown) {
     Test.Unit.Assertions.prototype.initialize.bind(this)();
     this.name           = name;
@@ -484,11 +618,17 @@ Object.extend(Object.extend(Test.Unit.Testcase.prototype, Test.Unit.Assertions.p
     this.isWaiting      = false;
     this.timeToWait     = 1000;
   },
+	/**
+	 * wait(time, nextPart)
+	 */
   wait: function(time, nextPart) {
     this.isWaiting = true;
     this.test = nextPart;
     this.timeToWait = time;
   },
+	/**
+	 * run()
+	 */
   run: function() {
     try {
       try {
@@ -508,6 +648,9 @@ Object.extend(Object.extend(Test.Unit.Testcase.prototype, Test.Unit.Assertions.p
 // *EXPERIMENTAL* BDD-style testing to please non-technical folk
 // This draws many ideas from RSpec http://rspec.rubyforge.org/
 
+/**
+ * Test.setupBDDExtensionMethods
+ */
 Test.setupBDDExtensionMethods = function(){
   var METHODMAP = {
     shouldEqual:     'assertEqual',
@@ -541,6 +684,9 @@ Test.setupBDDExtensionMethods = function(){
   );
 };
 
+/**
+ * Test.context(name, spec, log)
+ */
 Test.context = function(name, spec, log){
   Test.setupBDDExtensionMethods();
   
