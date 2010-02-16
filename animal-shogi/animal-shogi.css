@@ -28,7 +28,7 @@ div#top-stand {
 div#bottom-stand {
   background-color: #c8c;
   float: left;
-  margin: 150px 10px 10px 0px;
+  margin: 150px 10px 0px 0px;
   width: 30px;
   height: 300px;
 }
@@ -100,12 +100,7 @@ img.bottom {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
 }
-.sidebar-panel {
-  border: 1px solid black;
-  width: 170px;
-  padding: 0;
-}
-.sidebar-panel h2 {
+.join {
   font-size: medium;
   margin: 0;
   width: 100%;
@@ -113,11 +108,17 @@ img.bottom {
   background-color: black;
   color: white;
 }
+#bottom-panel {
+  clear:both;
+  text-align: right;
+  margin-top: 5px;
+}
 #message {
-  height: 70px;
+  height: 100px;
+  font-size: small;
 }
 #message-body {
-  padding: 3px;
+  padding: 1px;
 }
 .player {
   margin: 5px;
@@ -157,8 +158,9 @@ span.turn {
 div#joinButton {
   width: 150px;
 }
-dev#rev-b {
+div#rev-b {
   float:left;
+  display: inline;
 }
 button.join {
   width: 150px;

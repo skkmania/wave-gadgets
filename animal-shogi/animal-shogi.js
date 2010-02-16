@@ -6,15 +6,9 @@ var CharList = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd',
 
 function addDraggable(piece, startMessage){
       new Draggable(piece.elm, {
-	/**
-	 * onStart()
-	 */
         onStart: function() {
           window.game.dw.dw(startMessage);
         },
-	/**
-	 * onEnd()
-	 */
         onEnd: function() {
           this.elm.style.top = 0;
           this.elm.style.left = 0;
@@ -228,7 +222,7 @@ window.game.dw.dw('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
   move: function(fromCell, toCell, notCapture, dropOrState) {  // Piece
 window.game.dw.dw('Piece#move 1 : ');
     var capturedPiece = null;
-    fromCell.remove(this);
+    if(fromCell) fromCell.remove(this);
 window.game.dw.dw('Piece#move 2 : ');
     capturedPiece = toCell.replace(this);
 window.game.dw.dw('Piece#move 3 : ');
@@ -582,8 +576,13 @@ window.game.dw.dw('in show of Cell, after process -> ' + this.piece.toDebugStrin
 	 * remove(piece)
 	 */
   remove: function(piece){  // Cell
+window.game.dw.dw('Cell#remove 1');
+if(this.piece)window.game.dw.dw('this cell.piece : ' + this.piece.toDebugString());
+window.game.dw.dw('arguments piece : ' + piece.toDebugString());
     piece.cell = null;
-    this.elm.removeChild(piece.elm);
+    if(this.piece){ this.elm.removeChild(this.piece.elm);
+window.game.dw.dw('Cell#remove 2');
+    }
     this.piece = null;
   },
 	/**

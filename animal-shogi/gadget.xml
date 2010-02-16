@@ -25,7 +25,6 @@
       wave.setStateCallback(window.game.stateChanged.bind(window.game));
     }
     window.game.show();
-    new Test.Unit.Runner( testcases, 'testlog' );
   }
   gadgets.util.registerOnLoadHandler(init);
 </script>
@@ -34,28 +33,28 @@
 
 <div id="testlog"> </div>
 
-<div id="message" class="sidebar-panel">
 <div id="container">
   <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
   <div id="top-stand"></div>
   <div id="animal-shogi"></div>
   <div id="bottom-stand"></div>
+  <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
 </div>
 <div id="sidebar">
-  <div id="control-panel" class="sidebar-panel">
-      <h2 class="t">message</h2>
+  <div id="control-panel">
+    <div id="message">
+      <div class="t">message</div>
       <div id="message-body"></div>
+    </div>
   </div>
 </div>
-<div id="rev-b" style="text-align:left;">
+<div id="rev-b">
   <button id="reverse-button" class="reverse t" onclick="window.game.reverse();">reverse</button>
-</div>
-<div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
-<div style="text-align:right;">
-    <a href="http://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi" target="_blank" class="t">help</a>
-</div>
-<div style="float:right;text-align:right;">
   <button id="dump-button" class="dump t" onclick="window.game.debug_dump();">dump</button>
+  <button id="test-button" class="testbutton t" onclick="new Test.Unit.Runner( testcases, 'testlog' );">run_test</button>
+</div>
+<div style="clear:both;text-align:right;">
+    <a href="http://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi" target="_blank" class="t">help</a>
 </div>
 
 <button id="join-button" class="join t" onclick="window.game.setPlayer(wave.getViewer().getId()); this.hide();">join</button>
