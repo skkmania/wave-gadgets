@@ -229,42 +229,6 @@ window.game.dw.dw('Piece#move 3 : ');
     return capturedPiece;
   },
 	/**
-	 * move_orig(fromCell, toCell, notCapture, dropOrState)
-	 */
-  move_orig: function(fromCell, toCell, notCapture, dropOrState) {  // Piece
-window.game.dw.dw('move entered. piece: ' + this.toDebugString() + ', notCapture: ' + notCapture);
-if(fromCell) window.game.dw.dw('from: ' + fromCell.toDebugString());
-if(toCell) window.game.dw.dw(', to: ' + toCell.toDebugString());
-    var capturedPiece = null;
-    if (notCapture != undefined && !notCapture) {
-      if (toCell.piece) {
-        capturedPiece = toCell.piece;
-        toCell.capturedBy(this.player);
-      }
-    }
-
-window.game.dw.dw('this.elm.id -> ' + this.elm.id);
-window.game.dw.dw('this.elm.parentNode -> ' + this.elm.parentNode);
-    this.elm.parentNode.removeChild(this.elm);
-    toCell.elm.appendChild(this.elm);
-    if (fromCell) {
-      if(fromCell.piece.name == this.name){
-        fromCell.piece = null;
-window.game.dw.dw('piece of fromCell:' + fromCell.toDebugString() + ' was nulled.');
-      }
-    }
-window.game.dw.dw('this is to put to toCell: ' + toCell.toDebugString());
-    toCell.put(this);
-window.game.dw.dw('this was put to toCell: ' + toCell.toDebugString());
-    if (dropOrState == 'onDrop' && fromCell && this.type == 'chick' && toCell.isOpponentFirstLine(this.player)) {
-window.game.dw.dw('chick is becoming special');
-      this.becomeSpecial();
-    }
-window.game.dw.dw('leaving move.');
-if(capturedPiece) window.game.dw.dw('capturedPiece is ' + capturedPiece.toDebugString());
-    return capturedPiece;
-  },
-	/**
 	 * isViewersP()
 	 */
   isViewersP: function() {
