@@ -8,24 +8,21 @@ HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
  */
 var CharList = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
 
+Array.prototype.subtract = function(ary){
+  // 配列から配列を引き算する。破壊的。
+  $A(ary).each(function(c){
+    var idx = $A(this).indexOf(c);
+    if(idx >= 0) this.splice(idx,1);
+  }.bind(this));
+}
+
 String.prototype.subtract = function(str){
   // 文字列から文字列を引き算する
   // 自分自身から与えられた文字列を引いた値を返す。
-  var orig = $A(this);
-  var extractor = $A(str);
-  extractor.each(function(c){
-    var idx = orig.indexOf(c);
-    if(idx >= 0) orig = orig.deleteAt(idx);
-  });
-  return orig.join('');
-｝
-
-Array.prototype.deleteAt = function(idx){
-  var ret = [];
-  for(var i = 0; i < this.length; i++){
-    if(i != idx) ret.push(this[i]);
-  }
-  return ret;
+  // コピーを返すので元の値は変化しない
+  var ret = $A(this);
+  ret.subtract($A(str));
+  return ret.join('');
 }
 
 function addDraggable(piece, startMessage){
@@ -703,6 +700,31 @@ this.game.dw.dw('------- Board#adjustBoarder leaving -----------');
     return this.cells[y][x];
   },
 	/**
+	 * put(chr, idx)
+	 */
+	/**
+	 * remove(idx)
+	 */
+	/**
+	 * put(pair, idx)
+	 */
+	/**
+	 * read(strFromState)
+	 */
+  read: function(strFromState){ // Board
+    // stateから読んだ文字列を元に駒を盤上に置く
+    // 現在の状態との差分を埋める
+    var oldBoard = $A(this.toString());
+    var newBoard = $A(strFromState);
+    newBoard.zip(oldBoard).each(function(tuple, idx){
+        if(tuple[0] != tuple[1]){
+           if(tuple[1] == 'x') this.put(tuple[0], idx);
+           else if(tuple[0] == 'x') this.remove(idx);
+           else this.replace(tuple, idx);
+        }
+      }.bind(this));
+  },
+	/**
 	 * toString()
 	 */
   toString: function(){ // Board
@@ -810,19 +832,22 @@ Stand = Class.create({
 	/**
 	 * read(str)
 	 */
-  read: function(str){ // Stand
+  read: function(strFromState){ // Stand
     // stateから読んだ文字列を元に駒を駒台に置く
-    // strが空文字列ならclearして終わり
-    if (str.length == 0){  this.pieces.clear(); return; }
+    // strFromStateが空文字列ならclearして終わり
+    if (strFromState.length == 0){  this.pieces.clear(); return; }
     // 現在のstandの状態との差分を埋める
     var str_now = this.toString();
-    // 現在にあり、strにないものは現在から消す
-    $A(str_now).each(function(c){
-      
+    // 現在にあり、strFromStateにないものは現在から消す
+    var deleteCandidate = str_now.subtract(strFromState);
+    $A(deleteCandidate).each(function(c){
+      this.remove(c);
+    }.bind(this));  
     // 現在になく、strにあるものは現在へ足す
-    $A(str).each(function(c){
+    var addCandidate = strFromState.subtract(str_now);
+    $A(addCandidate).each(function(c){
       this.put(new Piece(c));
-    }).bind(this);
+    }.bind(this));
   },
 	/**
 	 * clear()
@@ -1342,9 +1367,9 @@ window.game.dw.dw('adding Draggable in sendPieceToStand:');
 	 */
   fromState_new: function(state) {
     this.dw.dw('<span style="color:#00FFFF">entered fromState</span>');
-    this.board.read(state.get('board');
-    this.blackStand.read(state.get('bstand');
-    this.whiteStand.read(state.get('wstand');
+    this.board.read(state.get('board'));
+    this.blackStand.read(state.get('bstand'));
+    this.whiteStand.read(state.get('wstand'));
     this.processPlayer(state);
     if (state.get('turn')) this.turn = this[state.get('turn')];
     if (!this.turn) this.turn = this.player1;

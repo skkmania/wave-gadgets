@@ -1295,9 +1295,22 @@ window.game.dw.dw('adding Draggable in sendPieceToStand:');
       addDraggable(piece,'drag started 01 game sendPieceToStand'); 
     }
   },
-  /**
-   *  fromState(state)
-   */
+	/**
+	 * fromState_new(state)
+	 */
+  fromState_new: function(state) {
+    this.dw.dw('<span style="color:#00FFFF">entered fromState</span>');
+    this.board.read(state.get('board'));
+    this.blackStand.read(state.get('bstand'));
+    this.whiteStand.read(state.get('wstand'));
+    this.processPlayer(state);
+    if (state.get('turn')) this.turn = this[state.get('turn')];
+    if (!this.turn) this.turn = this.player1;
+    this.controlPanel.update();
+  },
+	/**
+	 * fromState(state)
+	 */
   fromState: function(state) {
     this.dw.dw('<span style="color:#00FFFF">entered fromState</span>');
     this.blackStand.clear();
@@ -1370,16 +1383,26 @@ this.dw.dw('Board#toString : ' + this.board.toString());
 /**
  * common functions
  */
+	/**
+	 * sendDelta(pieces, capturedPiece)
+	 */
 function sendDelta(piece, capturedPiece){
    // 送信
    var delta = {};
    delta['turn'] = window.game.getTurn().id;
    delta[piece.name] = piece.toString();
+   delta['board'] = window.game.board.toString();
+   delta['bstand'] = window.game.blackStand.toString();
+   delta['wstand'] = window.game.whiteStand.toString();
+
    if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
 window.game.dw.dw('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
    wave.getState().submitDelta(delta);
 }
 
+	/**
+	 * moveValidate(piece, fromCell, toCell)
+	 */
 function moveValidate(piece, fromCell, toCell){
 window.game.dw.dw('moveValidate entered: piece: ' + piece.toDebugString());
    if (!window.game.isViewersTurn()) {
@@ -1403,6 +1426,9 @@ window.game.dw.dw('moveValidate 4');
    return true;
 }
 
+	/**
+	 * checkFinish_new(piece, toCell)
+	 */
 function checkFinish_new(piece, toCell){
 window.game.dw.dw('checkFinish 1');
    var ret = (
@@ -1414,6 +1440,9 @@ window.game.dw.dw('checkFinish 1');
 window.game.dw.dw('checkFinish leaving with : ' + ret);
   return ret;
 }
+	/**
+	 * checkFinish(capturedPiece, piece, toCell)
+	 */
 function checkFinish(capturedPiece, piece, toCell){
           return (
           // 相手のライオンを捕獲
