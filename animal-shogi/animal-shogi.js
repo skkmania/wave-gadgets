@@ -4,6 +4,23 @@ HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
  */
 var CharList = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
 
+Array.prototype.subtract = function(ary){
+  // 配列から配列を引き算する。破壊的。
+  $A(ary).each(function(c){
+    var idx = $A(this).indexOf(c);
+    if(idx >= 0) this.splice(idx,1);
+  }.bind(this));
+}
+
+String.prototype.subtract = function(str){
+  // 文字列から文字列を引き算する
+  // 自分自身から与えられた文字列を引いた値を返す。
+  // コピーを返すので元の値は変化しない
+  var ret = $A(this);
+  ret.subtract($A(str));
+  return ret.join('');
+}
+
 function addDraggable(piece, startMessage){
       new Draggable(piece.elm, {
         onStart: function() {
@@ -679,6 +696,32 @@ this.game.dw.dw('------- Board#adjustBoarder leaving -----------');
     return this.cells[y][x];
   },
 	/**
+	 * put(chr, idx)
+	 */
+	/**
+	 * remove(idx)
+	 */
+	/**
+	 * put(pair, idx)
+	 */
+	/**
+	 * read(strFromState)
+	 */
+  read: function(strFromState){ // Board
+    // stateから読んだ文字列を元に駒を盤上に置く
+    // 現在の状態との差分を埋める
+    var oldBoard = $A(this.toString());
+    var newBoard = $A(strFromState);
+    newBoard.zip(oldBoard).each(function(tuple, idx){
+        if(tuple[0] != tuple[1]){
+           if(tuple[1] == 'x') this.put(tuple[0], idx);
+           else if(tuple[0] == 'x') this.remove(idx);
+           else this.replace(tuple, idx);
+        }
+      }.bind(this));
+  },
+	/**
+	/**
 	 * toString()
 	 */
   toString: function(){ // Board
@@ -782,6 +825,26 @@ Stand = Class.create({
     this.elm = document.createElement('div');
     this.elm.id = this.id;
     this.elm.obj = this;
+  },
+	/**
+	 * read(str)
+	 */
+  read: function(strFromState){ // Stand
+    // stateから読んだ文字列を元に駒を駒台に置く
+    // strFromStateが空文字列ならclearして終わり
+    if (strFromState.length == 0){  this.pieces.clear(); return; }
+    // 現在のstandの状態との差分を埋める
+    var str_now = this.toString();
+    // 現在にあり、strFromStateにないものは現在から消す
+    var deleteCandidate = str_now.subtract(strFromState);
+    $A(deleteCandidate).each(function(c){
+      this.remove(c);
+    }.bind(this));  
+    // 現在になく、strにあるものは現在へ足す
+    var addCandidate = strFromState.subtract(str_now);
+    $A(addCandidate).each(function(c){
+      this.put(new Piece(c));
+    }.bind(this));
   },
 	/**
 	 * clear()
@@ -933,7 +996,8 @@ AnimalShogiGame = Class.create({
     this.dw.dw('Stand created.');
     this.mode = 'init';
     this.message(t('click_join_button'));
-    this.turn = null;
+    this.count = 0;
+       // 手数。このgameではcount手目を指した局面がthis.board, this.blackStand, this.whiteStandに反映されているものとする.
     this.top_by_viewer = false;
       // viewerが反転ボタンでtopを決定したとき、その値を持つ。
       // それまではfalse. したがって、これがfalseのあいだはplayerとviewerの関係のみで
@@ -1084,8 +1148,8 @@ this.dw.dw('leaving nextTurn');
 	 * getTurn()
 	 */
   getTurn: function() {
-    if (!this.turn) this.turn = this.player1;
-    return this.turn;
+    // turnは論理値。countが偶数ならtrueで先手番、奇数ならfalseで後手番。
+    return (this.count % 2 == 0);
   },
 	/**
 	 * isViewersTurn()
@@ -1389,11 +1453,10 @@ this.dw.dw('Board#toString : ' + this.board.toString());
 function sendDelta(piece, capturedPiece){
    // 送信
    var delta = {};
-   delta['turn'] = window.game.getTurn().id;
-   delta[piece.name] = piece.toString();
    delta['board'] = window.game.board.toString();
    delta['bstand'] = window.game.blackStand.toString();
    delta['wstand'] = window.game.whiteStand.toString();
+   delta['count'] = window.game.count.toString();
 
    if (capturedPiece) delta[capturedPiece.name] = capturedPiece.toString();
 window.game.dw.dw('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
