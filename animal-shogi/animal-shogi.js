@@ -120,6 +120,12 @@ window.game.log.warn('enterd _addDrag');
   } 
 });
 
+/**
+ * createPieceByChr(chr)
+ */
+function createPieceByChr: function(chr) {  
+}
+
 Piece = Class.create();
 Piece.all = $A();
 Piece.selectByName = function(name) {
@@ -136,6 +142,16 @@ Piece.selectByName = function(name) {
 /**
  * Piece Class
  */
+/*
+animal-shogiでは
+Pieceは各駒の親クラス。生成されるのは子クラスの各駒が生成されるのを通じてのみ。
+したがってthis.typeなど、子クラスのプロパティに親クラスのinitializeではじめからアクセスしている。
+しかしこれにはなんとなく違和感があるのと、文字から駒を生成するにあたって不便なところがある。なぜなら、文字から生成するということはPieceのtypeはinitialize段階ではわからず、後付けになるから。その処理をinitializeの中で行うのも変なかんじ。
+*/
+/*
+というわけで、きたる将棋では
+駒の生成はPieceのinitializeで行う。各駒のtypeの設定はオブジェクトを渡すことで行うこととする。
+*/
 Piece.prototype = {
 	/**
 	 * initialize(player)
@@ -153,6 +169,7 @@ alert('window.game does not exist.');
     this.elm.id = this.name;
     this.elm.addClassName('piece');
     this.setPlayer(player);
+    this.chr = this.getChr();
     if (this.isViewersP()) {
       addDraggable(this,'Draggable when initialize');
     }
@@ -185,6 +202,14 @@ if (window.game) window.game.log.warn('piece setPlayer entered: ' + this.name + 
       this.elm.addClassName('top');
     }
 if (window.game) window.game.log.warn('leaving piece setPlayer : ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
+  },
+	/**
+	 * getChr()
+	 */
+  getChr : function(){ // Piece
+    return this.player.id == 'player1' ?
+            CharList[this.type].toUpperCase() :
+            CharList[this.type];
   },
 	/**
 	 * atTop()
@@ -290,9 +315,13 @@ window.game.log.warn('leaving Piece#toString with : ' + ret);
 }
 
 /**
- * Lion
+ * PieceTypeObjects 
  */
-Lion = Class.create(Piece, {
+var PieceTypeObjects = {
+	/**
+	 * Lion
+	 */
+  'lion': {
   imageUrl: HOST + 'lion.png',
   type: 'lion',
   initialPosition: [2, 4],
@@ -301,12 +330,11 @@ Lion = Class.create(Piece, {
     [ true, false,  true],
     [ true,  true,  true]
   ]
-});
-
-/**
- * Elephant
- */
-Elephant = Class.create(Piece, {
+  },
+	/**
+	 * Elephant
+	 */
+  'elephant': {
   imageUrl: HOST + 'elephant.png',
   type: 'elephant',
   initialPosition: [1, 4],
@@ -315,12 +343,11 @@ Elephant = Class.create(Piece, {
     [false, false, false],
     [ true, false,  true]
   ]
-});
-
-/**
- * Giraffe
- */
-Giraffe = Class.create(Piece, {
+  },
+	/**
+	 * Giraffe
+	 */
+  'giraffe': {
   imageUrl: HOST + 'giraffe.png',
   type: 'giraffe',
   initialPosition: [3, 4],
@@ -329,12 +356,11 @@ Giraffe = Class.create(Piece, {
     [ true, false,  true],
     [false,  true, false]
   ]
-});
-
-/**
- * Chick
- */
-Chick = Class.create(Piece, {
+  },
+	/**
+	 * Chick
+	 */
+  'chick': {
   imageUrl: HOST + 'chick.png',
   type: 'chick',
   initialPosition: [2, 3],
@@ -342,34 +368,21 @@ Chick = Class.create(Piece, {
     [false,  true, false],
     [false, false, false],
     [false, false, false]
-  ],
+  ]
+  },
 	/**
-	 * becomeSpecial()
+	 * Chicken
 	 */
-  becomeSpecial: function() {
-    this.imageUrl = HOST + 'chicken.png';
-    this.type = 'chicken';
-    this.movableArea = [
+  'chicken': {
+  imageUrl : HOST + 'chicken.png',
+  type : 'chicken',
+  movableArea : [
       [ true,  true,  true],
       [ true, false,  true],
       [false,  true, false]
-    ];
-    this.elm.src = this.imageUrl;
-  },
-	/**
-	 * becomeNormal()
-	 */
-  becomeNormal: function() {
-    this.imageUrl = HOST + 'chick.png';
-    this.type = 'chick';
-    this.movableArea = [
-      [false,  true, false],
-      [false, false, false],
-      [false, false, false]
-    ];
-    this.elm.src = this.imageUrl;
+    ]
   }
-});
+};
 
 /**
  * Cell
@@ -646,6 +659,23 @@ Board = Class.create({
     }
   },
 	/**
+	 * idx2xy(idx)
+	 */
+  idx2xy: function(idx) {
+    // stateの文字列のindex(0スタート）を座標の配列[x,y]にして返す
+    var h = this.height - 1;
+    var w = this.width - 1;
+    return [idx/h + 1, (idx + 1)%h]
+  },
+	/**
+	 * xy2idx(xy)
+	 */
+  idx2xy: function(xy) {
+    // 座標の配列[x,y]をstateの文字列のindex(0スタート）にして返す
+    var h = this.height - 1;
+    return (x - 1) + (y-1)*h;
+  },
+	/**
 	 * adjust()
 	 */
   adjust: function() {
@@ -698,13 +728,27 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
     return this.cells[y][x];
   },
 	/**
+	 * getCellByIdx(idx)
+	 */
+  getCellByIdx: function(idx) {
+    var xy = this.idx2xy(idx);
+    return this.cells[xy[1]][xy[0]];
+  },
+	/**
 	 * put(chr, idx)
 	 */
+  put: function(chr, idx){ // Board
+    var cell = this.getCellByIdx(idx);
+    if(cell.piece){
+    } else {
+      cell.put(Piece.createByChr(chr));
+    }
+  },
 	/**
 	 * remove(idx)
 	 */
 	/**
-	 * put(pair, idx)
+	 * replace(pair, idx)
 	 */
 	/**
 	 * read(strFromState)
@@ -829,12 +873,21 @@ Stand = Class.create({
     this.elm.obj = this;
   },
 	/**
-	 * remove(idx)
+	 * remove(chr)
 	 */
+  remove: function(chr){  // Stand
+    // chrで指定された駒を駒台から取り除く
+    // 取り除いたpieceを返す
+    var target = this.pieces.find(function(p){ return p.chr == chr; });
+    this.elm.removeChild(target.elm);
+    return target;
+  },
 	/**
-	 * put(pair, idx)
+	 * put(piece)
 	 */
-	/**
+  put: function(piece){  // Stand
+    this.pieces.push(piece);
+  },
 	/**
 	 * read(str)
 	 */
@@ -852,7 +905,7 @@ Stand = Class.create({
     // 現在になく、strにあるものは現在へ足す
     var addCandidate = strFromState.subtract(str_now);
     $A(addCandidate).each(function(c){
-      this.put(new Piece(c));
+      this.put(createPiece(c));
     }.bind(this));
   },
 	/**
@@ -1374,9 +1427,9 @@ window.game.log.warn('adding Draggable in sendPieceToStand:');
     }
   },
 	/**
-	 * fromState_new(state)
+	 * fromState(state)
 	 */
-  fromState_new: function(state) {
+  fromState: function(state) {
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
     this.board.read(state.get('board'));
     this.blackStand.read(state.get('bstand'));
@@ -1387,9 +1440,9 @@ window.game.log.warn('adding Draggable in sendPieceToStand:');
     this.controlPanel.update();
   },
 	/**
-	 * fromState(state)
+	 * fromState_old(state)
 	 */
-  fromState: function(state) {
+  fromState_old: function(state) {
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
     this.blackStand.clear();
     this.whiteStand.clear();
@@ -1456,7 +1509,7 @@ this.log.warn('Board#toString : ' + this.board.toString());
     //obj['Cell']	 = Cell.all.invoke('toDebugString').join('<br>');
     obj['Piece']	 = Piece.all.invoke('toDebugString').join('<br>');
     for(var p in obj){
-      this.log.warn(obj[p]);
+      this.log.warn(p + ' : ' + obj[p]);
     }
   }
 });
