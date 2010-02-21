@@ -120,12 +120,6 @@ window.game.log.warn('enterd _addDrag');
   } 
 });
 
-/**
- * createPieceByChr(chr)
- */
-function createPieceByChr: function(chr) {  
-}
-
 Piece = Class.create();
 Piece.all = $A();
 Piece.selectByName = function(name) {
@@ -156,22 +150,40 @@ Piece.prototype = {
 	/**
 	 * initialize(player)
 	 */
-  initialize: function(player) {
-if(window.game) window.game.log.warn('entered Piece#initialize: ' + this.type + '_' + player.id);
+  initialize: function(chr) {
+    this.type = CharList[chr.toLowerCase()];
+    for(var k in PieceTypeObjects[this.type]){
+      this.k = PieceTypeObjects[this.type][k];
+    }
+    this.player = (chr.toLowerCase() == chr)? window.game.player2:window.game.player1;
+if(window.game) window.game.log.warn('entered Piece#initialize: ' + this.type + '_' + this.player.id);
 else
 alert('window.game does not exist.');
     Piece.all.push(this);
-    this.name = this.type + '_' + player.id;
+    this.name = CharList[chr] + '_' + this.player.id;
     this.cell = null;
+    this.chr = chr;
+    this.createElm();
+    if (this.isViewersP()) {
+      addDraggable(this,'Draggable when initialize');
+    }
+  },
+	/**
+	 * createElm()
+	 */
+  createElm: function() {  // Piece
     this.elm = document.createElement('img');
     this.elm.obj = this;
     this.elm.src = this.imageUrl;
     this.elm.id = this.name;
     this.elm.addClassName('piece');
-    this.setPlayer(player);
-    this.chr = this.getChr();
-    if (this.isViewersP()) {
-      addDraggable(this,'Draggable when initialize');
+    if (!this.atTop()) {
+      this.elm.addClassName('bottom');
+      this.elm.removeClassName('top');
+    }
+    else {
+      this.elm.removeClassName('bottom');
+      this.elm.addClassName('top');
     }
   },
 	/**
@@ -190,7 +202,7 @@ window.game.log.warn('piece initialArrange after corrected : ' + this.name + ', 
 	/**
 	 * setPlayer(player)
 	 */
-  setPlayer: function(player) {
+  setPlayer: function(player) { // Piece
     this.player = player;
 if (window.game) window.game.log.warn('piece setPlayer entered: ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
     if (!this.atTop()) {
@@ -740,16 +752,38 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
   put: function(chr, idx){ // Board
     var cell = this.getCellByIdx(idx);
     if(cell.piece){
+      if(cell.piece.chr == chr){
+        // do nothing
+      } else {
+        cell.remove();
+        cell.put(new Piece(chr));
+      }
     } else {
-      cell.put(Piece.createByChr(chr));
+      cell.put(new Piece(chr));
     }
   },
 	/**
 	 * remove(idx)
 	 */
+  remove: function(idx){ // Board
+    var cell = this.getCellByIdx(idx);
+    if(cell.piece){
+      cell.remove();
+    } else {
+      // do nothing
+    }
+  },
 	/**
 	 * replace(pair, idx)
 	 */
+  replace: function(pair, idx){ // Board
+    var cell = this.getCellByIdx(idx);
+    if(cell.piece){
+      cell.replace(new Piece(pair[0]));
+    } else {
+      cell.put(new Piece(pair[0]));
+    }
+  },
 	/**
 	 * read(strFromState)
 	 */
@@ -970,12 +1004,13 @@ Player = Class.create({
     this.name = name;
     this.mine = mine;
     this.isViewer = mine;
-    this.pieces = [
+/*    this.pieces = [
       new Giraffe(this),
       new Lion(this),
       new Elephant(this),
       new Chick(this)
     ];
+*/
   },
 	/**
 	 * stand()
@@ -1118,7 +1153,8 @@ if (this.player2) this.log.warn('leaving determineTop: player2.name : ' + this.p
 	/**
 	 * setPlayer(name, opponent)
 	 */
-  setPlayer: function(name, opponent) {
+        // GameのsetPlayerが呼ばれるのはjoinボタンが押されたときだけ
+  setPlayer: function(name, opponent) { // Game
     if (!this.player1) {
       this.player1 = new Player('player1', name, !opponent);
       if (!opponent) this.myPlayer = this.player1;
