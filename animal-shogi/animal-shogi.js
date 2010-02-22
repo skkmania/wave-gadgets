@@ -2,7 +2,8 @@ HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
 /**
  * common functions
  */
-var CharList = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
+var Type2chr = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
+var Chr2Type = { 'a' : 'chick', 'b' : 'elephant', 'c' : 'giraffe', 'd' : 'lion', 'e' : 'chicken' };
 
 Array.prototype.subtract = function(ary){
   // 配列から配列を引き算する。破壊的。
@@ -92,7 +93,7 @@ ControlPanel = Class.create({
 window.game.log.warn('enterd _addDrag');
     if(this.game.myPlayer){
       // viewerかつplayer側のpieceにDraggableを追加する
-      Piece.all.each(function(piece){
+      Pieces.each(function(piece){
         // cellのないpieceが持ち駒。盤上の駒にはすでにDraggableがあるのでさわらない
         if(!piece.cell && piece.player == this.game.myPlayer)
           addDraggable(piece,'drag started 00 cp _addDrag');
@@ -120,17 +121,9 @@ window.game.log.warn('enterd _addDrag');
   } 
 });
 
-Piece = Class.create();
-Piece.all = $A();
-Piece.selectByName = function(name) {
-  for (var i = 0; i < Piece.all.length; i++) {
-    var piece = Piece.all[i];
-    if (piece.name == name) return piece;
-  }
-  return null;
-};
+Pieces = $A();
 // これは
-// Piece.all.find(function(e){ return e.name == name; })
+// Pieces.find(function(e){ return e.name == name; })
 // とかけばよいのでは？ しかも1ヶ所でしかつかってないし。undefinedにしたくない、nullがいいという理由があるかどうかチェック。
 
 /**
@@ -146,21 +139,23 @@ Pieceは各駒の親クラス。生成されるのは子クラスの各駒が生
 というわけで、きたる将棋では
 駒の生成はPieceのinitializeで行う。各駒のtypeの設定はオブジェクトを渡すことで行うこととする。
 */
-Piece.prototype = {
+Piece = Class.create({
 	/**
-	 * initialize(player)
+	 * initialize(chr)
 	 */
   initialize: function(chr) {
-    this.type = CharList[chr.toLowerCase()];
+//window.game.log.warn('Piece#initialize entered with : ' + chr);
+    this.type = Type2chr[chr.toLowerCase()];
+//game.log.warn('Piece#initialize type is : ' + this.type);
     for(var k in PieceTypeObjects[this.type]){
       this.k = PieceTypeObjects[this.type][k];
     }
+//game.log.warn('Piece#initialize imageUrl is : ' + this.imageUrl);
     this.player = (chr.toLowerCase() == chr)? window.game.player2:window.game.player1;
-if(window.game) window.game.log.warn('entered Piece#initialize: ' + this.type + '_' + this.player.id);
-else
-alert('window.game does not exist.');
-    Piece.all.push(this);
-    this.name = CharList[chr] + '_' + this.player.id;
+//game.log.warn('entered Piece#initialize: ' + this.type + '_' + this.player.id);
+    Pieces.push(this);
+    this.name = Type2chr[chr] + '_' + this.player.id;
+//game.log.warn('Piece#initialize name is : ' + this.name);
     this.cell = null;
     this.chr = chr;
     this.createElm();
@@ -220,8 +215,8 @@ if (window.game) window.game.log.warn('leaving piece setPlayer : ' + this.name +
 	 */
   getChr : function(){ // Piece
     return this.player.id == 'player1' ?
-            CharList[this.type].toUpperCase() :
-            CharList[this.type];
+            Type2chr[this.type].toUpperCase() :
+            Type2chr[this.type];
   },
 	/**
 	 * atTop()
@@ -324,7 +319,7 @@ window.game.log.warn('leaving Piece#toString with : ' + ret);
     ret += (', cn: ' + this.elm.className);
     return ret;
   }
-}
+});
 
 /**
  * PieceTypeObjects 
@@ -422,7 +417,7 @@ Cell.prototype = {
   say: function(){ // Cell
     // このセルにいるpieceの状態を文字にして返す
     if (!this.piece) return 'x';
-    var retChar = CharList[this.piece.type];
+    var retChar = Type2chr[this.piece.type];
     if(this.piece.player.id == 'player1')
       return retChar.toUpperCase();
     else
@@ -432,11 +427,11 @@ Cell.prototype = {
 	 * put(piece)
 	 */
   put: function(piece) { // Cell
-window.game.log.warn('Cell#put entered');
+game.log.warn('Cell#put entered');
     this.piece = piece;
     this.piece.cell = this;
     if(this.elm) this.elm.appendChild(piece.elm);
-window.game.log.warn('Cell#put leaving');
+game.log.warn('Cell#put leaving');
   },
 	/**
 	 * move(toY, toX)
@@ -669,14 +664,28 @@ Board = Class.create({
       }
       this.cells.push(row);
     }
+    this.initialString = 'bxxCdaADcxxB';
+    game.log.warn('Board#initialize 01');
+    $A(this.initialString).each(function(chr, idx){
+      game.log.warn('idx: ' + idx);
+      var h = this.height - 1;
+      var x = idx/h + 1, y = (idx + 1)%h;
+      game.log.warn('chr: ' + chr + ', x : ' + x +', y : ' + y);
+if(!this.cells[x][y]) game.log.warn('there is no cell.');
+else game.log.warn('cell: ' + this.cells[x][y].toDebugString());
+      var p = new Piece(chr);
+      game.log.warn('piece: ' + p.toDebugString());
+      this.cells[x][y].put(p);
+    }.bind(this));
   },
 	/**
 	 * idx2xy(idx)
 	 */
   idx2xy: function(idx) {
+    game.log.warn('Board#idx2xy entered with : ' + idx);
     // stateの文字列のindex(0スタート）を座標の配列[x,y]にして返す
     var h = this.height - 1;
-    var w = this.width - 1;
+    game.log.warn('Board#idx2xy returning with : ' + idx/h+1 + ', ' + (idx+1)%h);
     return [idx/h + 1, (idx + 1)%h]
   },
 	/**
@@ -788,6 +797,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * read(strFromState)
 	 */
   read: function(strFromState){ // Board
+    game.log.warn('entered Board#read with : ' + strFromState);
     // stateから読んだ文字列を元に駒を盤上に置く
     // 現在の状態との差分を埋める
     var oldBoard = $A(this.toString());
@@ -805,6 +815,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * toString()
 	 */
   toString: function(){ // Board
+    game.log.warn('entered Board#toString');
     // stateに載せる文字列を返す
     var ret = '';
     for (var c = 1; c < this.width; c++) {
@@ -895,6 +906,7 @@ Stand = Class.create({
     this.height = 10;
     this.id = id;
     this.type = 'stand';
+    this.initialString = '';
     this.pieces = $A([]);
     this.createElm();
   },
@@ -979,7 +991,7 @@ Stand = Class.create({
     // stateに載せる文字列を返す
     var ret = '';
     if(this.pieces.size() > 0)
-      ret += this.pieces.map(function(p){ return CharList[p.type]; }).join('');
+      ret += this.pieces.map(function(p){ return Type2chr[p.type]; }).join('');
     return ret;
   },
 	/**
@@ -1004,13 +1016,6 @@ Player = Class.create({
     this.name = name;
     this.mine = mine;
     this.isViewer = mine;
-/*    this.pieces = [
-      new Giraffe(this),
-      new Lion(this),
-      new Elephant(this),
-      new Chick(this)
-    ];
-*/
   },
 	/**
 	 * stand()
@@ -1351,7 +1356,7 @@ this.log.warn('leaving stateChanged:');
     if (this.player1) ret.player1 = this.player1.toString();
     if (this.player2) {
       ret.player2 = this.player2.toString();
-      Piece.all.each(function(piece) {
+      Pieces.each(function(piece) {
         ret[piece.name] = piece.toString();
       });
       if (this.turn) ret.turn = this.turn.id;
@@ -1467,9 +1472,9 @@ window.game.log.warn('adding Draggable in sendPieceToStand:');
 	 */
   fromState: function(state) {
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
-    this.board.read(state.get('board'));
-    this.blackStand.read(state.get('bstand'));
-    this.whiteStand.read(state.get('wstand'));
+    this.board.read(state.get('board', this.board.initialString));
+    this.blackStand.read(state.get('bstand', this.blackStand.initialString));
+    this.whiteStand.read(state.get('wstand', this.whiteStand.initialString));
     this.processPlayer(state);
     if (state.get('turn')) this.turn = this[state.get('turn')];
     if (!this.turn) this.turn = this.player1;
@@ -1494,7 +1499,7 @@ this.log.warn('the array names is ' + names.join(':'));
     for (var i = 0; i < names.length; i++) {
 this.log.warn('<div style="color:#0000FF">***** name from array is: ' + names[i] + ' *******</div>');
       var name = names[i];
-      var piece = Piece.selectByName(name);
+      var piece = Pieces.find(function(e){ return e.name == name; })
       var pieceData = state.get(name); // owner,x,y
       if (piece){
 this.log.warn('selected piece: ' + piece.toDebugString());
@@ -1543,7 +1548,7 @@ this.log.warn('Board#toString : ' + this.board.toString());
     obj['blackStand']	 = this.blackStand.toString();
     obj['whiteStand']	 = this.whiteStand.toString();
     //obj['Cell']	 = Cell.all.invoke('toDebugString').join('<br>');
-    obj['Piece']	 = Piece.all.invoke('toDebugString').join('<br>');
+    obj['Piece']	 = Pieces.invoke('toDebugString').join('<br>');
     for(var p in obj){
       this.log.warn(p + ' : ' + obj[p]);
     }
