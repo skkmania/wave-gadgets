@@ -266,8 +266,9 @@ Log.popupLogger = function(msg,level,obj) {
        cell_1.style.paddingRight="6px";
        
        cell_2.style.fontSize="8pt";
+       cell_2.style.display="hidden";
        
-       cell_3.style.fontSize="8pt";
+       cell_3.style.fontSize="10pt";
        cell_3.style.whiteSpace="nowrap";
        cell_3.style.width="100%";
 
