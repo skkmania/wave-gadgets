@@ -131,6 +131,7 @@ Piece = Class.create({
 	 * initialize(chr)
 	 */
   initialize: function(chr, game, globe) {
+    this.game = game;
 game.log.warn('Piece#initialize entered with : ' + chr);
     this.type = Chr2Type[chr.toLowerCase()];
     this.isBlack = (chr.toUpperCase() == chr);
@@ -212,10 +213,7 @@ if (window.game) window.game.log.warn('leaving piece setPlayer : ' + this.name +
 	 * atTop()
 	 */
   atTop: function(game){ // Piece
-    if (game.top == 1)
-      return this.isBlack;
-    else
-      return !(this.isBlack);
+    return (this.game.top == 1) == this.isBlack;
   },
 	/**
 	 * capturedBy(player) 
@@ -532,7 +530,7 @@ window.game.log.warn('entered show of Cell: ' + this.toDebugString());
     if (this.piece) {
 window.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugString());
       this.elm.appendChild(this.piece.elm);
-      if(this.piece.player.id == 'player1'){
+      if(this.piece.isBlack){
         if(window.game.top === 0){
           this.piece.elm.addClassName('bottom');
           this.piece.elm.removeClassName('top');
@@ -658,7 +656,7 @@ Board = Class.create({
     $A(this.initialString).each(function(chr, idx){
       if(chr == 'x') return;
       game.log.warn('idx: ' + idx);
-      var h = this.height - 1;
+      var h = this.game.height - 1;
       var x = Math.floor(idx/h) + 1;
       var y = idx%h + 1;
       game.log.warn('chr: ' + chr + ', x : ' + x +', y : ' + y);
@@ -990,10 +988,12 @@ Stand = Class.create({
 	 * toString()
 	 */
   toString: function(){ // Stand
+    this.game.log.debug('entered Stand#toString : ' + this.id);
     // stateに載せる文字列を返す
     var ret = '';
     if(this.pieces.size() > 0)
       ret += this.pieces.map(function(p){ return Type2chr[p.type]; }).join('');
+    this.game.log.debug('leaving Stand#toString with : ' + ret);
     return ret;
   },
 	/**
@@ -1031,10 +1031,7 @@ Player = Class.create({
 	 * atTop()
 	 */
   atTop: function(game){ // Player
-    if (this.id == 'player1')
-      return (game.top == 1);
-    else
-      return (game.top != 1);
+    return (this.id == 'player1') == (window.game.top == 1);
   },
 	/**
 	 * initialArrange(board)
@@ -1075,7 +1072,7 @@ window.game.log.warn(this.id + ': ' + this.name);
 	 * toDebugString()
 	 */
   toDebugString: function() {
-    return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop() + ', ' + this.pieces.invoke('toDebugString').join(':'); 
+    return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop(); 
   }
 });
 
@@ -1087,7 +1084,7 @@ AnimalShogiGame = Class.create({
 	 * initialize(settings)
 	 */
   initialize: function(settings) {
-    this.log = new Log(Log.WARN, Log.popupLogger);
+    this.log = new Log(Log.DEBUG, Log.popupLogger);
  //   this.log.setLevel('none');
     this.log.warn('start log');
     this.width = 4;  // 0 is dummy
@@ -1390,7 +1387,7 @@ this.log.warn('processPlayer: processing Player1: ');
       this.top = (isMe ? 0 : 1);
       this.player1 = new Player('player1', pl1, isMe, this.top);
       this.controlPanel.update();
-this.log.warn('leaving processPlayer: processing Player1: ');
+this.log.info('leaving processing Player1: ');
     }
     if (!this.player2 && pl2) {
 this.log.warn('processPlayer: processing Player2: ');
@@ -1552,15 +1549,23 @@ this.log.warn('Board#toString : ' + this.board.toString());
     this.log.warn(state.toString());
     var obj = {};
     obj['player1']	 = (this.player1 ? this.player1.toDebugString():null);
+    this.log.debug('00');
     obj['player2']	 = (this.player2 ? this.player2.toDebugString():null);
+    this.log.debug('01');
     obj['top']		 = this.top;
+    this.log.debug('02');
     obj['turn']		 = this.turn;
+    this.log.debug('03');
     //obj['board']	 = this.board.toDebugString();
     obj['board']	 = this.board.toString();
+    this.log.debug('04');
     obj['blackStand']	 = this.blackStand.toString();
+    this.log.debug('05');
     obj['whiteStand']	 = this.whiteStand.toString();
+    this.log.debug('06');
     //obj['Cell']	 = Cell.all.invoke('toDebugString').join('<br>');
     obj['Piece']	 = Pieces.invoke('toDebugString').join('<br>');
+    this.log.debug('07');
     for(var p in obj){
       this.log.warn(p + ' : ' + obj[p]);
     }
