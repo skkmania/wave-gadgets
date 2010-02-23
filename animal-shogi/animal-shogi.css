@@ -7,7 +7,6 @@
 */
 div#container {
   background-color: #cc8;
-  width: 510px;
   float: left;
 }
 div#top-stand {
@@ -15,12 +14,9 @@ div#top-stand {
   float: left;
   margin: 10px;
   width: 30px;
-  height: 300px;
 }
 #animal-shogi {
   margin: 10px 10px 20px 0px;
-  width: 410px;
-  height: 450px;
   float: left;
   position: relative;
   /*background-image: url(savanna.png);*/
@@ -28,19 +24,15 @@ div#top-stand {
 div#bottom-stand {
   background-color: #c8c;
   float: left;
-  margin: 150px 10px 0px 0px;
   width: 30px;
-  height: 300px;
 }
 div#black-stand {
   background-color: #c80;
   width: 30px;
-  height: 300px;
 }
 div#white-stand {
   background-color: #c8c;
   width: 30px;
-  height: 300px;
 }
 div.cell {
   width: 40px;

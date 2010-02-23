@@ -427,7 +427,7 @@ this.game.log.warn('Cell#put leaving');
 	/**
 	 * move(toY, toX)
 	 */
-  move: function(toY,toX){
+  move: function(toY,toX){ // Cell
     this.elm.style.left = (this.marginLeft + this.width * toX) + 'px';
     this.elm.style.top = (this.marginTop + this.width * toY) + 'px';
   },
@@ -437,11 +437,11 @@ this.game.log.warn('Cell#put leaving');
   getPosition: function(){ // Cell
 if(this.x === 1 && this.y === 1) window.game.log.warn('-------Cell#getPosition -----------');
     if (window.game.top == 1){
-      var bh = window.game.board.height;
+      var bh = window.game.height;
       this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
       this.elm.style.top = (this.marginTop + this.hight * (bh - 1 - this.y)) + 'px';
     } else {
-      var bw = window.game.board.width;
+      var bw = window.game.width;
       this.elm.style.left = (this.marginLeft + this.width * (bw - 1 - this.x)) + 'px';
       this.elm.style.top = (this.marginTop + this.hight * this.y) + 'px';
     }
@@ -644,14 +644,12 @@ Board = Class.create({
   initialize: function(elm, game) {
     this.game = game;
     this.top = game.top;
-    this.width = 4;  // 0 is dummy
-    this.height = 5;
     this.elm = elm || document.body;
     this.cells = [];
-    for (var r = 0; r < this.height; r++) {
+    for (var r = 0; r < this.game.height; r++) {
       var row = [];
-      for (var c = 0; c < this.width; c++) {
-        row.push(new Cell(this, c, r, game.top));
+      for (var c = 0; c < this.game.width; c++) {
+        row.push(new Cell(this, c, r, this.game.top));
       }
       this.cells.push(row);
     }
@@ -699,7 +697,7 @@ else{
 	 */
   adjust: function() {
     if(!this.cells[1][1].elm) return;
-    if(!window.game) return;
+    if(!this.game) return;
 this.game.log.warn('-------board.adjust entered--top is ' + this.game.top + '  --------------------------------');
     this.cells.flatten().invoke('getPosition');
     this.adjustBorder();
@@ -708,26 +706,26 @@ this.game.log.warn('-------Board#adjust ended. -----------');
 	/**
 	 * adjustBorder()
 	 */
-  adjustBorder: function() {
+  adjustBorder: function() { // Board
 this.game.log.warn('-------Board#adjustBoarder entered -----------');
     if(!this.cells[1][1].elm) return;
-    if(!window.game) return;
+    if(!this.game) return;
     if(this.game.top === 0){
-      for (var r = 1; r < this.height; r++) {
+      for (var r = 1; r < this.game.height; r++) {
         this.cells[r][1].elm.addClassName('rightCell');
-        this.cells[r][9].elm.removeClassName('rightCell');
+        this.cells[r][this.game.width - 1].elm.removeClassName('rightCell');
       }
-      for (var c = 1; c < this.width; c++) {
+      for (var c = 1; c < this.game.width; c++) {
         this.cells[1][c].elm.addClassName('topCell');
-        this.cells[9][c].elm.removeClassName('topCell');
+        this.cells[this.game.height - 1][c].elm.removeClassName('topCell');
       }
     } else {
-      for (var r = 1; r < this.height; r++) {
-        this.cells[r][9].elm.addClassName('rightCell');
+      for (var r = 1; r < this.game.height; r++) {
+        this.cells[r][this.game.width - 1].elm.addClassName('rightCell');
         this.cells[r][1].elm.removeClassName('rightCell');
       }
-      for (var c = 1; c < this.width; c++) {
-        this.cells[9][c].elm.addClassName('topCell');
+      for (var c = 1; c < this.game.width; c++) {
+        this.cells[this.game.height - 1][c].elm.addClassName('topCell');
         this.cells[1][c].elm.removeClassName('topCell');
       }
     }
@@ -816,8 +814,8 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
     game.log.warn('entered Board#toString');
     // stateに載せる文字列を返す
     var ret = '';
-    for (var c = 1; c < this.width; c++) {
-      for (var r = 1; r < this.height; r++) {
+    for (var c = 1; c < this.game.width; c++) {
+      for (var r = 1; r < this.game.height; r++) {
 game.log.warn('start check at r: ' + r + ', c : ' + c);
 if(this.cells && this.cells[r] && this.cells[r][c])
         ret += this.cells[r][c].say();
@@ -833,9 +831,9 @@ else
 	 */
   toJSON: function() {
     var ret = '[';
-    for (var r = 0; r < this.height; r++) {
+    for (var r = 0; r < this.game.height; r++) {
       ret += '[';
-      for (var c = 0; c < this.width; c++) {
+      for (var c = 0; c < this.game.width; c++) {
         ret += this.cells[r][c].toJSON();
         if (this.cells[r][c+1]) ret += ',';
       }
@@ -855,7 +853,7 @@ this.game.log.warn('reverse called. cell is ' + c.toDebugString());
       if (c.piece) {
 this.game.log.warn('reverse class name called. piece is ' + c.piece.toDebugString());
         if (c.piece.player.id == 'player1') {
-          if (window.game.top === 0){
+          if (this.game.top === 0){
             c.piece.elm.removeClassName('top');
             c.piece.elm.addClassName('bottom');
           } else {
@@ -863,7 +861,7 @@ this.game.log.warn('reverse class name called. piece is ' + c.piece.toDebugStrin
             c.piece.elm.addClassName('top');
           }
         } else {
-          if (window.game.top === 0){
+          if (this.game.top === 0){
             c.piece.elm.removeClassName('bottom');
             c.piece.elm.addClassName('top');
           } else {
@@ -880,8 +878,8 @@ this.game.log.warn('reverse class name after process. ' + c.piece.toDebugString(
 	 */
   toDebugString: function(){ // Board
     var ret = '';
-    for (var r = 0; r < this.height; r++) {
-      for (var c = 0; c < this.width; c++) {
+    for (var r = 0; r < this.game.height; r++) {
+      for (var c = 0; c < this.game.width; c++) {
         ret += ('rc:' + r.toString() + c.toString());
         if(this.cells[r][c].elm){
           ret += (',left:' + this.cells[r][c].elm.style.left);
@@ -906,7 +904,7 @@ Stand = Class.create({
     this.game = game;
     this.top = game.top;
     this.width = 1; 
-    this.height = 10;
+    this.height = game.height - 1;
     this.id = id;
     this.type = 'stand';
     this.initialString = '';
@@ -920,6 +918,7 @@ Stand = Class.create({
     this.elm = document.createElement('div');
     this.elm.id = this.id;
     this.elm.obj = this;
+    this.elm.style.height = (this.game.height - 1)*30 + 'px';
   },
 	/**
 	 * remove(chr)
@@ -1091,6 +1090,8 @@ AnimalShogiGame = Class.create({
     this.log = new Log(Log.WARN, Log.popupLogger);
  //   this.log.setLevel('none');
     this.log.warn('start log');
+    this.width = 4;  // 0 is dummy
+    this.height = 5;
     this.settings = settings;
     this.log.warn('01');
     this.container = $(settings.containerId);
@@ -1127,6 +1128,7 @@ AnimalShogiGame = Class.create({
 	 * setStandPosition()
 	 */ 
   setStandPosition: function() { // Game
+    $('container').style.width = 180 + (this.width)*30 + 'px';
     if(this.top !== 1){
       $('bottom-stand').appendChild(this.blackStand.elm);
       $('top-stand').appendChild(this.whiteStand.elm);
@@ -1134,6 +1136,11 @@ AnimalShogiGame = Class.create({
       $('bottom-stand').appendChild(this.whiteStand.elm);
       $('top-stand').appendChild(this.blackStand.elm);
     }
+    $('bottom-stand').style.height = (this.height - 1)*30 + 'px';
+    $('bottom-stand').style.margin = (this.height - 3)*30 + 'px 10px 0px 0px';
+    $('top-stand').style.height = (this.height - 1)*30 + 'px';
+    $('animal-shogi').style.height = 30 + (this.height)*30 + 'px';
+    $('animal-shogi').style.width = 80 + (this.width)*30 + 'px';
   },
 	/**
 	 * determineTop()
