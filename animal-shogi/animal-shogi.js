@@ -23,7 +23,7 @@ String.prototype.subtract = function(str){
 }
 
 function addDraggable(piece, startMessage, game){
-  game.log.warn('entered addDraggable: ' + startMessage);
+  game.log.debug('entered addDraggable: ' + startMessage);
       new Draggable(piece.elm, {
         onStart: function() {
           game.log.warn(startMessage);
@@ -433,6 +433,7 @@ this.game.log.warn('Cell#put leaving');
 	 * getPosition()
 	 */
   getPosition: function(){ // Cell
+    // top値により、各セルの画面上の座標が決まる
 if(this.x === 1 && this.y === 1) window.game.log.warn('-------Cell#getPosition -----------');
     if (window.game.top == 1){
       var bh = window.game.height;
@@ -656,9 +657,9 @@ Board = Class.create({
     $A(this.initialString).each(function(chr, idx){
       if(chr == 'x') return;
       game.log.warn('idx: ' + idx);
-      var h = this.game.height - 1;
-      var x = Math.floor(idx/h) + 1;
-      var y = idx%h + 1;
+      var xy = this.idx2xy(idx);
+      var x = xy[0];
+      var y = xy[1];
       game.log.warn('chr: ' + chr + ', x : ' + x +', y : ' + y);
 if(this.cells[y] && this.cells[y][x])
   game.log.warn('cell: ' + this.cells[y][x].toDebugString());
@@ -675,20 +676,20 @@ else{
 	/**
 	 * idx2xy(idx)
 	 */
-  idx2xy: function(idx) {
-    game.log.warn('Board#idx2xy entered with : ' + idx);
+  idx2xy: function(idx) { // Board
+    this.game.log.info('Board#idx2xy entered with : ' + idx);
     // stateの文字列のindex(0スタート）を座標の配列[x,y]にして返す
-    var h = this.height - 1;
-    game.log.warn('Board#idx2xy returning with : ' + idx/h+1 + ', ' + (idx+1)%h);
-    return [Math.floor(idx/h) + 1, idx%h + 1]
+    var h = this.game.height - 1;
+    this.game.log.info('Board#idx2xy returning with : ' + (idx%h + 1.0) + ', ' + (idx+1)%h);
+    return [Math.floor(idx/h) + 1.0, idx%h + 1.0]
   },
 	/**
 	 * xy2idx(xy)
 	 */
-  idx2xy: function(xy) {
+  xy2idx: function(xy) {
     // 座標の配列[x,y]をstateの文字列のindex(0スタート）にして返す
-    var h = this.height - 1;
-    return (x - 1) + (y-1)*h;
+    var h = this.game.height - 1;
+    return (xy[0] - 1)*h + (xy[1]-1);
   },
 	/**
 	 * adjust()
@@ -791,7 +792,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * read(strFromState)
 	 */
   read: function(strFromState){ // Board
-    game.log.warn('entered Board#read with : ' + strFromState);
+    this.game.log.warn('entered Board#read with : ' + strFromState);
     // stateから読んだ文字列を元に駒を盤上に置く
     // 現在の状態との差分を埋める
     var oldBoard = $A(this.toString());
@@ -1143,6 +1144,7 @@ AnimalShogiGame = Class.create({
 	 * determineTop()
 	 */
   determineTop: function() { // Game
+this.log.debug('entered Game#determineTop : ');
      // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
      // はじめからtop が１になるのはplayer2がviewerのときだけ
      // あとはviewerが反転ボタンで指定したとき
@@ -1150,14 +1152,14 @@ AnimalShogiGame = Class.create({
        this.top = this.top_by_viewer;
     } else {
       this.top = 0;  // by default
-this.log.warn('this.top : ' + this.top);
+this.log.info('this.top : ' + this.top);
       if (this.player2){
-this.log.warn('06.5 this.top is ' + this.top);
+this.log.info('06.5 this.top is ' + this.top);
         if (this.player2.name == wave.getViewer().getId()){
-this.log.warn('06.6');
+this.log.info('06.6');
           this.top = 1;
         }
-this.log.warn('after 06.5 this.top : ' + this.top);
+this.log.info('after 06.5 this.top : ' + this.top);
       }
    }
 if (this.player2) this.log.warn('leaving determineTop: player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top);
@@ -1479,7 +1481,7 @@ window.game.log.warn('adding Draggable in sendPieceToStand:');
 	/**
 	 * fromState(state)
 	 */
-  fromState: function(state) {
+  fromState: function(state) { // game
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
     this.board.read(state.get('board', this.board.initialString));
     this.blackStand.read(state.get('bstand', this.blackStand.initialString));
