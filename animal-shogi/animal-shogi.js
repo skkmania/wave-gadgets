@@ -62,7 +62,7 @@ ControlPanel = Class.create({
 	 * reverse()
 	 */
   reverse: function() { // ControlPanel              
-     this.game.log.warn('start reverse cp'); 
+     this.game.log.debug('start reverse cp'); 
       if (this.game.top == 1){                                                
         this.player1Elm = $('top-panel');
         this.player2Elm = $('bottom-panel');
@@ -72,23 +72,32 @@ ControlPanel = Class.create({
       }                    
     this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
     this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
-
+/*
+以下の記述ではDraggableが消えてしまうのと、
+ここで処理するのはおかしいので、同目的の処理はGame#reverseでおこなうことにした
     if ($('my-captured').childElements().size() > 0 ||
         $('opponent-captured').childElements().size() > 0) {
        var tmp = $('top-captured').innerHTML;
        $('top-captured').innerHTML = $('bottom-captured').innerHTML;
        $('bottom-captured').innerHTML = tmp;
+以下の四行は
        $$('#top-captured img').invoke('addClassName', 'top');
        $$('#top-captured img').invoke('removeClassName', 'bottom');
        $$('#bottom-captured img').invoke('addClassName', 'bottom');
        $$('#bottom-captured img').invoke('removeClassName', 'top');
+次の2行でおきかえられるはず
+       $$('#top-stand img', '#bottom-stand img').invoke('toggleClassName', 'top');
+       $$('#top-stand img', '#bottom-stand img').invoke('toggleClassName', 'bottom');
+そしてこの2行はGame#reverseの中で処理されるのでここにはいらない
     }
-    this._addDrag();
-    this.game.log.warn('end'); 
+*/
+    // this._addDrag();
+    this.game.log.debug('ControlPanel#reverse end'); 
   }, 
 	/**
 	 * _addDrag()
 	 */
+/*これはいらなくなるはず
   _addDrag: function() {
 window.game.log.warn('enterd _addDrag');
     if(this.game.myPlayer){
@@ -101,6 +110,7 @@ window.game.log.warn('enterd _addDrag');
     }
     // 上のifに合致しない->このviewerはplayerに非ずDraggableは必要ない
   },
+*/
 	/**
 	 * update()
 	 */
@@ -1229,9 +1239,14 @@ this.log.warn('game.show');
     this.message('game.top became ' + this.top);
     this.board.reverse();
     this.board.adjust();
-    tmp = $('top-stand').innerHTML;
-    $('top-stand').innerHTML = $('bottom-stand').innerHTML;
-    $('bottom-stand').innerHTML = tmp;
+    tmp = $('top-stand').childElements()[0];
+    $('top-stand').appendChild($('bottom-stand').childElements()[0]);
+    $('bottom-stand').appendChild(tmp);
+    tmp = $$('#top-stand img', '#bottom-stand img');
+    if(tmp.size() > 0){
+      tmp.invoke('toggleClassName', 'top');
+      tmp.invoke('toggleClassName', 'bottom');
+    }
     this.controlPanel.reverse();
   },
 	/**
