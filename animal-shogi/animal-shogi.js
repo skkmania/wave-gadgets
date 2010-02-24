@@ -115,8 +115,9 @@ window.game.log.warn('enterd _addDrag');
 	 * update()
 	 */
   update: function() { // ControlPanel             
+    this.game.log.debug('cp update entered.'); 
     this.game.determineTop();
-     this.game.log.warn('cp update entered. top is ' + this.game.top); 
+    this.game.log.debug('cp update : top is ' + this.game.top); 
     if (!this.elm) this.elm = $('control-panel');                         
     if (this.game.top == 1){                                                
       this.player1Elm = $('top-panel');
@@ -678,7 +679,7 @@ else{
   return;
 }
       var p = new Piece(chr, game, window);
-      game.log.warn('piece: ' + p.toDebugString());
+      game.log.debug('piece: initialized in Board#initialize : ' + p.toDebugString());
       this.cells[y][x].put(p);
     }.bind(this));
     game.log.warn('leaving Board#initialize');
@@ -764,6 +765,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * put(chr, idx)
 	 */
   put: function(chr, idx){ // Board
+    this.game.log.debug('entered Board#put with chr: ' + chr + ', idx : ' + idx);
     var cell = this.getCellByIdx(idx);
     if(cell.piece){
       if(cell.piece.chr == chr){
@@ -780,6 +782,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * remove(idx)
 	 */
   remove: function(idx){ // Board
+    this.game.log.debug('entered Board#remove with idx : ' + idx);
     var cell = this.getCellByIdx(idx);
     if(cell.piece){
       cell.remove();
@@ -791,6 +794,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * replace(pair, idx)
 	 */
   replace: function(pair, idx){ // Board
+    this.game.log.debug('entered Board#replace with pair: ' + pair.toString() + ', idx : ' + idx);
     var cell = this.getCellByIdx(idx);
     if(cell.piece){
       cell.replace(new Piece(pair[0]));
@@ -802,7 +806,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * read(strFromState)
 	 */
   read: function(strFromState){ // Board
-    this.game.log.warn('entered Board#read with : ' + strFromState);
+    this.game.log.debug('entered Board#read with : ' + strFromState);
     // stateから読んだ文字列を元に駒を盤上に置く
     // 現在の状態との差分を埋める
     var oldBoard = $A(this.toString());
@@ -1346,7 +1350,7 @@ this.log.warn('---leaving without change : x, y -> ' + x + ', ' + y);
 	/**
 	 * stateChanged()
 	 */
-  stateChanged: function() {
+  stateChanged: function() {  // Game
     var state = wave.getState();
 this.log.warn('stateChanged: ' + arrange(state));
     this.fromState(state);
@@ -1394,13 +1398,17 @@ this.log.warn('leaving stateChanged:');
 	/**
 	 * processPlayer(state)
 	 */
-  processPlayer: function(state){
+  processPlayer: function(state){ // Game
+this.log.debug('entered processPlayer: viewer: ' + viewer);
     var viewer = wave.getViewer().getId();
     var pl1 = state.get('player1');
     var pl2 = state.get('player2');
-this.log.warn('entered processPlayer: viewer: ' + viewer);
+    if(!pl1 && !pl2){
+this.log.debug('leaving processPlayer because state has no player.');
+      return;
+    }
     if (!this.player1 && pl1) {
-this.log.warn('processPlayer: processing Player1: ');
+this.log.debug('processPlayer: processing Player1: ');
       var isMe = (pl1 == viewer);
       this.top = (isMe ? 0 : 1);
       this.player1 = new Player('player1', pl1, isMe, this.top);
@@ -1426,7 +1434,7 @@ this.log.warn('leaving processPlayer: processing Player2: ');
       this.myPlayer = this.player2;
     }
     this.determineTop();
-this.log.warn('myPlayer is defined : ' + this.myPlayer);
+if(this.myPlayer) this.log.debug('myPlayer is defined : ' + this.myPlayer);
     if (this.player1 && this.player2) {
       this.message('');
       $('join-button').hide();
