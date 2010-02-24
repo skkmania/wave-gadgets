@@ -148,27 +148,27 @@ function Log(level,logger,prefix) {
  * Log an event with priority of "debug"
  * @param s the log message
  */
-Log.prototype.debug     = function(s) { if (this.getLevel()<=Log.DEBUG) { this._log(s,"DEBUG",this); } }
+Log.prototype.debug     = function(s, option) { if (this.getLevel()<=Log.DEBUG) { this._log(s,"DEBUG",this, option); } }
 /**
  * Log an event with priority of "info"
  * @param s the log message
  */
-Log.prototype.info      = function(s) { if (this.getLevel()<=Log.INFO ) { this._log(s,"INFO",this); } }
+Log.prototype.info      = function(s, option) { if (this.getLevel()<=Log.INFO ) { this._log(s,"INFO",this, option); } }
 /**
  * Log an event with priority of "warn"
  * @param s the log message
  */
-Log.prototype.warn      = function(s) { if (this.getLevel()<=Log.WARN ) { this._log(s,"WARN",this); } }
+Log.prototype.warn      = function(s, option) { if (this.getLevel()<=Log.WARN ) { this._log(s,"WARN",this, option); } }
 /**
  * Log an event with priority of "error"
  * @param s the log message
  */
-Log.prototype.error     = function(s) { if (this.getLevel()<=Log.ERROR) { this._log(s,"ERROR",this); } }
+Log.prototype.error     = function(s, option) { if (this.getLevel()<=Log.ERROR) { this._log(s,"ERROR",this, option); } }
 /**
  * Log an event with priority of "fatal" 
  * @param s the log message
  */
-Log.prototype.fatal     = function(s) { if (this.getLevel()<=Log.FATAL) { this._log(s,"FATAL",this); } }
+Log.prototype.fatal     = function(s, option) { if (this.getLevel()<=Log.FATAL) { this._log(s,"FATAL",this, option); } }
 
 /**
  * _log is the function that actually calling the configured logger function.
@@ -181,11 +181,11 @@ Log.prototype.fatal     = function(s) { if (this.getLevel()<=Log.FATAL) { this._
  * @param level The priority level of this log event
  * @param {Log} obj The originating {@link Log} object.
  */
-Log.prototype._log = function(msg,level,obj) { 
+Log.prototype._log = function(msg,level,obj,option) { 
 	if (this.getPrefix()) {
-		this.getLogger()(this.getPrefix()+" - "+msg,level,obj); 
+		this.getLogger()(this.getPrefix()+" - "+msg,level,obj,option); 
 	} else {
-		this.getLogger()(msg,level,obj); 
+		this.getLogger()(msg,level,obj,option); 
 	}
 
 }
@@ -195,7 +195,7 @@ Log.INFO        = 2;
 Log.WARN        = 3;
 Log.ERROR       = 4;
 Log.FATAL       = 5;
-Log.NONE		= 6;
+Log.NONE	= 6;
 
 /**
  * Static alert logger method.  This logger will display a javascript alert (messagebox) with the message.
@@ -218,7 +218,7 @@ Log.writeLogger = function(msg,level) { document.writeln(level+"&nbsp;-&nbsp;"+m
  * @param level The priority level of this log event
  * @param {Log} obj The originating {@link Log} object.
  */
-Log.consoleLogger = function(msg,level,obj) {
+Log.consoleLogger = function(msg,level,obj,option) {
 	if (window.console) {
 		window.console.log(level+" - "+msg);
 	} else {
@@ -226,6 +226,11 @@ Log.consoleLogger = function(msg,level,obj) {
 	}
 }
  
+setStyle = function(cell, opt){
+  for (key in opt){
+    cell.style[key] = opt[key];
+  }
+}
 
 /**
  * Static popup logger method.  This logger will popup a new window (if necessary), and add the log message to the end of a list.
@@ -233,7 +238,7 @@ Log.consoleLogger = function(msg,level,obj) {
  * @param level The priority level of this log event
  * @param {Log} obj The originating {@link Log} object.
  */
-Log.popupLogger = function(msg,level,obj) {
+Log.popupLogger = function(msg,level,obj,option) {
        if (obj.popupBlocker) {
 	return;
        }
@@ -259,7 +264,7 @@ Log.popupLogger = function(msg,level,obj) {
        if (m<10) { m="0"+m; }
        var s = d.getSeconds();
        if (s<10) { s="0"+s; }
-       var date = (d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear()+"&nbsp;-&nbsp;"+h+":"+m+":"+s;
+       var date = (option && option['date']) ? (d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear()+"&nbsp;-&nbsp;"+h+":"+m+":"+s : h+":"+m+":"+s;
 
        cell_1.style.fontSize="8pt";
        cell_1.style.fontWeight="bold";
@@ -268,7 +273,7 @@ Log.popupLogger = function(msg,level,obj) {
        cell_2.style.fontSize="8pt";
        cell_2.style.display="hidden";
        
-       cell_3.style.fontSize="10pt";
+       cell_3.style.fontSize= (level == "INFO" || level == "DEBUG") ? "8pt" : "10pt";
        cell_3.style.whiteSpace="nowrap";
        cell_3.style.width="100%";
 
@@ -278,6 +283,14 @@ Log.popupLogger = function(msg,level,obj) {
        	cell_3.style.backgroundColor="#eeeeee";
        }
        
+       if (option){
+         for (key in option){
+           if(key == 1) setStyle(cell_1, option[key]);
+           if(key == 2) setStyle(cell_2, option[key]);
+           if(key == 3) setStyle(cell_3, option[key]);
+         }
+       }
+
        cell_1.innerHTML=date
        cell_2.innerHTML=level;
        cell_3.innerHTML=msg;

@@ -1121,6 +1121,7 @@ AnimalShogiGame = Class.create({
     this.board.adjust();
       //  持ち駒の位置も決めておく
     this.setStandPosition();
+    this.log.warn('leaving AnimalShogiGame#initialize',{'date':true,3:{'color':'green'}});
   },
 	/**
 	 * setStandPosition()
