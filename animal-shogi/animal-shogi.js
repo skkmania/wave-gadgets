@@ -277,7 +277,7 @@ window.game.log.warn('leaving Piece#toString with : ' + ret);
 	 * toDebugString()
 	 */
   toDebugString: function() {  // Piece
-    var ret = 'name:<span style="color: #3F8080">' + this.name + '</span>, ';
+    var ret = 'name:<span style="color: #3F8080">' + (this.name?this.name:'no name') + '</span>, ';
     if(this.player) ret += ('player_id:' + this.player.id + ', ');
     if (this.cell && this.cell.elm) ret += ('cell_name:' + this.cell.elm.id);
     else ret += '[no cell]';
@@ -397,7 +397,7 @@ this.game.log.warn('Cell#put entered');
     this.piece = piece;
     this.piece.cell = this;
     if(this.elm) this.elm.appendChild(piece.elm);
-this.game.log.warn('Cell#put leaving');
+this.game.log.warn('Cell#put leaving with piece : ' + this.piece.toDebugString());
   },
 	/**
 	 * move(toY, toX)
@@ -534,17 +534,19 @@ window.game.log.warn('in show of Cell, after process -> ' + this.piece.toDebugSt
     }
   },
 	/**
-	 * remove(piece)
+	 * remove()
 	 */
-  remove: function(piece){  // Cell
-window.game.log.warn('Cell#remove 1');
-if(this.piece)window.game.log.warn('this cell.piece : ' + this.piece.toDebugString());
-window.game.log.warn('arguments piece : ' + piece.toDebugString());
-    piece.cell = null;
-    if(this.piece){ this.elm.removeChild(this.piece.elm);
-window.game.log.warn('Cell#remove 2');
+  remove: function(){  // Cell
+window.game.log.warn('entered Cell#remove');
+if(this.piece)window.game.log.warn('this cell.piece to remove: ' + this.piece.toDebugString());
+    if(this.piece){
+      this.piece.cell = null;
+      this.elm.removeChild(this.piece.elm);
+      delete this.piece;
+      this.piece = null;
     }
-    this.piece = null;
+window.game.log.warn('leaving Cell#remove with :' + this.toDebugString());
+    return;
   },
 	/**
 	 * replace(newPiece)
@@ -1049,7 +1051,7 @@ window.game.log.warn(this.id + ': ' + this.name);
 	/**
 	 * toDebugString()
 	 */
-  toDebugString: function() {
+  toDebugString: function() { // Player
     return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop(); 
   }
 });
@@ -1254,10 +1256,16 @@ this.log.warn('leaving nextTurn');
     return (this.count % 2 == 0);
   },
 	/**
+	 * thisTurnPlayer()
+	 */
+  thisTurnPlayer: function() {
+    return this.getTurn() ? this.player1 : this.player2;
+  },
+	/**
 	 * isViewersTurn()
 	 */
   isViewersTurn: function() {
-    return this.turn.name == wave.getViewer().getId();
+    return this.thisTurnPlayer().name == wave.getViewer().getId();
   },
 	/**
 	 * needUpsideDown()
@@ -1450,6 +1458,7 @@ this.log.warn('piece:' + piece.name + ' was added to ' + prefix + '-captured in 
   fromState: function(state) { // game
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
     this.processPlayer(state);
+    this.count = state.get('count');
     this.board.read(state.get('board', this.board.initialString));
     this.blackStand.read(state.get('bstand', this.blackStand.initialString));
     this.whiteStand.read(state.get('wstand', this.whiteStand.initialString));
