@@ -175,10 +175,13 @@ game.log.warn('Piece#createElm entered : ');
     this.elm.addClassName('piece');
     if (!this.atTop(game)) {
       this.elm.addClassName('bottom');
+/*
+elmをつくったばかりなのでremoveするclassnameは存在しないはず
       this.elm.removeClassName('top');
+*/
     }
     else {
-      this.elm.removeClassName('bottom');
+//      this.elm.removeClassName('bottom');
       this.elm.addClassName('top');
     }
 game.log.warn('leaving Piece#createElm : ');
@@ -542,6 +545,8 @@ window.game.log.warn('entered show of Cell: ' + this.toDebugString());
     if (this.piece) {
 window.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugString());
       this.elm.appendChild(this.piece.elm);
+/*
+以下の条件分岐は
       if(this.piece.isBlack){
         if(window.game.top === 0){
           this.piece.elm.addClassName('bottom');
@@ -559,6 +564,16 @@ window.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugStrin
           this.piece.elm.removeClassName('top');
         }
       }
+次のように書けるはず。行数の節約しよう。
+*/
+      if(this.piece.isBlack == (window.game.top === 0)){
+        this.piece.elm.addClassName('bottom');
+        this.piece.elm.removeClassName('top');
+      } else {
+        this.piece.elm.addClassName('top');
+        this.piece.elm.removeClassName('bottom');
+      }
+
 window.game.log.warn('in show of Cell, after process -> ' + this.piece.toDebugString());
     }
   },
@@ -829,7 +844,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
     var ret = '';
     for (var c = 1; c < this.game.width; c++) {
       for (var r = 1; r < this.game.height; r++) {
-game.log.warn('start check at r: ' + r + ', c : ' + c);
+game.log.debug('start check at r: ' + r + ', c : ' + c);
 if(this.cells && this.cells[r] && this.cells[r][c])
         ret += this.cells[r][c].say();
 else
