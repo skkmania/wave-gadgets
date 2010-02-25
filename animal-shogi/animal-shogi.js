@@ -22,11 +22,11 @@ String.prototype.subtract = function(str){
   return ret.join('');
 }
 
-function addDraggable(piece, startMessage, game){
-  game.log.debug('entered addDraggable: ' + startMessage);
+function addDraggable(piece, startMessage){
+  window.game.log.debug('entered addDraggable: ' + startMessage);
       new Draggable(piece.elm, {
         onStart: function() {
-          game.log.warn(startMessage);
+          window.game.log.warn(startMessage);
         },
         onEnd: function() {
           this.elm.style.top = 0;
@@ -72,45 +72,8 @@ ControlPanel = Class.create({
       }                    
     this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
     this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
-/*
-以下の記述ではDraggableが消えてしまうのと、
-ここで処理するのはおかしいので、同目的の処理はGame#reverseでおこなうことにした
-    if ($('my-captured').childElements().size() > 0 ||
-        $('opponent-captured').childElements().size() > 0) {
-       var tmp = $('top-captured').innerHTML;
-       $('top-captured').innerHTML = $('bottom-captured').innerHTML;
-       $('bottom-captured').innerHTML = tmp;
-以下の四行は
-       $$('#top-captured img').invoke('addClassName', 'top');
-       $$('#top-captured img').invoke('removeClassName', 'bottom');
-       $$('#bottom-captured img').invoke('addClassName', 'bottom');
-       $$('#bottom-captured img').invoke('removeClassName', 'top');
-次の2行でおきかえられるはず
-       $$('#top-stand img', '#bottom-stand img').invoke('toggleClassName', 'top');
-       $$('#top-stand img', '#bottom-stand img').invoke('toggleClassName', 'bottom');
-そしてこの2行はGame#reverseの中で処理されるのでここにはいらない
-    }
-*/
-    // this._addDrag();
     this.game.log.debug('ControlPanel#reverse end'); 
   }, 
-	/**
-	 * _addDrag()
-	 */
-/*これはいらなくなるはず
-  _addDrag: function() {
-window.game.log.warn('enterd _addDrag');
-    if(this.game.myPlayer){
-      // viewerかつplayer側のpieceにDraggableを追加する
-      Pieces.each(function(piece){
-        // cellのないpieceが持ち駒。盤上の駒にはすでにDraggableがあるのでさわらない
-        if(!piece.cell && piece.player == this.game.myPlayer)
-          addDraggable(piece,'drag started 00 cp _addDrag');
-      });
-    }
-    // 上のifに合致しない->このviewerはplayerに非ずDraggableは必要ない
-  },
-*/
 	/**
 	 * update()
 	 */
@@ -158,9 +121,6 @@ game.log.warn('Piece#initialize name is : ' + this.name);
     this.cell = null;
     this.chr = chr;
     this.createElm(game);
-    if (this.player && this.isViewersP(game)) {
-      addDraggable(this,'Draggable when initialize', game);
-    }
 game.log.warn('leaving Piece#initialize'); 
   },
 	/**
@@ -175,16 +135,18 @@ game.log.warn('Piece#createElm entered : ');
     this.elm.addClassName('piece');
     if (!this.atTop(game)) {
       this.elm.addClassName('bottom');
-/*
-elmをつくったばかりなのでremoveするclassnameは存在しないはず
-      this.elm.removeClassName('top');
-*/
     }
     else {
-//      this.elm.removeClassName('bottom');
       this.elm.addClassName('top');
     }
 game.log.warn('leaving Piece#createElm : ');
+  },
+	/**
+	 * addDraggableIfNeeded()
+	/*
+  addDraggableIfNeeded: function(){ // Piece
+    if(this.isBlack == (this.game.top == 0))
+      addDraggable(this, 'draggable added at being put at stand');
   },
 	/**
 	 * initialArrange(board)
@@ -240,10 +202,6 @@ window.game.log.warn('entered Piece.capturedBy: ' + this.name + ' is captured by
     if (this.becomeNormal) this.becomeNormal();
 
     if (this.isViewersP()) {
-      if (window.game.isPlayer()) {
-window.game.log.warn('adding Draggable in captureBy piece: ' + this.toDebugString());
-        addDraggable(this, 'drag started 03 piece capturedBy');
-      }
       $('my-captured').appendChild(this.elm);
 window.game.log.warn(this.elm.id + ' was appended to my-captured Piece#captured');
     }
@@ -260,12 +218,10 @@ window.game.log.warn('canMove entered.');
     if (!fromCell) return true; // 打ち駒はどこでもOK
     var dx = toCell.x - fromCell.x;
     var dy = toCell.y - fromCell.y;
-    //var dx = fromCell.x - toCell.x;
-    //var dy = fromCell.y - toCell.y;
 window.game.log.warn('from: ' + fromCell.toDebugString() + ', to: ' + toCell.toDebugString());
 window.game.log.warn('dx: ' + dx + ', dy: ' + dy);
     if (1 < Math.abs(dx) || 1 < Math.abs(dy)) return false;
-    if (this.player.id == 'player2') dy *= -1;
+    if (!this.isBlack) dy *= -1;
 window.game.log.warn('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
     return this.movableArea[dy + 1][dx + 1];
   },
@@ -545,35 +501,14 @@ window.game.log.warn('entered show of Cell: ' + this.toDebugString());
     if (this.piece) {
 window.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugString());
       this.elm.appendChild(this.piece.elm);
-/*
-以下の条件分岐は
-      if(this.piece.isBlack){
-        if(window.game.top === 0){
-          this.piece.elm.addClassName('bottom');
-          this.piece.elm.removeClassName('top');
-        } else {
-          this.piece.elm.addClassName('top');
-          this.piece.elm.removeClassName('bottom');
-        }
-      } else {
-        if(window.game.top === 0){
-          this.piece.elm.addClassName('top');
-          this.piece.elm.removeClassName('bottom');
-        } else {
-          this.piece.elm.addClassName('bottom');
-          this.piece.elm.removeClassName('top');
-        }
-      }
-次のように書けるはず。行数の節約しよう。
-*/
       if(this.piece.isBlack == (window.game.top === 0)){
         this.piece.elm.addClassName('bottom');
         this.piece.elm.removeClassName('top');
+        addDraggable(this.piece, 'draggable added at start of board');
       } else {
         this.piece.elm.addClassName('top');
         this.piece.elm.removeClassName('bottom');
       }
-
 window.game.log.warn('in show of Cell, after process -> ' + this.piece.toDebugString());
     }
   },
@@ -962,6 +897,7 @@ Stand = Class.create({
 	 * put(piece)
 	 */
   put: function(piece){  // Stand
+    piece.addDraggableIfNeeded();
     this.pieces.push(piece);
   },
 	/**
@@ -981,7 +917,7 @@ Stand = Class.create({
     // 現在になく、strにあるものは現在へ足す
     var addCandidate = strFromState.subtract(str_now);
     $A(addCandidate).each(function(c){
-      this.put(createPiece(c));
+      this.put(new Piece(c));
     }.bind(this));
   },
 	/**
@@ -1511,11 +1447,6 @@ if(toCell) this.log.warn(' to ' + toCell.toDebugString());
     // $(prefix + '-captured').appendChild(piece.elm);
     $(distination).appendChild(piece.elm);
 this.log.warn('piece:' + piece.name + ' was added to ' + prefix + '-captured in Game#sendPieceToStand');
-
-    if (prefix == 'my' && this.isPlayer()) {
-window.game.log.warn('adding Draggable in sendPieceToStand:');
-      addDraggable(piece,'drag started 01 game sendPieceToStand'); 
-    }
   },
 	/**
 	 * fromState(state)
