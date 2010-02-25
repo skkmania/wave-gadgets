@@ -22,6 +22,12 @@ String.prototype.subtract = function(str){
   return ret.join('');
 }
 
+function create_piece(chr){
+  window.game.log.debug('entered create_piece: ' );
+  var p = new Piece(chr);
+  return p;
+}
+
 function addDraggable(piece, startMessage){
   window.game.log.debug('entered addDraggable: ' + startMessage);
       new Draggable(piece.elm, {
@@ -95,8 +101,6 @@ ControlPanel = Class.create({
   } 
 });
 
-Pieces = $A();
-
 /**
  * Piece Class
  */
@@ -104,42 +108,45 @@ Piece = Class.create({
 	/**
 	 * initialize(chr)
 	 */
-  initialize: function(chr, game, globe) {
-    this.game = game;
-game.log.warn('Piece#initialize entered with : ' + chr);
+  initialize: function(chr, game) {
+    this.game = game || window.game;
+this.game.log.warn('Piece#initialize entered with : ' + chr);
     this.type = Chr2Type[chr.toLowerCase()];
     this.isBlack = (chr.toUpperCase() == chr);
-game.log.warn('Piece#initialize type is : ' + this.type);
+this.game.log.warn('Piece#initialize type is : ' + this.type);
     Object.extend(this, PieceTypeObjects[this.type]);
-game.log.warn('Piece#initialize imageUrl is : ' + this.imageUrl);
-    if(game.player1 && game.player2)
-      this.player = (chr.toLowerCase() == chr)? game.player2:game.player1;
-    Pieces.push(this);
-game.log.warn('size of Pieces: ' + Pieces.size());
-    this.name = this.type + '_' + (chr.toLowerCase() == chr)? 'player2':'player1';
-game.log.warn('Piece#initialize name is : ' + this.name);
+this.game.log.warn('Piece#initialize imageUrl is : ' + this.imageUrl);
+    if(this.game.player1 && this.game.player2){
+this.game.log.warn('Piece#initialize player1 is : ' + this.game.player1.toDebugString());
+this.game.log.warn('Piece#initialize player2 is : ' + this.game.player2.toDebugString());
+      this.player = (chr.toLowerCase() == chr)? this.game.player2:this.game.player1;
+this.game.log.warn('Piece#initialize this pieces player is : ' + this.player.toDebugString());
+    }
+    this.name = this.type + '_';
+    this.name += ((chr.toLowerCase() == chr) ? 'player2' : 'player1');
+this.game.log.warn('Piece#initialize name is : ' + this.name);
     this.cell = null;
     this.chr = chr;
-    this.createElm(game);
-game.log.warn('leaving Piece#initialize'); 
+    this.createElm();
+this.game.log.warn('leaving Piece#initialize'); 
   },
 	/**
 	 * createElm()
 	 */
-  createElm: function(game) {  // Piece
-game.log.warn('Piece#createElm entered : ');
+  createElm: function() {  // Piece
+this.game.log.warn('Piece#createElm entered : ');
     this.elm = document.createElement('img');
     this.elm.obj = this;
     this.elm.src = this.imageUrl;
     this.elm.id = this.name;
     this.elm.addClassName('piece');
-    if (!this.atTop(game)) {
+    if (!this.atTop()) {
       this.elm.addClassName('bottom');
     }
     else {
       this.elm.addClassName('top');
     }
-game.log.warn('leaving Piece#createElm : ');
+this.game.log.warn('leaving Piece#createElm : ');
   },
 	/**
 	 * addDraggableIfNeeded()
@@ -152,13 +159,13 @@ game.log.warn('leaving Piece#createElm : ');
 	 * initialArrange(board)
 	 */
   initialArrange: function(board) {  // Piece
-window.game.log.warn('entered piece initialArrange : ');
+this.game.log.warn('entered piece initialArrange : ');
     var pos = this.initialPosition;
     var atTop = this.player.atTop();
-window.game.log.warn('piece initialArrange : name -> ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
-window.game.log.warn('piece initialArrange : player.id -> ' + this.player.id);
+this.game.log.warn('piece initialArrange : name -> ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
+this.game.log.warn('piece initialArrange : player.id -> ' + this.player.id);
     if (this.player.id == 'player2') pos = [4 - pos[0], 5 - pos[1]];
-window.game.log.warn('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
+this.game.log.warn('piece initialArrange after corrected : ' + this.name + ',  atTop : ' + atTop + ',  pos : ' + pos.toString());
     board.cells[pos[1]][pos[0]].put(this);
   },
 	/**
@@ -188,7 +195,7 @@ if (window.game) window.game.log.warn('leaving piece setPlayer : ' + this.name +
 	/**
 	 * atTop()
 	 */
-  atTop: function(game){ // Piece
+  atTop: function(){ // Piece
     return (this.game.top == 1) == this.isBlack;
   },
 	/**
@@ -628,7 +635,7 @@ else{
   game.log.warn('Board#initialize,  there is no cell at x: ' + x + ', y: ' + y +'.');
   return;
 }
-      var p = new Piece(chr, game, window);
+      var p = new Piece(chr, game);
       game.log.debug('piece: initialized in Board#initialize : ' + p.toDebugString());
       this.cells[y][x].put(p);
     }.bind(this));
@@ -641,8 +648,9 @@ else{
     this.game.log.info('Board#idx2xy entered with : ' + idx);
     // stateの文字列のindex(0スタート）を座標の配列[x,y]にして返す
     var h = this.game.height - 1;
-    this.game.log.info('Board#idx2xy returning with : ' + (idx%h + 1.0) + ', ' + (idx+1)%h);
-    return [Math.floor(idx/h) + 1.0, idx%h + 1.0]
+    var ret = [Math.floor(idx/h) + 1.0, idx%h + 1.0]
+    this.game.log.info('Board#idx2xy returning with : ' + ret.toString());
+    return ret;
   },
 	/**
 	 * xy2idx(xy)
@@ -718,6 +726,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
     this.game.log.debug('entered Board#put with chr: ' + chr + ', idx : ' + idx);
     var cell = this.getCellByIdx(idx);
     if(cell.piece){
+      this.game.log.debug('Board#put: cell.piece existed : ' + cell.piece.toDebugString());
       if(cell.piece.chr == chr){
         // do nothing
       } else {
@@ -725,8 +734,12 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
         cell.put(new Piece(chr));
       }
     } else {
-      cell.put(new Piece(chr));
+      this.game.log.debug('Board#put: cell.piece not existed , so initialize piece and put ');
+      var new_piece = create_piece(chr);
+      this.game.log.debug('Board#put: piece was created : ' + new_piece.toDebugString());
+      cell.put(new_piece);
     }
+    this.game.log.debug('leaving Board#put');
   },
 	/**
 	 * remove(idx)
@@ -979,11 +992,10 @@ Player = Class.create({
 	/**
 	 * initialize(id, name, mine)
 	 */
-  initialize: function(id, name, mine ) {
+  initialize: function(id, name, isViewer ) {
     this.id = id;
     this.name = name;
-    this.mine = mine;
-    this.isViewer = mine;
+    this.isViewer = isViewer;
   },
 	/**
 	 * stand()
@@ -1331,22 +1343,6 @@ this.log.warn('leaving stateChanged:');
     return ret;
   },
 	/**
-	 * toJSON()
-	 */
-  toJSON: function() {
-    var ret = {};
-    if (this.player1) ret.player1 = this.player1.toString();
-    if (this.player2) {
-      ret.player2 = this.player2.toString();
-      Pieces.each(function(piece) {
-        ret[piece.name] = piece.toString();
-      });
-      if (this.turn) ret.turn = this.turn.id;
-    }
-    ret.result = '';
-    return ret;
-  },
-	/**
 	 * processPlayer(state)
 	 */
   processPlayer: function(state){ // Game
@@ -1362,7 +1358,7 @@ this.log.debug('leaving processPlayer because state has no player.');
 this.log.debug('processPlayer: processing Player1: ');
       var isMe = (pl1 == viewer);
       this.top = (isMe ? 0 : 1);
-      this.player1 = new Player('player1', pl1, isMe, this.top);
+      this.player1 = new Player('player1', pl1, isMe );
       this.controlPanel.update();
 this.log.info('leaving processing Player1: ');
     }
@@ -1370,7 +1366,7 @@ this.log.info('leaving processing Player1: ');
 this.log.warn('processPlayer: processing Player2: ');
       var isMeMaybe = (pl1 != viewer);
       this.top = (pl2 == viewer ? 1 : 0);
-      this.player2 = new Player('player2', pl2, isMeMaybe, this.top);
+      this.player2 = new Player('player2', pl2, isMeMaybe );
 this.debug_dump();
       this.controlPanel.update();
 this.log.warn('backed into processPlayer: processing Player2: ');
@@ -1453,10 +1449,10 @@ this.log.warn('piece:' + piece.name + ' was added to ' + prefix + '-captured in 
 	 */
   fromState: function(state) { // game
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
+    this.processPlayer(state);
     this.board.read(state.get('board', this.board.initialString));
     this.blackStand.read(state.get('bstand', this.blackStand.initialString));
     this.whiteStand.read(state.get('wstand', this.whiteStand.initialString));
-    this.processPlayer(state);
     if (state.get('turn')) this.turn = this[state.get('turn')];
     if (!this.turn) this.turn = this.player1;
     this.controlPanel.update();
@@ -1480,7 +1476,7 @@ this.log.warn('the array names is ' + names.join(':'));
     for (var i = 0; i < names.length; i++) {
 this.log.warn('<div style="color:#0000FF">***** name from array is: ' + names[i] + ' *******</div>');
       var name = names[i];
-      var piece = Pieces.find(function(e){ return e.name == name; })
+   //   var piece = Pieces.find(function(e){ return e.name == name; })
       var pieceData = state.get(name); // owner,x,y
       if (piece){
 this.log.warn('selected piece: ' + piece.toDebugString());
@@ -1536,7 +1532,7 @@ this.log.warn('Board#toString : ' + this.board.toString());
     obj['whiteStand']	 = this.whiteStand.toString();
     this.log.debug('06');
     //obj['Cell']	 = Cell.all.invoke('toDebugString').join('<br>');
-    obj['Piece']	 = Pieces.invoke('toDebugString').join('<br>');
+    //obj['Piece']	 = Pieces.invoke('toDebugString').join('<br>');
     this.log.debug('07');
     for(var p in obj){
       this.log.warn(p + ' : ' + obj[p]);
