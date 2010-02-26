@@ -1,4 +1,6 @@
 HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
+LogIndent = 0;
+DisplayLevel = false;
 /**
  * common functions
  */
@@ -29,7 +31,7 @@ function create_piece(chr){
 }
 
 function addDraggable(piece, startMessage){
-  window.game.log.debug('entered addDraggable: ' + startMessage);
+  window.game.log.debug('entered addDraggable: ' + startMessage, {'indent':1});
       new Draggable(piece.elm, {
         onStart: function() {
           window.game.log.warn(startMessage);
@@ -39,6 +41,7 @@ function addDraggable(piece, startMessage){
           this.elm.style.left = 0;
         }.bind(piece)
       });
+  window.game.log.debug('leaving addDraggable:', {'indent':-1});
 }
 
 function arrange(state){
@@ -110,7 +113,7 @@ Piece = Class.create({
 	 */
   initialize: function(chr, game) {
     this.game = game || window.game;
-this.game.log.warn('Piece#initialize entered with : ' + chr);
+this.game.log.warn('Piece#initialize entered with : ' + chr, {'indent':1});
     this.type = Chr2Type[chr.toLowerCase()];
     this.isBlack = (chr.toUpperCase() == chr);
 this.game.log.warn('Piece#initialize type is : ' + this.type);
@@ -128,7 +131,7 @@ this.game.log.warn('Piece#initialize name is : ' + this.name);
     this.cell = null;
     this.chr = chr;
     this.createElm();
-this.game.log.warn('leaving Piece#initialize'); 
+this.game.log.warn('leaving Piece#initialize', {'indent':-1}); 
   },
 	/**
 	 * createElm()
@@ -501,7 +504,7 @@ window.game.log.warn('piece moving without capturing.');
 	 * show()
 	 */
   show: function() { // Cell
-window.game.log.warn('entered show of Cell: ' + this.toDebugString());
+window.game.log.warn('entered show of Cell: ' + this.toDebugString(), {'indent':1});
     if (!this.elm) {
       (this.x === 0 || this.y === 0) ? this.createDummyElm() : this.createElm();
     }
@@ -518,6 +521,7 @@ window.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugStrin
       }
 window.game.log.warn('in show of Cell, after process -> ' + this.piece.toDebugString());
     }
+window.game.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':-1});
   },
 	/**
 	 * isOpponentFirstLine(player)
@@ -725,7 +729,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * put(chr, idx)
 	 */
   put: function(chr, idx){ // Board
-    this.game.log.debug('entered Board#put with chr: ' + chr + ', idx : ' + idx);
+    this.game.log.debug('entered Board#put with chr: ' + chr + ', idx : ' + idx, {'indent':1});
     var cell = this.getCellByIdx(idx);
     if(cell.piece){
       this.game.log.debug('Board#put: cell.piece existed : ' + cell.piece.toDebugString());
@@ -741,19 +745,20 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
       this.game.log.debug('Board#put: piece was created : ' + new_piece.toDebugString());
       cell.put(new_piece);
     }
-    this.game.log.debug('leaving Board#put');
+    this.game.log.debug('leaving Board#put',{'indent':-1});
   },
 	/**
 	 * remove(idx)
 	 */
   remove: function(idx){ // Board
-    this.game.log.debug('entered Board#remove with idx : ' + idx);
+    this.game.log.debug('entered Board#remove with idx : ' + idx, {'indent':1});
     var cell = this.getCellByIdx(idx);
     if(cell.piece){
       cell.remove();
     } else {
       // do nothing
     }
+    this.game.log.debug('leaving Board#remove', {'indent':-1});
   },
 	/**
 	 * replace(pair, idx)
@@ -789,19 +794,19 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * toString()
 	 */
   toString: function(){ // Board
-    game.log.warn('entered Board#toString');
+    game.log.warn('entered Board#toString',{'indent':3});
     // stateに載せる文字列を返す
     var ret = '';
     for (var c = 1; c < this.game.width; c++) {
       for (var r = 1; r < this.game.height; r++) {
-game.log.debug('start check at r: ' + r + ', c : ' + c);
+// game.log.debug('start check at r: ' + r + ', c : ' + c);
 if(this.cells && this.cells[r] && this.cells[r][c])
         ret += this.cells[r][c].say();
 else
   game.log.warn('no cell at r: ' + r + ', c : ' + c);
       }
     }
-    game.log.warn('leaving Board#toString with : ' + ret);
+    game.log.warn('leaving Board#toString with : ' + ret, {'indent':-3});
     return ret;
   },
 	/**
@@ -1066,7 +1071,7 @@ AnimalShogiGame = Class.create({
   initialize: function(settings) {
     this.log = new Log(Log.DEBUG, Log.popupLogger);
  //   this.log.setLevel('none');
-    this.log.warn('start log');
+    this.log.warn('start log',{'indent':1});
     this.width = 4;  // 0 is dummy
     this.height = 5;
     this.settings = settings;
@@ -1100,7 +1105,7 @@ AnimalShogiGame = Class.create({
     this.board.adjust();
       //  持ち駒の位置も決めておく
     this.setStandPosition();
-    this.log.warn('leaving AnimalShogiGame#initialize',{'date':true,3:{'color':'green'}});
+    this.log.warn('leaving AnimalShogiGame#initialize',{'indent':-1, 'date':true,3:{'color':'green'}});
   },
 	/**
 	 * setStandPosition()
@@ -1124,7 +1129,7 @@ AnimalShogiGame = Class.create({
 	 * determineTop()
 	 */
   determineTop: function() { // Game
-this.log.debug('entered Game#determineTop : ');
+this.log.debug('entered Game#determineTop : ', {'indent':1});
      // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
      // はじめからtop が１になるのはplayer2がviewerのときだけ
      // あとはviewerが反転ボタンで指定したとき
@@ -1142,7 +1147,9 @@ this.log.info('06.6');
 this.log.info('after 06.5 this.top : ' + this.top);
       }
    }
-if (this.player2) this.log.warn('leaving determineTop: player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top);
+if (this.player2) this.log.warn('leaving determineTop: player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top, {'indent':-1});
+else 
+   this.log.warn('leaving determineTop:', {'indent':-1});
   },
 	/**
 	 * setPlayer(name, opponent)
@@ -1456,6 +1463,7 @@ this.log.warn('piece:' + piece.name + ' was added to ' + prefix + '-captured in 
 	 * fromState(state)
 	 */
   fromState: function(state) { // game
+    LogIndent = 0;
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
     this.processPlayer(state);
     this.count = state.get('count');

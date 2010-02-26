@@ -73,6 +73,10 @@
  * </pre>
  */
 
+/**
+ * global variable
+ */
+var Indent = 0;
 
 
 /**
@@ -143,6 +147,8 @@ function Log(level,logger,prefix) {
        if (level!='undefined') { this.setLevel(level); }
        if (logger!='undefined') { this.setLogger(logger); }
        if (prefix!='undefined') { this.setPrefix(prefix); }
+
+       this.indent = 0;
 }
 /**
  * Log an event with priority of "debug"
@@ -254,7 +260,8 @@ Log.popupLogger = function(msg,level,obj,option) {
        var row = tbl.insertRow(-1);
 
        var cell_1 = row.insertCell(-1);
-       var cell_2 = row.insertCell(-1);
+       var cell_2 = null;
+       if(DisplayLevel) cell_2 = row.insertCell(-1);
        var cell_3 = row.insertCell(-1);
 
        var d = new Date();
@@ -269,9 +276,11 @@ Log.popupLogger = function(msg,level,obj,option) {
        cell_1.style.fontSize="8pt";
        cell_1.style.fontWeight="bold";
        cell_1.style.paddingRight="6px";
-       
-       cell_2.style.fontSize="8pt";
-       cell_2.style.display="hidden";
+
+       if(DisplayLevel){
+         cell_2.style.fontSize="8pt";
+         cell_2.style.display="hidden";
+       }
        
        cell_3.style.fontSize= (level == "INFO" || level == "DEBUG") ? "8pt" : "10pt";
        cell_3.style.whiteSpace="nowrap";
@@ -279,21 +288,30 @@ Log.popupLogger = function(msg,level,obj,option) {
 
        if (tbl.rows.length % 2 == 0) {
        	cell_1.style.backgroundColor="#eeeeee";
-       	cell_2.style.backgroundColor="#eeeeee";
+       	if(DisplayLevel) cell_2.style.backgroundColor="#eeeeee";
        	cell_3.style.backgroundColor="#eeeeee";
        }
        
        if (option){
          for (key in option){
            if(key == 1) setStyle(cell_1, option[key]);
-           if(key == 2) setStyle(cell_2, option[key]);
+           if(DisplayLevel) if(key == 2) setStyle(cell_2, option[key]);
            if(key == 3) setStyle(cell_3, option[key]);
          }
        }
 
+       if (option && option['indent']){
+         if(option['indent'] > 0) LogIndent = option['indent'] + LogIndent;
+       }
+       //cell_3.style.padding = "0px 0px 0px " + Indent*10 + "px";
+       var pad = '';
+       for(var i=0;i<LogIndent;i++) pad += '__';
        cell_1.innerHTML=date
-       cell_2.innerHTML=level;
-       cell_3.innerHTML=msg;
+       if(DisplayLevel) cell_2.innerHTML=level;
+       cell_3.innerHTML=pad+msg;
+       if (option && option['indent']){
+         if(option['indent'] < 0) LogIndent = option['indent'] + LogIndent;
+       }
 }
 
 /**
