@@ -27,6 +27,7 @@ String.prototype.subtract = function(str){
 function create_piece(chr){
   window.game.log.debug('entered create_piece: ' );
   var p = new Piece(chr);
+  window.game.log.debug('leaving create_piece with :' + p.toDebugString() );
   return p;
 }
 
@@ -52,7 +53,7 @@ function arrange(state){
 }
 
 Number.prototype.toKanji = function(){
-  var stock = ['','一','二','三', '四','五', '六','七', '八','九']
+  var stock = ['','一','二','三', '四','五', '六','七', '八','九'];
   return stock[this];
 }
 
@@ -131,7 +132,7 @@ this.game.log.warn('leaving Piece#initialize', {'indent':-1});
 	 */
   isBlack: function() {  // Piece
     return (this.chr.toUpperCase() == this.chr);
-  }
+  },
 	/**
 	 * createElm()
 	 */
@@ -153,9 +154,10 @@ this.game.log.warn('leaving Piece#createElm : ');
 	/**
 	 * addDraggableIfNeeded()
 	/*
-  addDraggableIfNeeded: function(){ // Piece
+  addDraggableIfNeeded: function(msg){ // Piece
+    if (!this.game.playingViewer) return;
     if(this.isBlack() == (this.game.top == 0))
-      addDraggable(this, 'draggable added at being put at stand');
+      addDraggable(this, msg);
   },
 	/**
 	 * initialArrange(board)
@@ -718,11 +720,14 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
         // do nothing
       } else {
         cell.remove();
-        cell.put(new Piece(chr));
+        var new_piece = create_piece(chr);
+        new_piece.addDraggableIfNeeded('draggable added after read board 1');
+        cell.put(new_piece);
       }
     } else {
       this.game.log.debug('Board#put: cell.piece not existed , so initialize piece and put ');
       var new_piece = create_piece(chr);
+      new_piece.addDraggableIfNeeded('draggable added after read board 2');
       this.game.log.debug('Board#put: piece was created : ' + new_piece.toDebugString());
       cell.put(new_piece);
     }
@@ -899,7 +904,7 @@ Stand = Class.create({
 	 * put(piece)
 	 */
   put: function(piece){  // Stand
-    piece.addDraggableIfNeeded();
+    piece.addDraggableIfNeeded('draggable added at being put at stand');
     piece.chr = (this.id == 'black') ? piece.chr.toUpperCase():piece.chr.toLowerCase(); 
     this.pieces.push(piece);
   },
@@ -1058,6 +1063,7 @@ AnimalShogiGame = Class.create({
     this.width = 4;  // 0 is dummy
     this.height = 5;
     this.settings = settings;
+    this.playingViewer = null;
     this.log.warn('01');
     this.container = $(settings.containerId);
     this.log.warn('02');
@@ -1141,7 +1147,7 @@ else
   setPlayer: function(name, opponent) { // Game
     if (!this.player1) {
       this.player1 = new Player('player1', name, !opponent);
-      if (!opponent) this.myPlayer = this.player1;
+      if (!opponent) this.playingViewer = this.player1;
       this.controlPanel.update();
       this.message(t('waiting'));
       wave.getState().submitDelta({
@@ -1151,7 +1157,7 @@ else
     else if (!this.player2) {
       if (name != this.player1.name){
         this.player2 = new Player('player2', name, !opponent);
-        if (!opponent) this.myPlayer = this.player2;
+        if (!opponent) this.playingViewer = this.player2;
         this.determineTop();
         this.controlPanel.update();
         this.message('');
@@ -1253,50 +1259,6 @@ this.log.debug('leaving Game#nextTurn', {'indent':-1});
     return this.thisTurnPlayer().name == wave.getViewer().getId();
   },
 	/**
-	 * needUpsideDown()
-	 */
-  needUpsideDown: function() {
-this.log.warn('entered needUpsideDown. now, myPlayer is ' + this.myPlayer + ', this.top is ' + this.top + ', player1 is ' + this.player1 + ', player2 is ' + this.player2);
-    if(this.myPlayer){
-      if(this.top === 0)
-        return  this.myPlayer.name == this.player2.name;
-      else
-        return  this.myPlayer.name == this.player1.name;
-    } else {
-      return false;
-    }
-  },
-	/**
-	 * upsideDownIfNeeded(x, y)
-	 */
-  upsideDownIfNeeded: function(x, y) {
-this.log.warn('entered upsideDownIfNeeded : x, y -> ' + x + ', ' + y);
-    x = parseInt(x);
-    y = parseInt(y);
-    if (this.needUpsideDown()) {
-this.log.warn('---leaving with data converted : x, y -> ' + (4-x) + ', ' + (5-y));
-      return [4 - x, 5 - y];
-    }
-    else {
-this.log.warn('---leaving without change : x, y -> ' + x + ', ' + y);
-      return [x, y];
-    }
-  },
-	/**
-	 * isSafety(piece)
-	 */
-  isSafety: function(piece) {
-    // TODO
-    return true;
-  },
-	/**
-	 * isPlayer()
-	 */
-  isPlayer: function() {
-    var viewer = wave.getViewer().getId();
-    return this.player1.name == viewer || this.player2.name == viewer;
-  },
-	/**
 	 * finish(winner)
 	 */
   finish: function(winner) {
@@ -1367,13 +1329,13 @@ this.log.warn('leaving processPlayer: processing Player2: ');
     }
 
     if (this.player1 && this.player1.name == viewer) {
-      this.myPlayer = this.player1;
+      this.playingViewer = this.player1;
     }
     else if (this.player2 && this.player2.name == viewer) {
-      this.myPlayer = this.player2;
+      this.playingViewer = this.player2;
     }
     this.determineTop();
-if(this.myPlayer) this.log.debug('myPlayer is defined : ' + this.myPlayer);
+if(this.playingViewer) this.log.debug('playingViewer is defined : ' + this.playingViewer);
     if (this.player1 && this.player2) {
       this.message('');
       $('join-button').hide();
