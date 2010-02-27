@@ -220,7 +220,7 @@ window.game.log.warn('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
   move: function(fromCell, toCell, notCapture, dropOrState) {  // Piece
 window.game.log.warn('Piece#move 1 : ');
     var capturedPiece = null;
-    if(fromCell) fromCell.remove(this);
+    if(fromCell) fromCell.removeOwnPiece();
 window.game.log.warn('Piece#move 2 : ');
     capturedPiece = toCell.replace(this);
 window.game.log.warn('Piece#move 3 : ');
@@ -503,9 +503,9 @@ window.game.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':
     }
   },
 	/**
-	 * remove()
+	 * removeOwnPiece()
 	 */
-  remove: function(){  // Cell
+  removeOwnPiece: function(){  // Cell
 window.game.log.warn('entered Cell#remove');
 if(this.piece)window.game.log.warn('this cell.piece to remove: ' + this.piece.toDebugString());
     if(this.piece){
@@ -514,7 +514,7 @@ if(this.piece)window.game.log.warn('this cell.piece to remove: ' + this.piece.to
       delete this.piece;
       this.piece = null;
     }
-window.game.log.warn('leaving Cell#remove with :' + this.toDebugString());
+window.game.log.warn('leaving Cell#remove as :' + this.toDebugString());
     return;
   },
 	/**
@@ -706,7 +706,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
       if(cell.piece.chr == chr){
         // do nothing
       } else {
-        cell.remove();
+        cell.removeOwnPiece();
         var new_piece = create_piece(chr);
         new_piece.addDraggableIfNeeded('draggable added after read board 1');
         cell.put(new_piece);
@@ -721,13 +721,13 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
     this.game.log.debug('leaving Board#put',{'indent':-1});
   },
 	/**
-	 * remove(idx)
+	 * removeCellsPieceByIdx(idx)
 	 */
-  remove: function(idx){ // Board
+  removeCellsPieceByIdx: function(idx){ // Board
     this.game.log.debug('entered Board#remove with idx : ' + idx, {'indent':1});
     var cell = this.getCellByIdx(idx);
     if(cell.piece){
-      cell.remove();
+      cell.removeOwnPiece();
     } else {
       // do nothing
     }
@@ -757,7 +757,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
     newBoard.zip(oldBoard).each(function(tuple, idx){
         if(tuple[0] != tuple[1]){
            if(tuple[1] == 'x') this.put(tuple[0], idx);
-           else if(tuple[0] == 'x') this.remove(idx);
+           else if(tuple[0] == 'x') this.removeCellsPieceByIdx(idx);
            else this.replace(tuple, idx);
         }
       }.bind(this));
@@ -877,9 +877,9 @@ Stand = Class.create({
     this.elm.style.height = (this.game.height - 1)*30 + 'px';
   },
 	/**
-	 * remove(chr)
+	 * removeStandsPieceByChr(chr)
 	 */
-  remove: function(chr){  // Stand
+  removeStandsPieceByChr: function(chr){  // Stand
     // chrで指定された駒を駒台から取り除く
     // 取り除いたpieceを返す
     var target = this.pieces.find(function(p){ return p.chr == chr; });
@@ -907,7 +907,7 @@ Stand = Class.create({
     // 現在にあり、strFromStateにないものは現在から消す
     var deleteCandidate = str_now.subtract(strFromState);
     $A(deleteCandidate).each(function(c){
-      this.remove(c);
+      this.removeStandsPieceByChr(c);
     }.bind(this));  
     // 現在になく、strにあるものは現在へ足す
     var addCandidate = strFromState.subtract(str_now);
