@@ -160,15 +160,6 @@ this.game.log.warn('leaving Piece#createElm : ');
       addDraggable(this, msg);
   },
 	/**
-	 * initialArrange(board)
-	 */
-  initialArrange: function(board) {  // Piece
-this.game.log.warn('entered piece initialArrange : ');
-    var pos = this.initialPosition;
-    if (!this.isBlack()) pos = [4 - pos[0], 5 - pos[1]];
-    board.cells[pos[1]][pos[0]].put(this);
-  },
-	/**
 	 * setClassName(player)
 	 */
   setClassName: function() { // Piece
@@ -281,7 +272,6 @@ var PieceTypeObjects = {
   'lion': {
   imageUrl: HOST + 'lion.png',
   type: 'lion',
-  initialPosition: [2, 4],
   movableArea: [
     [ true,  true,  true],
     [ true, false,  true],
@@ -294,7 +284,6 @@ var PieceTypeObjects = {
   'elephant': {
   imageUrl: HOST + 'elephant.png',
   type: 'elephant',
-  initialPosition: [1, 4],
   movableArea: [
     [ true, false,  true],
     [false, false, false],
@@ -307,7 +296,6 @@ var PieceTypeObjects = {
   'giraffe': {
   imageUrl: HOST + 'giraffe.png',
   type: 'giraffe',
-  initialPosition: [3, 4],
   movableArea: [
     [false,  true, false],
     [ true, false,  true],
@@ -320,7 +308,6 @@ var PieceTypeObjects = {
   'chick': {
   imageUrl: HOST + 'chick.png',
   type: 'chick',
-  initialPosition: [2, 3],
   movableArea: [
     [false,  true, false],
     [false, false, false],
@@ -1007,17 +994,6 @@ Player = Class.create({
     return (this.id == 'player1') == (window.game.top == 1);
   },
 	/**
-	 * initialArrange(board)
-	 */
-  initialArrange: function(board) { // Player
-window.game.log.warn('entered initialArrange of Player');
-window.game.log.warn(this.id + ': ' + this.name);
-//window.game.log.warn('pieces: ' + this.pieces.invoke('toDebugString').join('<br>'));
-//    this.pieces.each(function(piece) {
-//      piece.initialArrange(board);
-//    });
-  },
-	/**
 	 * shortName()
 	 */
   shortName: function() {
@@ -1216,14 +1192,8 @@ this.log.warn('game.show');
 	/**
 	 * start()
 	 */
-  start: function() {
+  start: function() { // Game
     this.log.warn('game.start was called.');
-    this.player1.initialArrange(this.board);
-    this.log.warn('initialArrange of player 1 has ended: ');
-    //this.log.warn('initialArrange of player 1 has ended: ' + this.player1.toDebugString());
-    this.player2.initialArrange(this.board);
-    this.log.warn('initialArrange of player 2 has ended: ');
-    //this.log.warn('initialArrange of player 2 has ended: ' + this.player2.toDebugString());
     this.determineTop();
     this.controlPanel.update();
     this.board.show();
@@ -1308,7 +1278,7 @@ this.log.debug('entered processPlayer: viewer: ' + viewer);
 this.log.debug('leaving processPlayer because state has no player.');
       return;
     }
-    if (!this.player1 && pl1) {
+    if (!this.player1 && pl1) {  // 各normalスナップに1回通る
 this.log.debug('processPlayer: processing Player1: ');
       var isMe = (pl1 == viewer);
       this.top = (isMe ? 0 : 1);
@@ -1316,7 +1286,7 @@ this.log.debug('processPlayer: processing Player1: ');
       this.controlPanel.update();
 this.log.info('leaving processing Player1: ');
     }
-    if (!this.player2 && pl2) {
+    if (!this.player2 && pl2) {  // 各normalスナップに1回通る
 this.log.warn('processPlayer: processing Player2: ');
       var isMeMaybe = (pl1 != viewer);
       this.top = (pl2 == viewer ? 1 : 0);
