@@ -1200,19 +1200,9 @@ this.log.debug('entered Game#determineTop : ', {'indent':1});
        this.top = this.top_by_viewer;
     } else {
       this.top = 0;  // by default
-this.log.info('this.top : ' + this.top);
-      if (this.player2){
-this.log.info('06.5 this.top is ' + this.top);
-        if (this.player2.name == wave.getViewer().getId()){
-this.log.info('06.6');
-          this.top = 1;
-        }
-this.log.info('after 06.5 this.top : ' + this.top);
-      }
-   }
-if (this.player2) this.log.warn('leaving determineTop: player2.name : ' + this.player2.name + ',  viewer.id : ' + wave.getViewer().getId() + ',  top : ' + this.top, {'indent':-1});
-else 
-   this.log.warn('leaving determineTop:', {'indent':-1});
+      if (this.player2 && this.player2.isViewer) this.top = 1;
+    }
+this.log.debug('leaving determineTop with game.top : ' + this.top, {'indent':-1});
   },
 	/**
 	 * setPlayer(name, opponent)
@@ -1378,17 +1368,15 @@ this.log.debug('leaving processPlayer because state has no player.');
     }
     if (!this.player1 && pl1) {  // 各normalスナップに1回通る
 this.log.debug('processPlayer: processing Player1: ');
-      var isMe = (pl1 == viewer);
-      this.top = (isMe ? 0 : 1);
-      this.player1 = new Player('player1', pl1, isMe );
+      var pl1IsViewer = (pl1 == viewer);
+      this.player1 = new Player('player1', pl1, pl1IsViewer );
       this.controlPanel.update();
 this.log.info('leaving processing Player1: ');
     }
     if (!this.player2 && pl2) {  // 各normalスナップに1回通る
 this.log.warn('processPlayer: processing Player2: ');
-      var isMeMaybe = (pl1 != viewer);
-      this.top = (pl2 == viewer ? 1 : 0);
-      this.player2 = new Player('player2', pl2, isMeMaybe );
+      var pl2IsViewer = (pl2 == viewer);
+      this.player2 = new Player('player2', pl2, pl2IsViewer );
 this.debug_dump();
       this.controlPanel.update();
 this.log.warn('backed into processPlayer: processing Player2: ');
@@ -1396,10 +1384,10 @@ this.log.warn('backed into processPlayer: processing Player2: ');
 this.log.warn('leaving processPlayer: processing Player2: ');
     }
 
-    if (this.player1 && this.player1.name == viewer) {
+    if (this.player1 && this.player1.isViewer) {
       this.playingViewer = this.player1;
     }
-    else if (this.player2 && this.player2.name == viewer) {
+    else if (this.player2 && this.player2.isViewer) {
       this.playingViewer = this.player2;
     }
     this.determineTop();
