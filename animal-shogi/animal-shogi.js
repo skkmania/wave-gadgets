@@ -957,7 +957,8 @@ Stand = Class.create({
   removeByObj: function(piece){  // Stand
     // 指定された駒のオブジェクトを駒台から取り除く
     this.elm.removeChild(piece.elm);
-    this.pieces.subtract([piece]);
+    //this.pieces.subtract([piece]);
+    this.pieces = this.pieces.reject(function(p){ return p==piece; });
   },
 	/**
 	 * removeStandsPieceByChr(chr)
@@ -967,7 +968,8 @@ Stand = Class.create({
     // 取り除いたpieceを返す
     var target = this.pieces.find(function(p){ return p.chr == chr; });
     this.elm.removeChild(target.elm);
-    this.pieces.subtract([target]);
+    //this.pieces.subtract([target]);
+    this.pieces = this.pieces.reject(function(p){ return p==target; });
     return target;
   },
 	/**
