@@ -119,9 +119,6 @@ this.game.log.warn('Piece#initialize entered with : ' + chr, {'indent':1});
 this.game.log.warn('Piece#initialize type is : ' + this.type);
     Object.extend(this, PieceTypeObjects[this.type]);
 this.game.log.warn('Piece#initialize imageUrl is : ' + this.imageUrl);
-    this.name = this.type + '_';
-    this.name += ((chr.toLowerCase() == chr) ? 'player2' : 'player1');
-this.game.log.warn('Piece#initialize name is : ' + this.name);
     this.cell = null;
     this.chr = chr;
     this.createElm();
@@ -157,7 +154,6 @@ this.game.log.warn('Piece#createElm entered : ');
     this.elm = document.createElement('img');
     this.elm.obj = this;
     this.elm.src = this.imageUrl;
-    this.elm.id = this.name;
     this.elm.addClassName('piece');
     if (!this.atTop()) {
       this.elm.addClassName('bottom');
@@ -181,7 +177,7 @@ this.game.log.warn('leaving Piece#addDraggableIfNeeded  : ', {'indent':-1});
 	 * setClassName(player)
 	 */
   setClassName: function() { // Piece
-if (window.game) window.game.log.warn('piece setClassName entered: ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
+if (window.game) window.game.log.warn('piece setClassName entered: ' + this.chr + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
     if (!this.atTop()) {
       this.elm.addClassName('bottom');
       this.elm.removeClassName('top');
@@ -190,7 +186,7 @@ if (window.game) window.game.log.warn('piece setClassName entered: ' + this.name
       this.elm.removeClassName('bottom');
       this.elm.addClassName('top');
     }
-if (window.game) window.game.log.warn('leaving piece setClassName : ' + this.name + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
+if (window.game) window.game.log.warn('leaving piece setClassName : ' + this.chr + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
   },
 	/**
 	 * atTop()
@@ -202,7 +198,7 @@ if (window.game) window.game.log.warn('leaving piece setClassName : ' + this.nam
 	 * capturedBy(player) 
 	 */
   capturedBy: function(player) { // Piece
-window.game.log.warn('entered Piece.capturedBy: ' + this.name + ' is captured by ' + player.id);
+window.game.log.warn('entered Piece.capturedBy: ' + this.chr + ' is captured by ' + player.id);
     this.setClassName();
     this.cell.piece = null;
     this.cell = null;
@@ -277,9 +273,9 @@ window.game.log.debug('leaving Piece#gotoOpponentsStand : ', {'indent':-1});
 	 */
   isViewersP: function(game) { // Piece
     if (this.isBlack())
-      return this.game.player1.name == wave.getViewer().getId();
+      return this.game.player1.isViewer;
     else
-      return this.game.player2.name == wave.getViewer().getId();
+      return this.game.player2.isViewer;
   },
 	/**
 	 * isGoal(cell)
@@ -295,7 +291,6 @@ window.game.log.debug('leaving Piece#gotoOpponentsStand : ', {'indent':-1});
     ret += (', cn: ' + this.elm.className);
     if (this.cell && this.cell.elm) ret += ('cell_name:' + this.cell.elm.id);
     else ret += '[no cell]';
-    ret += (', name: ' + this.name);
     return ret;
   }
 });
@@ -619,7 +614,7 @@ window.game.log.warn('entered Cell.capturedBy: player is ' + player.toDebugStrin
 	 */
   toJSON: function() {
     if (this.piece) {
-      return this.piece.name;
+      return this.piece.chr;
     }
     else {
       return '';
@@ -1316,7 +1311,7 @@ this.log.debug('leaving Game#nextTurn', {'indent':-1});
 	 * isViewersTurn()
 	 */
   isViewersTurn: function() {
-    return this.thisTurnPlayer().name == wave.getViewer().getId();
+    return this.thisTurnPlayer().isViewer;
   },
 	/**
 	 * finish(winner)
