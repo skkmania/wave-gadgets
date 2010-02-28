@@ -41,7 +41,7 @@ function create_piece(chr){
 
 function addDraggable(piece, startMessage){
   window.game.log.debug('entered addDraggable: ' + startMessage, {'indent':1});
-      new Draggable(piece.elm, {
+  return  new Draggable(piece.elm, {
         onStart: function() {
           window.game.log.warn('Drag started. : ' + startMessage, {3:{'color':'#33AA88'}});
         },
@@ -177,9 +177,12 @@ this.game.log.warn('leaving Piece#createElm : ');
   addDraggableIfNeeded: function(msg){ // Piece
 this.game.log.warn('Piece#addDraggableIfNeeded entered : ' + msg, {'indent':1});
     if (!this.game.playingViewer) return;
-    if(this.isBlack() == (this.game.top == 0))
-      addDraggable(this, msg);
-this.game.log.warn('leaving Piece#addDraggableIfNeeded  : ', {'indent':-1});
+    if(this.isBlack() == (this.game.top == 0)){
+      this.drag = addDraggable(this, msg);
+this.game.log.warn('leaving Piece#addDraggableIfNeeded after adding: ', {'indent':-1});
+    } else {
+this.game.log.warn('leaving Piece#addDraggableIfNeeded without adding : ', {'indent':-1});
+    }
   },
 	/**
 	 * setClassName(player)
@@ -530,7 +533,7 @@ window.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugStrin
       if(this.piece.isBlack() == (window.game.top === 0)){
         this.piece.elm.addClassName('bottom');
         this.piece.elm.removeClassName('top');
-        addDraggable(this.piece, 'draggable added at start of board');
+        this.piece.drag = addDraggable(this.piece, 'draggable added at start of board');
       } else {
         this.piece.elm.addClassName('top');
         this.piece.elm.removeClassName('bottom');
@@ -561,7 +564,13 @@ window.game.log.debug('entered Cell#deleteOwnPiece');
 if(this.piece)window.game.log.warn('this cell.piece to be deleted: ' + this.piece.toDebugString());
     if(this.piece){
       this.piece.cell = null;
+// これができないときは？
       this.elm.removeChild(this.piece.elm);
+// このpieceにDraggableがついていたらdestroyしないといけないはず？:w
+      if(this.drag){
+        this.drag.destroy();
+        this.drag = null;
+      }
       delete this.piece;
       this.piece = null;
     }
@@ -588,6 +597,9 @@ window.game.log.warn('leaving Cell#removeOwnPiece as :' + this.toDebugString());
 	 * replaceOwnPieceWith(newPiece)
 	 */
   replaceOwnPieceWith: function(newPiece){  // Cell
+    // 敵駒のあるセルに自駒を動かすとき、敵駒の敵stand(つまり自分のスタンド）
+    // に駒を動かしてから自駒をこのセルに置く
+    // この処理は駒を動かすとき、つまりmoveから呼ばれなければならない
 window.game.log.debug('entered Cell#replaceOwnPieceWith newPiece : ' + newPiece.toDebugString(), {'indent':1});
     var tmp = null;
     if(this.piece){
@@ -818,13 +830,33 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * replace(pair, idx)
 	 */
   replace: function(pair, idx){ // Board
+    // pair はpiece.chrを表す文字の組。
+    // pair[0](新しい文字)がpair[1](古い文字)を置き換える。
     this.game.log.debug('entered Board#replace with pair: ' + pair.toString() + ', idx : ' + idx);
     var cell = this.getCellByIdx(idx);
+    var new_piece = new Piece(pair[0]);
     if(cell.piece){
-      cell.replaceOwnPieceWith(new Piece(pair[0]));
+      cell.replaceOwnPieceWith(new_piece);
     } else {
-      cell.put(new Piece(pair[0]));
+      cell.put(new_piece);
     }
+    this.game.log.debug('leaving Board#replace with : ' + new_piece.toDebugString() );
+  },
+  	/**
+	 * replaceByRead(pair, idx)
+	 */
+  replaceByRead: function(pair, idx){ // Board
+    // pair はpiece.chrを表す文字の組。
+    // pair[0](新しい文字)がpair[1](古い文字)を置き換える。
+    // stringFromStateを読んだときの処理に使う
+    // 置き換えられる駒は消される
+    // 置き換える駒は新しく生成される
+    this.game.log.debug('entered Board#replace with pair: ' + pair.toString() + ', idx : ' + idx);
+    var cell = this.getCellByIdx(idx);
+    var new_piece = new Piece(pair[0]);
+    if(cell.piece) cell.deleteOwnPiece();
+    cell.put(new_piece);
+    this.game.log.debug('leaving Board#replace with : ' + new_piece.toDebugString() );
   },
 	/**
 	 * read(strFromState)
@@ -839,7 +871,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
         if(tuple[0] != tuple[1]){
            if(tuple[1] == 'x') this.put(tuple[0], idx);
            else if(tuple[0] == 'x') this.deleteCellsPieceByIdx(idx);
-           else this.replace(tuple, idx);
+           else this.replaceByRead(tuple, idx);
         }
       }.bind(this));
   },
@@ -1019,6 +1051,10 @@ Stand = Class.create({
     this.game.log.debug('entered  Stand#put with : ' );
     //this.game.log.debug('entered ' + this.id + ' Stand#put with : ' + piece.toDebugString());
     piece.toggleBW();
+    if(piece.drag){
+      piece.drag.destroy();
+      piece.drag = null;
+    }
     piece.addDraggableIfNeeded('draggable added at being put at stand');
     piece.cell = null;
     this.pieces.push(piece);
