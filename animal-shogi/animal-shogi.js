@@ -7,6 +7,14 @@ DisplayLevel = false;
 var Type2chr = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
 var Chr2Type = { 'a' : 'chick', 'b' : 'elephant', 'c' : 'giraffe', 'd' : 'lion', 'e' : 'chicken' };
 
+Draggables.toDebugString = function() {
+  return '<br>' + this.drags.pluck('element').pluck('obj').invoke('toDebugString').join('<br>');
+}
+
+Droppables.toDebugString = function() {
+  return '<br>' + this.drops.invoke('toDebugString').join('<br>');
+}
+
 Array.prototype.subtract = function(ary){
   // 配列から配列を引き算する。破壊的。
   $A(ary).each(function(c){
@@ -466,6 +474,9 @@ if(this.x === 1 && this.y === 1) window.game.log.warn('-------Cell#getPosition -
     this.board.elm.appendChild(this.elm);
 window.game.log.warn('Droppables to add ' + this.elm.id);
     Droppables.add(this.elm, {
+      toDebugString: function(){
+        return 'Droppable : ' + this.toDebugString();
+      }.bind(this),
       accept: 'piece',
 	/**
 	 * onDrop(draggable)
@@ -1417,25 +1428,19 @@ this.log.warn('leaving processPlayer: viewer: ' + viewer);
     this.log.warn(state.toString());
     var obj = {};
     obj['player1']	 = (this.player1 ? this.player1.toDebugString():null);
-    this.log.debug('00');
     obj['player2']	 = (this.player2 ? this.player2.toDebugString():null);
-    this.log.debug('01');
     obj['playingViewer'] = (this.playingViewer ? this.playingViewer.toDebugString():null);
-    this.log.debug('01');
     obj['top']		 = this.top;
-    this.log.debug('02');
     //obj['board']	 = this.board.toDebugString();
     obj['board']	 = this.board.toString();
-    this.log.debug('04');
     obj['blackStand']	 = this.blackStand.toString();
-    this.log.debug('05');
     obj['whiteStand']	 = this.whiteStand.toString();
-    this.log.debug('06');
     //obj['Cell']	 = Cell.all.invoke('toDebugString').join('<br>');
     obj['PieceOnBoard']	 = '<br>' + this.board.cells.flatten().findAll(function(c){ return c.piece != null; }).invoke('toDebugString').join('<br>');
-    obj['PieceOnBlackStand']	 = this.blackStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
-    obj['PieceOnWhiteStand']	 = this.whiteStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
-    this.log.debug('07');
+    obj['PieceOnBlackStand']	 = '<br>' + this.blackStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
+    obj['PieceOnWhiteStand']	 = '<br>' + this.whiteStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
+    obj['Droppables']	= Droppables.toDebugString();
+    obj['Draggables']	= Draggables.toDebugString();
     for(var p in obj){
       this.log.warn(p + ' : ' + obj[p]);
     }
