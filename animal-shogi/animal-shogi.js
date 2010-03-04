@@ -40,7 +40,7 @@ function create_piece(chr){
 }
 
 function addDraggable(piece, startMessage){
-  window.game.log.debug('entered addDraggable: ' + startMessage, {'indent':1});
+  window.game.log.debug('entered addDraggable and immidiately returning draggable, msg:' + startMessage);
   return  new Draggable(piece.elm, {
         onStart: function() {
           window.game.log.warn('Drag started. : ' + startMessage, {3:{'color':'#33AA88'}});
@@ -50,7 +50,6 @@ function addDraggable(piece, startMessage){
           this.elm.style.left = 0;
         }.bind(piece)
       });
-  window.game.log.debug('leaving addDraggable:', {'indent':-1});
 }
 
 function arrange(state){
@@ -1213,6 +1212,7 @@ AnimalShogiGame = Class.create({
       //  持ち駒の位置も決めておく
     this.setStandPosition();
     this.log.warn('leaving AnimalShogiGame#initialize',{'indent':-1, 'date':true,3:{'color':'green'}});
+    // this.debug_dump();
   },
 	/**
 	 * setStandPosition()
@@ -1460,8 +1460,15 @@ this.log.warn('leaving processPlayer: viewer: ' + viewer);
 	 */
   debug_dump: function(){
     this.log.warn('debug_dump enterd', {'indent':2});
-    var state = wave.getState();
-    this.log.warn(state.toString());
+    try{
+      var state = wave.getState();
+    } catch(e){
+      this.log.error('cannot get state : ' + e);
+    }
+    if(state)
+      this.log.warn(state.toString());
+    else
+      this.log.error('state is null');
     var obj = {};
     obj['player1']	 = (this.player1 ? this.player1.toDebugString():null);
     obj['player2']	 = (this.player2 ? this.player2.toDebugString():null);

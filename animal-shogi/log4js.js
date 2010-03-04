@@ -282,7 +282,7 @@ Log.popupLogger = function(msg,level,obj,option) {
          cell_2.style.display="hidden";
        }
        
-       cell_3.style.fontSize= (level == "INFO" || level == "DEBUG") ? "8pt" : "10pt";
+       cell_3.style.fontSize= (level == "INFO" || level == "DEBUG") ? "10pt" : "10pt";
        cell_3.style.whiteSpace="nowrap";
        cell_3.style.width="100%";
 
