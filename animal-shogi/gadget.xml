@@ -15,7 +15,7 @@
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/dragdrop.js"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/unittest.js"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/m17n.js" charset="UTF-8"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/log4js.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/log4p.js" charset="UTF-8"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/test_animal-shogi.js" charset="UTF-8"></script>
 <script>

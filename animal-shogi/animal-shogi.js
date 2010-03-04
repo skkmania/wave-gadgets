@@ -1174,7 +1174,8 @@ AnimalShogiGame = Class.create({
 	 * initialize(settings)
 	 */
   initialize: function(settings) {
-    this.log = new Log(Log.DEBUG, Log.popupLogger);
+    this.log = new Log(Log.DEBUG, 'popup');
+    this.log.setCSSfile(HOST + "log4p.css");
  //   this.log.setLevel('none');
     this.log.warn('start log',{'indent':1});
     this.width = 4;  // 0 is dummy
