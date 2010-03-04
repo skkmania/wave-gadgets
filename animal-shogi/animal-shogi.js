@@ -223,25 +223,6 @@ this.game.log.goOut();
     return (this.game.top == 1) == this.isBlack();
   },
 	/**
-	 * capturedBy(player) 
-	 */
-  capturedBy: function capturedBy(player) { // Piece
-window.game.log.warn('entered Piece.capturedBy: ' + this.chr + ' is captured by ' + player.id);
-    this.setClassName();
-    this.cell.piece = null;
-    this.cell = null;
-    if (this.becomeNormal) this.becomeNormal();
-
-    if (this.isViewersP()) {
-      $('my-captured').appendChild(this.elm);
-window.game.log.warn(this.elm.id + ' was appended to my-captured Piece#captured');
-    }
-    else {
-      $('opponent-captured').appendChild(this.elm);
-window.game.log.warn(this.elm.id + ' was appended to opponent-captured Piece#captured');
-    }
-  },
-	/**
 	 * canMove(fromObj, toCell)
 	 */
   canMove: function canMove(fromObj, toCell) { // Piece
@@ -617,6 +598,7 @@ window.game.log.warn('leaving Cell#removeOwnPiece as :' + this.toDebugString());
     // 敵駒のあるセルに自駒を動かすとき、敵駒の敵stand(つまり自分のスタンド）
     // に駒を動かしてから自駒をこのセルに置く
     // この処理は駒を動かすとき、つまりmoveから呼ばれなければならない
+window.game.log.getInto();
 window.game.log.debug('entered Cell#replaceOwnPieceWith newPiece : ' + newPiece.toDebugString(), {'indent':1});
     var tmp = null;
     if(this.piece){
@@ -628,20 +610,13 @@ window.game.log.debug('entered Cell#replaceOwnPieceWith newPiece : ' + newPiece.
     this.put(newPiece);
 if (tmp){
   window.game.log.debug('leaving Cell#replaceOwnPieceWith with : ' + tmp.toDebugString(), {'indent':-1});
+  window.game.goOut();
     return tmp;
 } else {
-window.game.log.debug('leaving Cell#replaceOwnPieceWith nothing', {'indent':-1});
+  window.game.log.debug('leaving Cell#replaceOwnPieceWith nothing', {'indent':-1});
+  window.game.goOut();
     return;
 }
-  },
-	/**
-	 * captureBy(player)
-	 */
-  capturedBy: function capturedBy(player) { // Cell
-window.game.log.warn('entered Cell.capturedBy: player is ' + player.toDebugString());
-    this.elm.removeChild(this.piece.elm);
-    this.piece.capturedBy(player);
-    this.piece = null;
   },
 	/**
 	 * toArray()
@@ -681,6 +656,7 @@ Board = Class.create({
 	 * initialize(elm, game)
 	 */
   initialize: function initialize(elm, game) {
+game.log.getInto();
     this.game = game;
     this.top = game.top;
     this.elm = elm || document.body;
@@ -693,10 +669,11 @@ Board = Class.create({
       this.cells.push(row);
     }
     this.initialString = 'bxxCdaADcxxB';
-    game.log.warn('Board#initialize 01');
+    game.log.warn('Board#initialize going to process initialString.');
     $A(this.initialString).each(function(chr, idx){
-      if(chr == 'x') return;
+game.log.getInto();
       game.log.warn('idx: ' + idx);
+      if(chr == 'x'){ game.log.goOut(); return; }
       var xy = this.idx2xy(idx);
       var x = xy[0];
       var y = xy[1];
@@ -710,7 +687,9 @@ else{
       var p = new Piece(chr, game);
       game.log.debug('piece: initialized in Board#initialize : ' + p.toDebugString());
       this.cells[y][x].put(p);
+game.log.goOut();
     }.bind(this));
+game.log.goOut();
     game.log.warn('leaving Board#initialize');
   },
 	/**
@@ -735,13 +714,15 @@ else{
 	/**
 	 * adjust()
 	 */
-  adjust: function adjust() {
+  adjust: function adjust() { // Board
     if(!this.cells[1][1].elm) return;
     if(!this.game) return;
-this.game.log.warn('-------board.adjust entered--top is ' + this.game.top + '  --------------------------------');
+this.game.log.getInto();
+this.game.log.warn('Board#adjust entered--top is ' + this.game.top + '  --------------------------------');
     this.cells.flatten().invoke('getPosition');
     this.adjustBorder();
-this.game.log.warn('-------Board#adjust ended. -----------');
+this.game.log.warn('Board#adjust ended. -----------');
+this.game.log.goOut();
   },
 	/**
 	 * adjustBorder()
@@ -879,6 +860,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * read(strFromState)
 	 */
   read: function read(strFromState){ // Board
+this.game.log.getInto();
     this.game.log.debug('entered Board#read with : ' + strFromState);
     // stateから読んだ文字列を元に駒を盤上に置く
     // 現在の状態との差分を埋める
@@ -891,13 +873,14 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
            else this.replaceByRead(tuple, idx);
         }
       }.bind(this));
+this.game.log.goOut();
   },
 	/**
 	/**
 	 * toString()
 	 */
   toString: function toString(){ // Board
-game.log.getInto();
+this.game.log.getInto();
     game.log.warn('entered Board#toString',{'indent':3});
     // stateに載せる文字列を返す
     var ret = '';
@@ -911,7 +894,7 @@ else
       }
     }
     game.log.warn('leaving Board#toString with : ' + ret, {'indent':-3});
-game.log.goOut();
+this.game.log.goOut();
     return ret;
   },
 	/**
@@ -1209,6 +1192,7 @@ AnimalShogiGame = Class.create({
     this.log = new Log(Log.DEBUG, 'popup');
     this.log.setCSSfile(HOST + "log4p.css");
  //   this.log.setLevel('none');
+    this.log.getInto();
     this.log.warn('start log',{'indent':1});
     this.width = 4;  // 0 is dummy
     this.height = 5;
@@ -1245,6 +1229,7 @@ AnimalShogiGame = Class.create({
       //  持ち駒の位置も決めておく
     this.setStandPosition();
     this.log.warn('leaving AnimalShogiGame#initialize',{'indent':-1, 'date':true,3:{'color':'green'}});
+    this.log.goOut();
     // this.debug_dump();
   },
 	/**
