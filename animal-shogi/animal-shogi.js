@@ -1,5 +1,4 @@
 HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
-LogIndent = 0;
 DisplayLevel = false;
 /**
  * common functions
@@ -42,8 +41,7 @@ window.game.log.getOut();
 }
 
 function addDraggable(piece, startMessage){
-window.game.log.getInto();
-  window.game.log.debug('entered addDraggable and immidiately returning draggable, msg:' + startMessage);
+  window.game.log.debug('entered addDraggable and immidiately returning draggable, msg:' + startMessage,{3:{'color':'#aa8844'}});
   return  new Draggable(piece.elm, {
         onStart: function onStart() {
           window.game.log.warn('Drag started. : ' + startMessage, {3:{'color':'#33AA88'}});
@@ -53,7 +51,6 @@ window.game.log.getInto();
           this.elm.style.left = 0;
         }.bind(piece)
       });
-window.game.log.getOut();
 }
 
 function arrange(state){
@@ -145,15 +142,17 @@ this.game.log.goOut();
 	 * isBlack()
 	 */
   isBlack: function isBlack() {  // Piece
-this.game.log.debug('Piece#isBlack entered : ');
+//this.game.log.debug('Piece#isBlack entered : ');
     var ret = (this.chr.toUpperCase() == this.chr);
-this.game.log.debug('leaving Piece#isBlack with : ' + ret);
+//this.game.log.debug('leaving Piece#isBlack with : ' + ret);
     return ret;
   },
 	/**
 	 * toggleBW()
 	 */
   toggleBW: function toggleBW() {  // Piece
+    this.game.log.getInto();
+    this.game.log.debug('entered Piece#toggleBW');
     if (this.chr == this.chr.toUpperCase())
       this.chr = this.chr.toLowerCase(); 
     else
@@ -162,6 +161,23 @@ this.game.log.debug('leaving Piece#isBlack with : ' + ret);
     this.elm.toggleClassName('top');
     this.elm.toggleClassName('bottom');
 
+    this.game.log.debug('leaving Piece#toggleBW');
+    this.game.log.goOut();
+  },
+	/**
+	 * toggleDraggable()
+	 */
+  toggleDraggable: function toggleDraggable(){ // Piece
+    this.game.log.getInto();
+    this.game.log.debug('entered Piece#toggleDraggable');
+    if (this.drag && !this.isViewersP()){
+      this.drag.destroy();
+      this.drag = null;
+    } else if(this.isViewersP()){
+      this.drag = addDraggable(this, 'toggled');
+    }
+    this.game.log.debug('leaving Piece#toggleDraggable');
+    this.game.log.goOut();
   },
 	/**
 	 * createElm()
@@ -531,7 +547,7 @@ window.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugStrin
       if(this.piece.isBlack() == (window.game.top === 0)){
         this.piece.elm.addClassName('bottom');
         this.piece.elm.removeClassName('top');
-        this.piece.drag = addDraggable(this.piece, 'draggable added at start of board');
+//        this.piece.drag = addDraggable(this.piece, 'draggable added at start of board');
       } else {
         this.piece.elm.addClassName('top');
         this.piece.elm.removeClassName('bottom');
@@ -558,6 +574,7 @@ window.game.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':
 	 * deleteOwnPiece()
 	 */
   deleteOwnPiece: function deleteOwnPiece(){  // Cell
+window.game.log.getInto();
 window.game.log.debug('entered Cell#deleteOwnPiece');
 if(this.piece)window.game.log.warn('this cell.piece to be deleted: ' + this.piece.toDebugString());
     if(this.piece){
@@ -573,6 +590,7 @@ if(this.piece)window.game.log.warn('this cell.piece to be deleted: ' + this.piec
       this.piece = null;
     }
 window.game.log.warn('leaving Cell#deleteOwnPiece as :' + this.toDebugString());
+window.game.log.goOut();
     return;
   }, 
 	/**
@@ -728,7 +746,8 @@ this.game.log.goOut();
 	 * adjustBorder()
 	 */
   adjustBorder: function adjustBorder() { // Board
-this.game.log.warn('-------Board#adjustBoarder entered -----------');
+this.game.log.getInto();
+this.game.log.warn('Board#adjustBoarder entered');
     if(!this.cells[1][1].elm) return;
     if(!this.game) return;
     if(this.game.top === 0){
@@ -750,14 +769,19 @@ this.game.log.warn('-------Board#adjustBoarder entered -----------');
         this.cells[1][c].elm.removeClassName('topCell');
       }
     }
-this.game.log.warn('------- Board#adjustBoarder leaving -----------');
+this.game.log.warn('Board#adjustBoarder leaving'); 
+this.game.log.goOut();
   },
 	/**
 	 * show()
 	 */
   show: function show() {  // Board
+this.game.log.getInto();
+this.game.log.warn('Board#show entered');
     this.cells.flatten().invoke('show');
     this.adjustBorder();
+this.game.log.warn('Board#show leaving');
+this.game.log.goOut();
   },
 	/**
 	 * getCell(x,y)
@@ -802,6 +826,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
 	 * deleteCellsPieceByIdx(idx)
 	 */
   deleteCellsPieceByIdx: function deleteCellsPieceByIdx(idx){ // Board
+    this.game.log.getInto();
     this.game.log.debug('entered Board#deleteCellsPieceByIdx with idx : ' + idx, {'indent':1});
     var cell = this.getCellByIdx(idx);
     if(cell.piece){
@@ -810,6 +835,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
       // do nothing
     }
     this.game.log.debug('leaving Board#deleteCellsPieceByIdx', {'indent':-1});
+    this.game.log.goOut();
   },
 	/**
 	 * removeCellsPieceByIdx(idx)
@@ -824,12 +850,13 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
     }
     this.game.log.debug('leaving Board#remove', {'indent':-1});
   },
-	/**
+  	/**
 	 * replace(pair, idx)
 	 */
   replace: function replace(pair, idx){ // Board
     // pair はpiece.chrを表す文字の組。
     // pair[0](新しい文字)がpair[1](古い文字)を置き換える。
+    this.game.log.getInto();
     this.game.log.debug('entered Board#replace with pair: ' + pair.toString() + ', idx : ' + idx);
     var cell = this.getCellByIdx(idx);
     var new_piece = new Piece(pair[0]);
@@ -839,6 +866,7 @@ this.game.log.warn('------- Board#adjustBoarder leaving -----------');
       cell.put(new_piece);
     }
     this.game.log.debug('leaving Board#replace with : ' + new_piece.toDebugString() );
+    this.game.log.goOut();
   },
   	/**
 	 * replaceByRead(pair, idx)
@@ -1021,10 +1049,15 @@ this.game.log.goOut();
 	 */
   read: function read(strFromState){ // Stand
 this.game.log.getInto();
-    this.game.log.debug('entered  Stand#read with : ' + strFromState );
+    this.game.log.debug('entered Stand#read with : ' + strFromState );
     // stateから読んだ文字列を元に駒を駒台に置く
     // strFromStateが空文字列ならclearして終わり
-    if (strFromState.length == 0){  this.pieces.clear(); return; }
+    if (strFromState.length == 0){
+      this.pieces.clear();
+      this.game.log.debug('leaving  Stand#read because nothing to do.' );
+      this.game.log.goOut();
+      return;
+    }
     // 現在のstandの状態との差分を埋める
     var str_now = this.toString();
     this.game.log.debug('Stand#read str_now : ' + str_now, {'indent':1} );
@@ -1060,11 +1093,13 @@ this.game.log.getInto();
     this.game.log.debug('entered  Stand#put with : ' );
     //this.game.log.debug('entered ' + this.id + ' Stand#put with : ' + piece.toDebugString());
     piece.toggleBW();
+/*
     if(piece.drag){
       piece.drag.destroy();
       piece.drag = null;
     }
     piece.addDraggableIfNeeded('draggable added at being put at stand');
+*/
     piece.cell = null;
     this.pieces.push(piece);
     this.elm.appendChild(piece.elm);
@@ -1102,10 +1137,10 @@ this.game.log.goOut();
 	 */
   toString: function toString(){ // Stand
 this.game.log.getInto();
-    this.game.log.debug('entered Stand#toString : ' + this.id);
+    this.game.log.debug('entered Stand#toString : id : ' + this.id + ', size : ' + this.pieces.length);
     // stateに載せる文字列を返す
     var ret = '';
-    if(this.pieces.size() > 0)
+    if(this.pieces.length > 0)
       ret += this.pieces.pluck('chr').join('');
     this.game.log.debug('leaving Stand#toString with : ' + ret);
 this.game.log.goOut();
@@ -1310,6 +1345,7 @@ this.log.getInto();
       this.messageElm = $('message-body');
     }
     this.messageElm.innerHTML = message;
+this.log.goOut();
   },
 	/**
 	 * clearMessage()
@@ -1351,11 +1387,13 @@ this.log.goOut();
 	 * start()
 	 */
   start: function start() { // Game
+this.log.getInto();
     this.log.warn('game.start was called.');
     this.determineTop();
     this.controlPanel.update();
     this.board.show();
     this.log.warn('leaving game.start.');
+this.log.goOut();
   },
 	/**
 	 * nextTurn()
@@ -1428,22 +1466,27 @@ this.log.warn('leaving stateChanged:');
 	 * processPlayer(state)
 	 */
   processPlayer: function processPlayer(state){ // Game
-this.log.debug('entered processPlayer: viewer: ' + viewer);
+this.log.getInto();
+this.log.debug('entered Game#processPlayer: viewer: ' + viewer);
     var viewer = wave.getViewer().getId();
     var pl1 = state.get('player1');
     var pl2 = state.get('player2');
     if(!pl1 && !pl2){
 this.log.debug('leaving processPlayer because state has no player.');
+this.log.goOut();
       return;
     }
     if (!this.player1 && pl1) {  // 各normalスナップに1回通る
+this.log.getInto();
 this.log.debug('processPlayer: processing Player1: ');
       var pl1IsViewer = (pl1 == viewer);
       this.player1 = new Player('player1', pl1, pl1IsViewer );
       this.controlPanel.update();
 this.log.info('leaving processing Player1: ');
+this.log.goOut();
     }
     if (!this.player2 && pl2) {  // 各normalスナップに1回通る
+this.log.getInto();
 this.log.warn('processPlayer: processing Player2: ');
       var pl2IsViewer = (pl2 == viewer);
       this.player2 = new Player('player2', pl2, pl2IsViewer );
@@ -1452,6 +1495,7 @@ this.debug_dump();
 this.log.warn('backed into processPlayer: processing Player2: ');
       this.start();
 this.log.warn('leaving processPlayer: processing Player2: ');
+this.log.goOut();
     }
 
     if (this.player1 && this.player1.isViewer) {
@@ -1466,25 +1510,46 @@ if(this.playingViewer) this.log.debug('playingViewer is defined : ' + this.playi
       this.message('');
       $('join-button').hide();
     }
-this.log.warn('leaving processPlayer: viewer: ' + viewer);
+this.log.warn('leaving Game#processPlayer: viewer: ' + viewer);
+this.log.goOut();
+  },
+        /**
+         * allPieces()
+         */
+  allPieces: function allPieces() { // game
+    return $A(this.board.cells.flatten().pluck('piece'), this.blackStand.pieces, this.whiteStand.pieces).flatten();
   },
 	/**
 	 * fromState(state)
 	 */
   fromState: function fromState(state) { // game
-    LogIndent = 0;
+this.log.getInto();
+this.log.warn('entered Game#fromState: ');
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
     this.processPlayer(state);
     this.count = state.get('count');
     this.board.read(state.get('board', this.board.initialString));
     this.blackStand.read(state.get('bstand', this.blackStand.initialString));
     this.whiteStand.read(state.get('wstand', this.whiteStand.initialString));
+    this.board.cells.flatten().pluck('piece').compact().invoke('toggleDraggable');
+    this.blackStand.pieces.invoke('toggleDraggable');
+    this.whiteStand.pieces.invoke('toggleDraggable');
+    //this.allPieces().invoke('toggleDraggable');
     this.controlPanel.update();
+this.log.warn('leaving Game#fromState');
+this.log.goOut();
+  },
+	/**
+	 * toggleDraggable()
+	 */
+  toggleDraggable: function toggleDraggable(){
+    $A(this.board, this.blackStand, this.whiteStand).invoke('toggleDraggable');
   },
 	/**
 	 * debug_dump()
 	 */
   debug_dump: function debug_dump(){
+    this.log.getInto();
     this.log.warn('debug_dump enterd', {'indent':2});
     try{
       var state = wave.getState();
@@ -1496,6 +1561,7 @@ this.log.warn('leaving processPlayer: viewer: ' + viewer);
     else
       this.log.error('state is null');
     var obj = {};
+    obj['all pieces']    = this.allPieces().length;
     obj['player1']	 = (this.player1 ? this.player1.toDebugString():null);
     obj['player2']	 = (this.player2 ? this.player2.toDebugString():null);
     obj['playingViewer'] = (this.playingViewer ? this.playingViewer.toDebugString():null);
@@ -1514,6 +1580,7 @@ this.log.warn('leaving processPlayer: viewer: ' + viewer);
       this.log.warn(p + ' : ' + obj[p]);
     }
     this.log.warn('leaving debug_dump', {'indent':-2});
+    this.log.goOut();
   }
 });
 
