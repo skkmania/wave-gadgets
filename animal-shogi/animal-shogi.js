@@ -216,22 +216,6 @@ this.game.log.warn('leaving Piece#createElm : ');
 this.game.log.goOut();
   },
 	/**
-	 * addDraggableIfNeeded()
-	 */
-  addDraggableIfNeeded: function addDraggableIfNeeded(msg){ // Piece
-this.game.log.getInto();
-this.game.log.warn('Piece#addDraggableIfNeeded entered : ' + msg, {'indent':1});
-    if (!this.game.playingViewer) return;
-    if(this.isBlack() == (this.game.top == 0)){
-      this.drag = addDraggable(this, msg);
-this.game.log.warn('leaving Piece#addDraggableIfNeeded after adding: ', {'indent':-1});
-this.game.log.goOut();
-    } else {
-this.game.log.warn('leaving Piece#addDraggableIfNeeded without adding : ', {'indent':-1});
-this.game.log.goOut();
-    }
-  },
-	/**
 	 * setClassName(player)
 	 */
   setClassName: function setClassName() { // Piece
@@ -846,14 +830,12 @@ this.game.log.goOut();
       } else {
         cell.removeOwnPiece();
         var new_piece = create_piece(chr);
-        new_piece.addDraggableIfNeeded('draggable added after read board 1');
         cell.put(new_piece);
       }
     } else {
       this.game.log.debug('Board#put: cell.piece not existed , so initialize piece and put ');
       var new_piece = create_piece(chr);
       this.game.log.debug('Board#put: new_piece was created : ' + new_piece.toDebugString());
-    //  new_piece.addDraggableIfNeeded('draggable added after read board 2');
       this.game.log.debug('Board#put: putting new piece to : ' + cell.toDebugString());
       cell.put(new_piece);
     }
@@ -1133,13 +1115,6 @@ this.game.log.getInto();
     this.game.log.debug('entered  Stand#put with : ' );
     //this.game.log.debug('entered ' + this.id + ' Stand#put with : ' + piece.toDebugString());
     piece.toggleBW();
-/*
-    if(piece.drag){
-      piece.drag.destroy();
-      piece.drag = null;
-    }
-    piece.addDraggableIfNeeded('draggable added at being put at stand');
-*/
     piece.cell = null;
     this.pieces.push(piece);
     this.elm.appendChild(piece.elm);
@@ -1153,7 +1128,6 @@ this.game.log.goOut();
     // 駒台に持ち駒を載せるが、readからの場合、chrはそのまま。toggleはしない
 this.game.log.getInto();
     this.game.log.debug('entered ' + this.id + ' Stand#put_from_read with : ' + piece.toDebugString());
-    // piece.addDraggableIfNeeded('draggable added at being put at stand from read');
     piece.cell = null;
     this.pieces.push(piece);
     this.elm.appendChild(piece.elm);
