@@ -1096,7 +1096,6 @@ this.game.log.getInto();
     }.bind(this));
     this.game.log.debug('leaving  Stand#read' );
 this.game.log.goOut();
->>>>>>> rewrite-state
   },
 	/**
 	 * clear()
