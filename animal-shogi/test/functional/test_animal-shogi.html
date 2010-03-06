@@ -8,12 +8,12 @@
       google.load("scriptaculous", "1.8.2");
     </script>
 
-    <script src="unittest.js"></script>
-    <script src="pseudo-wave.js"></script>
-    <script src="locales.js"></script>
-    <script src="dw.js"></script>
-    <script src="animal-shogi.js"></script>
-    <script src="test_animal-shogi.js"></script>
+    <script src="../../unittest.js"></script>
+    <script src="../../pseudo-wave.js"></script>
+    <script src="../../locales.js"></script>
+    <script src="../../log4js.js"></script>
+    <script src="../../animal-shogi.js"></script>
+    <script src="../../test_animal-shogi.js"></script>
     <script>
       Event.observe(window, 'load', function() {
         window.game = new AnimalShogiGame({containerId:'animal-shogi'});
@@ -22,8 +22,8 @@
         new Test.Unit.Runner( testcases, 'testlog' );
       });
     </script>
-    <link rel="stylesheet" href="test.css" type="text/css" />
-    <link rel="stylesheet" href="animal-shogi.css" type="text/css" />
+    <link rel="stylesheet" href="../test.css" type="text/css" />
+    <link rel="stylesheet" href="../../animal-shogi.css" type="text/css" />
   </head>
   <body>
     <div id="testlog"> </div>

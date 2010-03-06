@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+  <title>Board test : animal-shogi Unit test file</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <script src="../../prototype.js" type="text/javascript"></script>
+  <script src="../../scriptaculous.js" type="text/javascript"></script>
+  <script src="../../unittest.js" type="text/javascript"></script>
+  <script src="../../log4js.js" type="text/javascript"></script>
+  <script src="../../pseudo-wave.js" type="text/javascript"></script>
+  <script src="../../m17n.js" type="text/javascript"></script>
+  <script src="../../animal-shogi.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="./../test.css" type="text/css" />
+  
+</head>
+<body>
+<h1>Board test</h1>
+<p>
+  Test of methods of class Board in animal-shogi.js
+</p>
+
+<!-- Log output -->
+<div id="testlog"> </div>
+
+<!-- animal-shogi body -->
+<div id="container">
+  <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
+  <div id="top-stand"></div>
+  <div id="animal-shogi"></div>
+  <div id="bottom-stand"></div>
+  <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
+</div>
+<div id="sidebar">
+  <div id="control-panel">
+    <div id="message">
+      <div class="t">message</div>
+      <div id="message-body"></div>
+    </div>
+  </div>
+</div>
+<div id="rev-b">
+  <button id="reverse-button" class="reverse t" onclick="window.game.reverse();">reverse</button>
+  <button id="dump-button" class="dump t" onclick="window.game.debug_dump();">dump</button>
+  <button id="test-button" class="testbutton t" onclick="new Test.Unit.Runner( testcases, 'testlog' );">run_test</button>
+</div>
+<div style="clear:both;text-align:right;">
+    <a href="http://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi" target="_blank" class="t">help</a>
+</div>
+<button id="join-button" class="join t" onclick="window.game.setPlayer(wave.getViewer().getId()); this.hide();">join</button>
+
+<!-- Tests follow -->
+<script type="text/javascript" language="javascript" charset="utf-8">
+// <![CDATA[
+
+  new Test.Unit.Runner({
+    
+    setup : function() { with( this ) {
+      window.game = new AnimalShogiGame({containerId:'animal-shogi'});
+    } },
+
+    testIdx2xy : function() {  with( this )  {
+      assertEqual( "1,1" ,  window.game.board.idx2xy(0).toString() );
+      assertEqual( "2,1" ,  window.game.board.idx2xy(4).toString() );
+    } },
+
+    testXy2idx : function() {  with( this )  {
+      assertEqual( "0" ,  window.game.board.xy2idx([1,1]).toString() );
+      assertEqual( "4" ,  window.game.board.xy2idx([2,1]).toString() );
+    } },
+
+  testSubtract : function() {  with( this )  {
+    assertEqual( "abcd", "abcdefj".subtract("efj") );
+    assertEqual( "bd", "abcdefj".subtract("acefj") );
+    assertEqual( "acefj", "abcdefj".subtract("bd") );
+    assertEqual( "", "abcdefj".subtract("abcdefj") );
+    assertEqual( "abcdefj", "aaabcdefj".subtract("aa") );
+    // 返されるのはコピーである
+    var s = "abcdefj";
+    var s2 = s.subtract("bej");
+    assertEqual( "acdf", s2 );
+    // 元のsは変化しない
+    assertEqual( "abcdefj", s );
+  } }
+  }, "testlog");
+// ]]>
+</script>
+</body>
+</html>
