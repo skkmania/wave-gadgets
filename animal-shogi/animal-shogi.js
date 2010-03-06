@@ -567,7 +567,6 @@ window.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugStrin
       if(this.piece.isBlack() == (window.game.top === 0)){
         this.piece.elm.addClassName('bottom');
         this.piece.elm.removeClassName('top');
-//        this.piece.drag = addDraggable(this.piece, 'draggable added at start of board');
       } else {
         this.piece.elm.addClassName('top');
         this.piece.elm.removeClassName('bottom');
