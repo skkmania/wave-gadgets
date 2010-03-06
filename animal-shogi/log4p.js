@@ -122,12 +122,12 @@ Log = Class.create({
     header.appendChild(link);
   },
   createTopDiv: function createTopDiv(){
-    var top = this.window.document.getElementById('loggerDiv');
-    if (!top) {
-      top = this.window.document.createElement('div');
-      top.id = 'loggerDiv';
+    this.topDiv = this.window.document.getElementById('loggerDiv');
+    if (!this.topDiv) {
+      this.topDiv = this.window.document.createElement('div');
+      this.topDiv.id = 'loggerDiv';
     }
-    top.style.width='100%';
+    this.topDiv.style.width='100%';
     var title = this.window.document.createElement('div');
     title.className = "logRow";
     var title_1 = this.window.document.createElement('div');
@@ -138,18 +138,20 @@ Log = Class.create({
     title_2.innerHTML = 'Message';
     title.appendChild(title_1);
     title.appendChild(title_2);
-    top.appendChild(title);
-    this.window.document.body.appendChild(top);
+    this.topDiv.appendChild(title);
+    this.window.document.body.appendChild(this.topDiv);
     this.window.document.close();
-    this.divStack.push(top);
+    this.divStack.push(this.topDiv);
   },
   currentDiv: function currentDiv(){
-    return this.divStack[this.divStack.length - 1];
+    var ret = this.divStack[this.divStack.length - 1];
+    return ret ? ret : this.topDiv;
   },
   insertRowDiv: function insertRowDiv(){
     var ret = this.window.document.createElement('div');
     ret.className = 'logRow';
-    this.currentDiv().appendChild(ret);
+    if(this.currentDiv()) this.currentDiv().appendChild(ret);
+    else this.topDiv.appendChild(ret);
     return ret;
   },
   createTimeStamp: function createTimeStamp(option){
@@ -178,7 +180,7 @@ Log = Class.create({
         return '';
   },
 
-  getInto: function getInto() {
+  getInto: function getInto(opt) {
     var ret = this.window.document.createElement('div');
     ret.className = 'logDiv';
     var parent = this.currentDiv();
@@ -188,6 +190,11 @@ Log = Class.create({
       this.window.document.getElementById('loggerDiv').appendChild(ret);
     this.divStack.push(ret);
     ret.style.background = this.getCurrentDivColor();
+    if(opt){
+      for (key in opt){
+        ret.style[key] = opt[key];
+      }
+    }
     return ret;
   },
 
