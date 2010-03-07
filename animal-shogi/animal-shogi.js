@@ -104,8 +104,8 @@ this.log.goOut();
   update: function update() { // ControlPanel             
     this.game.log.getInto();
     this.game.log.debug('cp update entered.'); 
-    this.game.determineTop();
-    this.game.log.debug('cp update : top is ' + this.game.top); 
+    // this.game.determineTop();
+    // this.game.log.debug('cp update : top is ' + this.game.top); 
     if (!this.elm) this.elm = $('control-panel');                         
     if (this.game.top == 1){                                                
       this.player1Elm = $('top-panel');
@@ -516,13 +516,15 @@ window.game.log.warn('Droppables to add ' + this.elm.id);
       onDrop: function onDrop(draggable) {
 window.game.log.getInto({ "background":"#aaccff" });
         var fromObj = draggable.parentNode.obj;
+          // Cell object or Stand object
 window.game.log.warn('fromObj : <span style="color:#888800">' + fromObj.toDebugString() + '</span>');
         var toCell = this;
+          // Cell object
 window.game.log.warn('<span style="color:#888800">onDrop called.</span>');
 if(fromObj) window.game.log.debug('from: ' + fromObj.toDebugString());
 if(toCell) window.game.log.debug(', to: ' + toCell.toDebugString());
         var piece = draggable.obj;
-
+          // Piece object
         if (!moveValidate(piece, fromObj, toCell)){
           window.game.log.goOut();
           return;
@@ -1482,8 +1484,8 @@ this.log.warn('leaving stateChanged:');
 	 */
   processPlayer: function processPlayer(state){ // Game
 this.log.getInto();
-this.log.debug('entered Game#processPlayer: viewer: ' + viewer);
     var viewer = wave.getViewer().getId();
+this.log.debug('entered Game#processPlayer: viewer: ' + viewer);
     var pl1 = state.get('player1');
     var pl2 = state.get('player2');
     if(!pl1 && !pl2){
