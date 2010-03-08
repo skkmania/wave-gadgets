@@ -17,10 +17,10 @@
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/m17n.js" charset="UTF-8"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/log4p.js" charset="UTF-8"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/test_animal-shogi.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/game-controller.js" charset="UTF-8"></script>
 <script>
   function init() {
-    window.game = new AnimalShogiGame({containerId:'animal-shogi'});
+    window.game = new GameController({containerId:'animal-shogi'});
     if (wave && wave.isInWaveContainer()) {
       wave.setStateCallback(window.game.stateChanged.bind(window.game));
     }
