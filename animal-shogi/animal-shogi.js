@@ -30,58 +30,6 @@ function addDraggable(piece, startMessage){
 }
 
 /**
- * ControlPanel Class
- */
-ControlPanel = Class.create({
-	/**
-	 * initialize(game)
-	 */
-  initialize: function initialize(game) {
-    this.game = game;
-    if(this.game) this.game.log.warn('CP initialized.');
-  },
-	/**
-	 * reverse()
-	 */
-  reverse: function reverse() { // ControlPanel              
-this.log.getInto();
-     this.game.log.debug('start reverse cp'); 
-      if (this.game.top == 1){                                                
-        this.player1Elm = $('top-panel');
-        this.player2Elm = $('bottom-panel');
-      } else {       
-        this.player2Elm = $('top-panel');
-        this.player1Elm = $('bottom-panel');
-      }                    
-    this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
-    this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
-    this.game.log.debug('ControlPanel#reverse end'); 
-this.log.goOut();
-  }, 
-	/**
-	 * update()
-	 */
-  update: function update() { // ControlPanel             
-    this.game.log.getInto();
-    this.game.log.debug('cp update entered.'); 
-    // this.game.determineTop();
-    // this.game.log.debug('cp update : top is ' + this.game.top); 
-    if (!this.elm) this.elm = $('control-panel');                         
-    if (this.game.top == 1){                                                
-      this.player1Elm = $('top-panel');
-      this.player2Elm = $('bottom-panel');
-    } else {       
-      this.player2Elm = $('top-panel');
-      this.player1Elm = $('bottom-panel');
-    }                    
-    this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
-    this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
-    this.game.log.warn('cp update leaving'); 
-    this.game.log.goOut();
-  } 
-});
-
-/**
  * Piece Class
  */
 Piece = Class.create({
@@ -1192,9 +1140,9 @@ Player = Class.create({
 });
 
 /**
- * GameController
+ * AnimalShogiGame
  */
-GameController = Class.create({
+AnimalShogiGame = Class.create({
 	/**
 	 * initialize(settings)
 	 */

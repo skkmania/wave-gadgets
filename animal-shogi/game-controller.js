@@ -1,6 +1,65 @@
 HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
 
 /**
+ * Player
+ */
+Player = Class.create({
+	/**
+	 * initialize(id, name, mine)
+	 */
+  initialize: function initialize(id, name, isViewer ) {
+    this.id = id;
+    this.name = name;
+    this.isViewer = isViewer;
+  },
+	/**
+	 * stand()
+	 */
+  stand: function stand(){
+    return (this.id == 'player1') ?
+        window.game.blackStand
+      : window.game.whiteStand;
+  },
+	/**
+	 * atTop()
+	 */
+  atTop: function atTop(game){ // Player
+    return (this.id == 'player1') == (window.game.top == 1);
+  },
+	/**
+	 * shortName()
+	 */
+  shortName: function shortName() {
+    return this.name.split('@').first();
+  },
+	/**
+	 * statusHtml()
+	 */
+  statusHtml: function statusHtml() {
+// playerのshort nameのspan のHTMLを返す。mine, turnのどちらかあるいは両方をclassとして指定する。
+// classの意味（効果はcssで次のように定義されている。）
+// mine は下線をひく
+// turn は背景色を黄色にする
+    var classNames = this.isViewer ? 'mine' : '';
+    if (window.game.getTurn() == this) classNames += ' turn';
+    return '<span class="' + classNames + '">' + this.shortName() + '</span>';
+  },
+	/**
+	 * toString()
+	 */
+  toString: function toString() { // Player
+    return this.name;
+  },
+	/**
+	 * toDebugString()
+	 */
+  toDebugString: function toDebugString() { // Player
+    return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop(); 
+  }
+});
+
+
+/**
  * ControlPanel Class
  */
 ControlPanel = Class.create({
@@ -91,6 +150,32 @@ GameController = Class.create({
     this.log.warn('leaving AnimalShogiGame#initialize',{3:{'color':'green'}});
     this.log.goOut();
     // this.debug_dump();
+  },
+	/**
+	 * mainRoutine()
+	 */
+  mainRoutine: function mainRoutine() { // Game
+    this.providePlayer();
+    // this.receiveAction(); これはthis.gameから呼び出される
+    this.makeGameAct();
+    this.receiveResult();
+    this.finishCheck();
+    this.sendDelta();
+  },
+	/**
+	 * providePlayer()
+	 */
+  providePlayer: function providePlayer() { // Game
+    this.game.getPlayer(this.playerInTurn());
+  },
+	/**
+	 * receiveAction()
+	 */
+  receiveAction: function receiveAction(actionContents) { // Game
+    if(this.askValidity(actionContents)){
+      this.confirmAction();
+      ;
+    
   },
 	/**
 	 * determineTop()
