@@ -124,12 +124,17 @@ GameController = Class.create({
     this.log.getInto();
     this.log.warn('start log',{'indent':1});
     this.settings = settings;
+    if(settings === undefined){
+      this.log.debug('settings is undefined.');
+    } else {
+      this.log.debug(this.settings);
+    }
 
-    this.game = new AnimalShogiGame();
-    this.game.open();
+    // this.game = new AnimalShogiGame(settings);
+    // this.game.open();
 
     this.playingViewer = null;
-    this.container = $(settings.containerId);
+    this.container = $(this.settings['containerId']);
     this.controlPanel = new ControlPanel(this);
     this.log.warn('CP created.');
     this.mode = 'init';
@@ -147,7 +152,7 @@ GameController = Class.create({
     this.determineTop();
       //  Boardのinitializeにおいてはtop=0を前提にstyle.top, style.leftを決めている
       //  ので、topが決まったこの時点で必要なら修正しておく必要がある
-    this.log.warn('leaving AnimalShogiGame#initialize',{3:{'color':'green'}});
+    this.log.warn('leaving GameController#initialize',{3:{'color':'green'}});
     this.log.goOut();
     // this.debug_dump();
   },
@@ -174,8 +179,7 @@ GameController = Class.create({
   receiveAction: function receiveAction(actionContents) { // Game
     if(this.askValidity(actionContents)){
       this.confirmAction();
-      ;
-    
+    }
   },
 	/**
 	 * determineTop()
@@ -339,11 +343,14 @@ this.log.warn('leaving stateChanged:');
 	 */
   toString: function toString() { // Game
     var ret = '';
+/*
     var json = this.toJSON();
     for (var key in json) {
       ret += key + ' : ' + json[key] + '\n';
     }
     return ret;
+*/
+    return 'dummy';
   },
 	/**
 	 * toHTML()
