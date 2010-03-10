@@ -215,6 +215,7 @@ Log = Class.create({
     // option: object, mainly used for css style setting
     var opt = option || this.options;
     var row = this.insertRowDiv();
+    if (typeof msg == 'object') msg = Log.dumpObject(msg);
     var cell_1 = this.insertCellDiv(row, 'logCell_1');
     if(opt['level']){
       var cell_2 = this.insertCellDiv(row, 'logCell_2');
