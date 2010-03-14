@@ -5,6 +5,7 @@
 
 Log = Class.create({
   initialize: function(level, logger, options){
+
        this.currentLevel = level || Log.WARN;
        switch(logger){
        case 'write':
@@ -17,7 +18,7 @@ Log = Class.create({
          this.logger = this.console;
          break;
        case 'popup':
-         var title = (options && options['title'])? options['title'] : 'popupLogger';
+         this.title = (options && options['title'])? options['title'] : 'popupLogger';
          this.popupInitialize(title, options);
          this.goOut = this.goOut;
          this.getInto = this.getInto;
@@ -91,6 +92,7 @@ Log = Class.create({
 
   popupInitialize: function(title, options){
     this.popupBlocker = false;
+    this.host = options['host'] || '';
     this.window = null;
     this.title = title || options['title'] || '';
     this.windowFeature = 'resizable,scrollbars=yes,status=yes';
@@ -104,23 +106,42 @@ Log = Class.create({
     // this.setCSSfile('./log4p.css');
   },
   openWindow: function openWindow(){
-     if (!this.window || !this.window.document) {
-       this.window = window.open("",this.title,this.windowFeature);
-       if (!this.window) {
-         this.popupBlocker=true;
-         alert("popup window blocked.");
-         return;
-       }
-     }
+    if (!this.window || !this.window.document) {
+      this.window = window.open("",this.title,this.windowFeature);
+      if (!this.window) {
+        this.popupBlocker=true;
+        alert("popup window blocked.");
+        return;
+      }
+    }
+    var header = this.window.document.getElementsByTagName('head')[0];
+    var script = this.window.document.createElement('script');
+    script.src = this.host + 'prototype.js';
+    header.appendChild(script);
   },
   setCSSfile: function setCSSfile(filename) {
+/*
     var header = this.window.document.getElementsByTagName('head')[0];
     var link = this.window.document.createElement('link');
     link.href = filename;
     link.type = "text/css";
     link.rel = "stylesheet";
-    header.appendChild(link);
+*/
+    var header = $(this.window.document.getElementsByTagName('head')[0]);
+    //var header = new Element(this.window.document.head);
+    var search_result = 'appended';
+    //if(Selector.findChildElements(header,'[href="' + filename + '"]').size() > 0){
+    // this.window.$$('link').pluck('href').each(function(s){ alert(s); });
+    if( this.window.$$('link').pluck('href').include(filename) ){
+        search_result = 'already exists';
+    }
+    if (search_result != 'already exists'){
+      var link = new this.window.Element('link',{'href':filename, 'type':'text/css','rel':'stylesheet'});
+      header.appendChild(link);
+    }
+    return search_result;
   },
+
   createTopDiv: function createTopDiv(){
     this.topDiv = this.window.document.getElementById('loggerDiv');
     if (!this.topDiv) {
@@ -181,13 +202,15 @@ Log = Class.create({
   },
 
   getInto: function getInto(opt) {
-    var ret = this.window.document.createElement('div');
-    ret.className = 'logDiv';
+    //var ret = this.window.document.createElement('div');
+    //ret.className = 'logDiv';
+    var ret = new Element('div',{'class':'logDiv'});
     var parent = this.currentDiv();
     if(parent)
       parent.appendChild(ret);
     else
-      this.window.document.getElementById('loggerDiv').appendChild(ret);
+      //this.window.document.getElementById('loggerDiv').appendChild(ret);
+      $('loggerDiv').appendChild(ret);
     this.divStack.push(ret);
     ret.style.background = this.getCurrentDivColor();
     if(opt){
@@ -195,6 +218,9 @@ Log = Class.create({
         ret.style[key] = opt[key];
       }
     }
+    var row = new Element('div',{'class':'logRow'});
+    row.update(arguments.callee.caller.name + ' entered.');
+    Element.update(ret, row);
     return ret;
   },
 
