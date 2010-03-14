@@ -120,9 +120,9 @@ GameController = Class.create({
 	 */
   initialize: function initialize(settings) {
     this.log = new Log(Log.DEBUG, 'popup');
-    this.log.setCSSfile(HOST + "log4p.css");
+    var css = this.log.setCSSfile(HOST + "log4p.css");
     this.log.getInto();
-    this.log.warn('start log',{'indent':1});
+    this.log.warn('start log: css is ' + css);
     this.settings = settings;
     if(settings === undefined){
       this.log.debug('settings is undefined.');
@@ -160,12 +160,14 @@ GameController = Class.create({
 	 * mainRoutine()
 	 */
   mainRoutine: function mainRoutine() { // Game
+    this.log.getInto();
     this.providePlayer();
     // this.receiveAction(); これはthis.gameから呼び出される
     this.makeGameAct();
-    this.receiveResult();
+    // this.receiveResult(); これもthis.gameから呼び出される
     this.finishCheck();
     this.sendDelta();
+    this.log.goOut();
   },
 	/**
 	 * providePlayer()
