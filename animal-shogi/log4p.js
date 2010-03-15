@@ -114,31 +114,64 @@ Log = Class.create({
         return;
       }
     }
+    var titleDiv = new Element('text').update(this.title);
+    this.window.document.body.appendChild(titleDiv);
+// dummy
+    var sampleDiv = new Element('div').update('this div was created by Prototype.js method.');
+    this.window.document.body.appendChild(titleDiv);
+    sampleDiv.addClassName('sampleDiv');
+/*
+    var originalDiv = this.window.document.createElement('div');
+    originalDiv.innerHTML = 'this div was created by normal javascript';
+    sampleDiv.appendChild(originalDiv);
+    //this.window.document.body.appendChild(originalDiv);
+    // 次の行はダメ。なぜなら、prototypeのメソッドを持たない要素だから。
+    // originalDiv.addClassName('originalDiv');
+    Element.addClassName(originalDiv, 'originalDiv');
+*/    
+
+  },
+  addPrototype: function addPrototype() {
     var header = this.window.document.getElementsByTagName('head')[0];
     var script = this.window.document.createElement('script');
     script.src = this.host + 'prototype.js';
     header.appendChild(script);
   },
-  setCSSfile: function setCSSfile(filename) {
-/*
+
+  hasCSSfile: function hasCSSfile(filename) {
     var header = this.window.document.getElementsByTagName('head')[0];
+    return Selector.findChildElements(this.window.document.body,'div').size() > 0;
+    //return Selector.findChildElements(header,'[href="' + filename + '"]').size() > 0;
+  },
+
+  setCSSfile: function setCSSfile(filename) {
+
+    var header = this.window.document.getElementsByTagName('head')[0];
+/*
     var link = this.window.document.createElement('link');
     link.href = filename;
     link.type = "text/css";
     link.rel = "stylesheet";
 */
-    var header = $(this.window.document.getElementsByTagName('head')[0]);
-    //var header = new Element(this.window.document.head);
+    var link = new Element('link',{'href':filename, 'type':'text/css','rel':'stylesheet'});
+    header.appendChild(link);
+
     var search_result = 'appended';
     //if(Selector.findChildElements(header,'[href="' + filename + '"]').size() > 0){
-    // this.window.$$('link').pluck('href').each(function(s){ alert(s); });
-    if( this.window.$$('link').pluck('href').include(filename) ){
+    //this.window.document.$$('link').pluck('href').each(function(s){ alert(s); });
+    //Object.extend(header, titleDiv);
+    //header.childElements().pluck('href').each(function(s){ alert(s); });
+    /*
+    if( this.window.document.$$('link').pluck('href').include(filename) ){
         search_result = 'already exists';
     }
+    */
+    /*
     if (search_result != 'already exists'){
       var link = new this.window.Element('link',{'href':filename, 'type':'text/css','rel':'stylesheet'});
       header.appendChild(link);
     }
+    */
     return search_result;
   },
 
