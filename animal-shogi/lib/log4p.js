@@ -95,7 +95,7 @@ Log = Class.create({
     this.host = options['host'] || '';
     this.window = null;
     this.title = title || options['title'] || '';
-    this.windowFeature = 'resizable,scrollbars=yes,status=yes';
+    this.windowFeature = ''; // 'resizable,scrollbars=yes,status=yes';
     this.divStack = [];
     if (this.popupBlocker) {
       alert('log window popup blocked.');
@@ -107,18 +107,33 @@ Log = Class.create({
   },
   openWindow: function openWindow(){
     if (!this.window || !this.window.document) {
-      this.window = window.open("",this.title,this.windowFeature);
+      this.window = window.open("","_blank",this.windowFeature);
+      //this.window = window.open("",this.title,this.windowFeature);
       if (!this.window) {
         this.popupBlocker=true;
         alert("popup window blocked.");
         return;
       }
     }
+      var html = new Element('html');
+      var new_head = new Element('head');
+      var new_body = new Element('body');
+      //var old_head = this.window.document.getElementsByTagName('head')[0];
+      //var old_body = this.window.document.getElementsByTagName('body')[0];
+      //this.window.document.removeChild(old_head );
+      this.window.document.open();
+/*
+      //this.window.document.appendChild(html);
+      this.window.document.appendChild(new_head);
+      this.window.document.appendChild(new_body);
+      //this.window.document.replaceChild(new_head, old_head );
+*/      
+
     var titleDiv = new Element('text').update(this.title);
-    this.window.document.body.appendChild(titleDiv);
-// dummy
+    //this.window.document.body.appendChild(titleDiv);
+    new_body.appendChild(titleDiv);
     var sampleDiv = new Element('div').update('this div was created by Prototype.js method.');
-    this.window.document.body.appendChild(titleDiv);
+    new_body.appendChild(sampleDiv);
     sampleDiv.addClassName('sampleDiv');
 /*
     var originalDiv = this.window.document.createElement('div');
@@ -129,7 +144,7 @@ Log = Class.create({
     // originalDiv.addClassName('originalDiv');
     Element.addClassName(originalDiv, 'originalDiv');
 */    
-
+    this.window.document.close();
   },
   addPrototype: function addPrototype() {
     var header = this.window.document.getElementsByTagName('head')[0];
