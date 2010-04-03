@@ -412,7 +412,7 @@ if(this.x === 1 && this.y === 1) window.game.log.warn('-------Cell#getPosition -
     this.elm.addClassName('cell');
     this.getPosition();
     this.board.elm.appendChild(this.elm);
-window.game.log.warn('Droppables to add ' + this.elm.id);
+this.log.warn('Droppables to add ' + this.elm.id);
     Droppables.add(this.elm, {
       toDebugString: function toDebugString(){
         return 'Droppable : ' + this.toDebugString();
@@ -422,29 +422,36 @@ window.game.log.warn('Droppables to add ' + this.elm.id);
 	 * onDrop(draggable)
 	 */
       onDrop: function onDrop(draggable) {
-window.game.log.getInto({ "background":"#aaccff" });
+        this.log.getInto({ "background":"#aaccff" });
+        // make action contents
         var fromObj = draggable.parentNode.obj;
-          // Cell object or Stand object
-window.game.log.warn('fromObj : <span style="color:#888800">' + fromObj.toDebugString() + '</span>');
         var toCell = this;
-          // Cell object
-window.game.log.warn('<span style="color:#888800">onDrop called.</span>');
-if(fromObj) window.game.log.debug('from: ' + fromObj.toDebugString());
-if(toCell) window.game.log.debug(', to: ' + toCell.toDebugString());
         var piece = draggable.obj;
+        var actionContents = [piece, fromObj, toCell];
+        // send action to GameController
+        GameController.receiveAction(actionContents);
+        this.log.goOut();
+
+/*
+          // Cell object or Stand object
+        this.log.warn('fromObj : <span style="color:#888800">' + fromObj.toDebugString() + '</span>');
+          // Cell object
+        this.log.warn('<span style="color:#888800">onDrop called.</span>');
+        if(fromObj) this.log.debug('from: ' + fromObj.toDebugString());
+        if(toCell) this.log.debug(', to: ' + toCell.toDebugString());
           // Piece object
         if (!moveValidate(piece, fromObj, toCell)){
-          window.game.log.goOut();
+          this.log.goOut();
           return;
         }
-window.game.log.warn('canMove passed.');
+        this.log.warn('canMove passed.');
         if (toCell.piece){
-window.game.log.warn('piece moving and capturing. : ');
-window.game.log.debug('draggable.obj is : ' + piece.toDebugString(),{'indent':1});
-window.game.log.debug('toCell.piece is : ' + toCell.piece.toDebugString(),{'indent':-1});
+          this.log.warn('piece moving and capturing. : ');
+          this.log.debug('draggable.obj is : ' + piece.toDebugString());
+          this.log.debug('toCell.piece is : ' + toCell.piece.toDebugString());
           toCell.piece.gotoOpponentsStand();
         } else {
-window.game.log.warn('piece moving without capturing.');
+          this.log.warn('piece moving without capturing.');
         }
         if(fromObj.type == 'cell'){
           fromObj.piece.sitOnto(toCell);
@@ -459,7 +466,8 @@ window.game.log.warn('piece moving without capturing.');
         //else 
         window.game.nextTurn();
         sendDelta();
-window.game.log.goOut();
+*/
+
       }.bind(this)
     });
   },
@@ -1150,7 +1158,7 @@ AnimalShogiGame = Class.create({
   initialize: function initialize(settings, log) {
     this.log = log;
     this.log.getInto();
-    this.log.warn('start log',{'indent':1});
+    this.log.warn('start AnimalShogiGame log',{'indent':1});
     this.width = 4;  // 0 is dummy
     this.height = 5;
     this.settings = settings;
@@ -1158,14 +1166,12 @@ AnimalShogiGame = Class.create({
     this.log.warn('01');
     this.container = $(settings.containerId);
     this.log.warn('02');
-    this.controlPanel = new ControlPanel(this);
-    this.log.warn('CP created.');
     this.board = new Board(this.container, this);
     this.log.warn('Board created.');
     this.blackStand = new Stand('black-stand', this);
     this.log.warn('03');
     this.whiteStand = new Stand('white-stand', this);
-    this.log.warn('Stand created.');
+    this.log.warn('Stands created.');
     this.mode = 'init';
     this.log.warn('04');
     this.message(t('click_join_button'));
@@ -1179,15 +1185,32 @@ AnimalShogiGame = Class.create({
       //  viewer == player1 のとき、top = 0 (player1がbottomなので)
       //  viewer == player2 のとき、top = 1 (player2がbottomなので)
       //  viewer がplayerでないとき、top = 0 （先手がbottomがデフォルトであるので)
+/*
     this.determineTop();
       //  Boardのinitializeにおいてはtop=0を前提にstyle.top, style.leftを決めている
       //  ので、topが決まったこの時点で必要なら修正しておく必要がある
     this.board.adjust();
       //  持ち駒の位置も決めておく
     this.setStandPosition();
+*/
     this.log.warn('leaving AnimalShogiGame#initialize',{'indent':-1, 'date':true,3:{'color':'green'}});
     this.log.goOut();
     // this.debug_dump();
+  },
+	/**
+	 * respondValidity(actionContents)
+	 */ 
+  respondValidity: function respondValidity(actionContents) { // Game
+    this.log.getInto();
+    this.log.goOut();
+    return moveValidate(actionContents);
+  },
+	/**
+	 * getPlayer(player)
+	 */ 
+  getPlayer: function getPlayer(player) { // Game
+    this.log.getInto();
+    this.log.goOut();
   },
 	/**
 	 * setStandPosition()
@@ -1520,24 +1543,13 @@ this.log.goOut();
  * common functions
  */
 	/**
-	 * sendDelta()
+	 * moveValidate(actionContents)
 	 */
-function sendDelta(){
-   // 送信
-   var delta = {};
-   delta['board'] = window.game.board.toString();
-   delta['bstand'] = window.game.blackStand.toString();
-   delta['wstand'] = window.game.whiteStand.toString();
-   delta['count'] = window.game.count.toString();
-window.game.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
-   wave.getState().submitDelta(delta);
-}
-
-	/**
-	 * moveValidate(piece, fromCell, toCell)
-	 */
-function moveValidate(piece, fromCell, toCell){
+function moveValidate(actionContents){
 window.game.log.getInto();
+  var piece = actionContents[0];
+  var fromCell = actionContents[1];
+  var toCell = actionContents[2];
 window.game.log.debug('moveValidate entered: piece: ' + piece.toDebugString(),{'indent':1});
    if (!window.game.isViewersTurn()) {
      window.game.message(t('not_your_turn')); return false;

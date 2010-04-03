@@ -127,7 +127,7 @@ GameController = Class.create({
       this.log.debug(this.settings);
     }
 
-    //this.game = new AnimalShogiGame(settings, this.log);
+    this.game = new AnimalShogiGame(settings, this.log);
     // this.game.open();
     this.playingViewer = null;
     this.container = $(this.settings['containerId']);
@@ -166,18 +166,70 @@ GameController = Class.create({
     this.log.goOut();
   },
 	/**
+	 * sendDelta()
+	 */
+  sendDelta: function sendDelta(){
+    this.log.getInto();
+    // 送信
+    var delta = {};
+    delta['board'] = this.game.board.toString();
+    delta['bstand'] = this.game.blackStand.toString();
+    delta['wstand'] = this.game.whiteStand.toString();
+    delta['count'] = this.game.count.toString();
+    this.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
+    wave.getState().submitDelta(delta);
+    this.log.goOut();
+  },
+	/**
+	 * finishCheck()
+	 */
+  finishCheck: function finishCheck() { // Game
+    this.log.getInto();
+    this.log.goOut();
+  },
+	/**
 	 * providePlayer()
 	 */
   providePlayer: function providePlayer() { // Game
+    this.log.getInto();
     this.game.getPlayer(this.playerInTurn());
+    this.log.goOut();
+  },
+	/**
+	 * playerInTurn()
+	 */
+  playerInTurn: function playerInTurn() { // Game
+    this.log.getInto();
+    this.log.goOut();
+    return null;
+  },
+	/**
+	 * makeGameAct()
+	 */
+  makeGameAct: function makeGameAct() { // Game
+    this.log.getInto();
+    this.log.goOut();
+    return null;
+  },
+	/**
+	 * receiveResult()
+	 */
+  receiveResult: function receiveResult() { // Game
+    this.log.getInto();
+    this.log.goOut();
+    return null;
   },
 	/**
 	 * receiveAction()
 	 */
+  // ユーザのアクションがここに通知される
+  //   (具体的には、onDropの中でこの関数を呼び出す)
   receiveAction: function receiveAction(actionContents) { // Game
-    if(this.askValidity(actionContents)){
+    this.log.getInto();
+    if(this.game.respondValidity(actionContents)){
       this.confirmAction();
     }
+    this.log.goOut();
   },
 	/**
 	 * determineTop()
