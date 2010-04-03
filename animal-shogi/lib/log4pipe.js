@@ -205,6 +205,10 @@ Log = Class.create({
   getInto: function getInto() {
     var ret = new Element('div');
     ret.className = 'logDiv';
+    var firstLine = new Element('div');
+    firstLine.className = 'logDivFirstLine';
+    firstLine.innerHTML = arguments.callee.caller.name;
+    ret.appendChild(firstLine);
     var parent = this.currentDiv();
     if(parent)
       parent.appendChild(ret);
