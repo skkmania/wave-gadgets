@@ -6,7 +6,7 @@
   height: 300px;
 }
 
-#loggerDiv {
+.loggerDiv {
   background-color: #fff;
   border: solid black 1px;
   overflow: auto;
@@ -51,7 +51,7 @@
 }
 
 .logCell_3 {
-  font-size: 12pt;
+  font-size: 14pt;
   white-space: nowrap;
   width: 100%;
   display: inline;
@@ -85,11 +85,11 @@
  -webkit-border-radius: 10px;
  padding:10px;
  color:#000;
- text-align:center;
  min-width:150px;
  min-height:100px;
  }
  .window .window_contents {
+ background-color: #fff;
  margin-top:10px;
  width:100%;
  height:100%;
@@ -101,7 +101,21 @@
  margin-top:-7px;
  margin-bottom:7px;
  cursor:move;
+ color: #bbb;
  }
+
+ .window .window_resizable {
+ display:block;
+ position:absolute;
+ top:4px;
+ left:50px;
+ height:13px;
+ width:13px;
+ background-image:url("../img/window_close.gif");
+ cursor:pointer;
+ cursor:hand;
+ }
+
  .window .window_close {
  display:block;
  position:absolute;

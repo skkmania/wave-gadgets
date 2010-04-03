@@ -37,12 +37,13 @@
 // <![CDATA[
   var title = '';
   var TestCounter = 0;
+  var logObj = null;
   var TestSuitePopup = {
-    
+  
   setup: function() { with( this ) {
     title = 'popup' + TestCounter;
     HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
-    log = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
+    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
   } },
   // Log のinitilalize時に渡すoptionsの意味：
   // title : popup Logger の場合、log windowをopenするときのタイトル
@@ -50,16 +51,30 @@
 
   teardown: function() { with( this ) {
     TestCounter++;
-    //log.window.close();
-    delete log;
+    logObj.window.close();
+    delete logObj;
+  } },
+
+  testOpen : function() {  with( this )  {
+    logObj.debug('test Open');
+    logObj.window.open();
   } },
 
   testInitializeWithoutOption : function() {  with( this )  {
-    assertEqual( title, log.title );
+    assertEqual( title, logObj.title );
   } },
 
   testEntry : function() { with( this ) {
-    log.debug('test written');
+    logObj.debug('test written');
+  } },
+
+  testMakeRectangle : function() { with( this ) {
+    makeRectangle(1,2,3,4);
+    logObj.window.open();
+  } },
+
+  testPosition : function() { with( this ) {
+//    logObj.window.position([100,100]);
   } },
 
   testToString : function() {  with( this )  {
@@ -71,51 +86,51 @@
 </script>
 <script>
 function funcB(x,y){
-  var div = window.log.getInto();
-  window.log.debug("entering funcB");
+  var div = logObj.getInto();
+  logObj.debug("entering funcB");
   x = x * 8;
-  window.log.debug("x was multiplied by 8, x became " + x);
+  logObj.debug("x was multiplied by 8, x became " + x);
   y = y * 3;
-  window.log.debug("y was multiplied by 3");
-  window.log.debug("leaving funcB");
-  window.log.goOut();
+  logObj.debug("y was multiplied by 3");
+  logObj.debug("leaving funcB");
+  logObj.goOut();
   return x + y;
 }
 
 function funcA(x,y){
-  var div = window.log.getInto();
-  window.log.debug("entering funcA");
+  var div = logObj.getInto();
+  logObj.debug("entering funcA");
   x = x * 10;
-  window.log.debug("x was multiplied by 10");
+  logObj.debug("x was multiplied by 10");
   funcB(3,2);
   y = y * 5;
-  window.log.debug("y was multiplied by 5");
-  window.log.debug("leaving funcA");
-  window.log.goOut();
+  logObj.debug("y was multiplied by 5");
+  logObj.debug("leaving funcA");
+  logObj.goOut();
   return x + y;
 }
 
 function makeRectangle(x,y,w,h){
-  window.log = new Log(Log.DEBUG, 'popup', {'level':false});
-  window.log.debug("start logging");
-  window.log.debug("entering makeRectangle");
+  logObj.debug("start logging");
+  logObj.debug("entering makeRectangle");
   var r = {x:x, y:y, size: { w:w, h:h }};
   funcA(1,2);
-  //window.log.options.timestamp = true;
-  window.log.debug("new Rectangle", r);
-  //window.log.options.timestamp = false;
-  window.log.debug("exiting makeRectangle");
+  //logObj.options.timestamp = true;
+  logObj.debug("new Rectangle", r);
+  //logObj.options.timestamp = false;
+  logObj.debug("exiting makeRectangle");
   return r;
 }
 </script>
-<button onclick="makeRectangle(1,2,3,4);">Make Rectangle</button>
-<div id="debug_log" class="log"></div>
-         <h2>ドラッグ可能なlogウィンドウ</h2>
-         <p><a 
-              href="#logger" 
-              id="popup_logger" title="popup logger">
-                popup logger
-            </a>、
-         </p>
+<!--
+  <button onclick="makeRectangle(1,2,3,4);">Make Rectangle</button>
+--!>
+  <h2>ドラッグ可能なlogウィンドウ</h2>
+  <p><a 
+       href="#logger" 
+       id="popup_logger" title="popup logger">
+         popup logger
+     </a>、
+  </p>
 </body>
 </html>

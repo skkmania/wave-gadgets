@@ -4,14 +4,26 @@
 <head>
   <title>game-controller Unit test file</title>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <script src="../../prototype.js" type="text/javascript"></script>
-  <script src="../../scriptaculous.js" type="text/javascript"></script>
-  <script src="../../m17n.js" type="text/javascript"></script>
-  <script src="../../unittest.js" type="text/javascript"></script>
-  <script src="../../log4p.js" type="text/javascript"></script>
-  <script src="../../game-controller.js" type="text/javascript"></script>
-  <script src="../../animal-shogi.js" type="text/javascript"></script>
-  <link rel="stylesheet" href="./../test.css" type="text/css" />
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/prototype.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/scriptaculous.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/builder.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/effects.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/controls.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/slider.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/dragdrop.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/resizable.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/livepipe/livepipe.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/livepipe/window.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/unittest.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/m17n.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/log4pipe.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/common-utils.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/pseudo-wave.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/game-controller.js" charset="UTF-8"></script>
+<script src="../../unittest.js" type="text/javascript"></script>
+<link rel="stylesheet" href="./../test.css" type="text/css" />
+<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/log4pipe.css" type="text/css" />
   <style type="text/css" media="screen">
   /* <![CDATA[ */
     #div_absolute_test { position: absolute }
@@ -34,32 +46,47 @@
 <!-- Tests follow -->
 <script type="text/javascript" language="javascript" charset="utf-8">
 // <![CDATA[
-
+  var title = '';
+  var TestCounter = 0;
+  var gameObj;
   new Test.Unit.Runner({
     
   setup: function() { with( this ) {
-      settings = {'containerId':'animal-shogi' };
-      obj = new GameController(settings);
+    title = 'popup' + TestCounter;
+    HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
+    settings = {'containerId':'animal-shogi', 'logTitle': title };
+    gameObj = new GameController(settings);
   } },
 
   teardown: function() { with( this ) {
-      delete settings;
-      delete obj;
+    TestCounter++;
+    gameObj.log.window.close();
+    delete settings;
+    delete gameObj;
   } },
 
   testInitialize : function() {  with( this )  {
-      assertEqual( 'animal-shogi', obj.container.id );
+    gameObj.log.debug('testInitialize');
+    assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
   testMainRoutine : function() {  with( this )  {
-      assertEqual( 'animal-shogi', obj.container.id );
+    gameObj.log.debug('testMainRoutine');
+    assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
   testToString : function() {  with( this )  {
-      assertEqual( 'dummy', obj.toString() );
+    gameObj.log.debug('testToString');
+    assertEqual( 'dummy', gameObj.toString() );
   } }
   }, "testlog");
 // ]]>
 </script>
+  <p><a 
+       href="#logger" 
+       id="popup_logger" title="popup logger">
+         popup logger
+     </a>
+  </p>
 </body>
 </html>

@@ -59,9 +59,7 @@ Player = Class.create({
 });
 
 
-/**
- * ControlPanel Class
- */
+
 ControlPanel = Class.create({
 	/**
 	 * initialize(game)
@@ -119,10 +117,9 @@ GameController = Class.create({
 	 * initialize(settings)
 	 */
   initialize: function initialize(settings) {
-    this.log = new Log(Log.DEBUG, 'popup');
-    var css = this.log.setCSSfile(HOST + "log4p.css");
+    var title = settings['logTitle'] || 'popup';
+    this.log = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
     this.log.getInto();
-    this.log.warn('start log: css is ' + css);
     this.settings = settings;
     if(settings === undefined){
       this.log.debug('settings is undefined.');
@@ -130,9 +127,8 @@ GameController = Class.create({
       this.log.debug(this.settings);
     }
 
-    // this.game = new AnimalShogiGame(settings);
+    //this.game = new AnimalShogiGame(settings, this.log);
     // this.game.open();
-
     this.playingViewer = null;
     this.container = $(this.settings['containerId']);
     this.controlPanel = new ControlPanel(this);
@@ -268,8 +264,8 @@ this.log.getInto();
     this.top = (this.top === 0 ? 1 : 0);
     this.top_by_viewer = this.top;
     this.message('game.top became ' + this.top);
-    this.board.reverse();
-    this.board.adjust();
+    this.game.board.reverse();
+    this.game.board.adjust();
     tmp = $('top-stand').childElements()[0];
     $('top-stand').appendChild($('bottom-stand').childElements()[0]);
     $('bottom-stand').appendChild(tmp);
@@ -289,7 +285,7 @@ this.log.getInto();
     this.log.warn('game.start was called.');
     this.determineTop();
     this.controlPanel.update();
-    this.board.show();
+    this.game.board.show();
     this.log.warn('leaving game.start.');
 this.log.goOut();
   },
@@ -394,7 +390,7 @@ this.log.getInto();
 this.log.warn('processPlayer: processing Player2: ');
       var pl2IsViewer = (pl2 == viewer);
       this.player2 = new Player('player2', pl2, pl2IsViewer );
-this.debug_dump();
+//this.debug_dump();
       this.controlPanel.update();
 this.log.warn('backed into processPlayer: processing Player2: ');
       this.start();
@@ -422,7 +418,6 @@ this.log.goOut();
 	 */
   fromState: function fromState(state) { // game
 this.log.getInto();
-this.log.warn('entered Game#fromState: ');
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
     this.processPlayer(state);
     this.count = state.get('count');
@@ -450,17 +445,17 @@ this.log.goOut();
     else
       this.log.error('state is null');
     var obj = {};
-    obj['all pieces']    = this.allPieces().length;
+    //obj['all pieces']    = this.allPieces().length;
     obj['player1']	 = (this.player1 ? this.player1.toDebugString():null);
     obj['player2']	 = (this.player2 ? this.player2.toDebugString():null);
     obj['playingViewer'] = (this.playingViewer ? this.playingViewer.toDebugString():null);
     obj['top']		 = this.top;
     //obj['board']	 = this.board.toDebugString();
-    obj['board']	 = this.board.toString();
-    obj['blackStand']	 = this.blackStand.toString();
-    obj['whiteStand']	 = this.whiteStand.toString();
+    //obj['board']	 = this.board.toString();
+    //obj['blackStand']	 = this.blackStand.toString();
+    //obj['whiteStand']	 = this.whiteStand.toString();
     //obj['Cell']	 = Cell.all.invoke('toDebugString').join('<br>');
-    obj['PieceOnBoard']	 = '<br>' + this.board.cells.flatten().findAll(function(c){ return c.piece != null; }).invoke('toDebugString').join('<br>');
+    //obj['PieceOnBoard']	 = '<br>' + this.board.cells.flatten().findAll(function(c){ return c.piece != null; }).invoke('toDebugString').join('<br>');
     obj['PieceOnBlackStand']	 = '<br>' + this.blackStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
     obj['PieceOnWhiteStand']	 = '<br>' + this.whiteStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
     obj['Droppables']	= Droppables.toDebugString();

@@ -3,7 +3,7 @@
  *      2010.3.3 : log4js.jsを元手に作成した。
  */
 
-var window_factory = function(container,options){
+var window_factory = function(container,title){
    var window_header = new Element('div',{
       className: 'window_header'
    });
@@ -13,6 +13,9 @@ var window_factory = function(container,options){
    var window_close = new Element('div',{
       className: 'window_close'
    });
+   var window_resizable = new Element('div',{
+      className: 'window_resizable'
+   });
    var window_contents = new Element('div',{
       className: 'window_contents'
    });
@@ -20,19 +23,25 @@ var window_factory = function(container,options){
       className: 'window',
       closeOnClick: window_close,
       draggable: window_header,
+      resizable: window_resizable,
       insertRemoteContentAt: window_contents,
       afterOpen: function(){
-         window_title.update(container.readAttribute('title'))
+         window_title.update(title)
       }
-   },options || {}));
+   },{}));
    w.container.insert(window_header);
    window_header.insert(window_title);
    window_header.insert(window_close);
+   //window_header.insert(window_resizable);
+   w.container.insert(window_resizable);
    w.container.insert(window_contents);
+   w.contents = window_contents;
+   w.contents.id = title;
    return w;
 };
 Log = Class.create({
   initialize: function(level, logger, options){
+       this.defaultOptions();
        this.currentLevel = level || Log.WARN;
        switch(logger){
        case 'write':
@@ -119,40 +128,44 @@ Log = Class.create({
 
   popupInitialize: function(title, options){
     this.window = null;
-    this.title = title || options['title'] || '';
+    this.title = title;
+    if(options)  this.title = options['title'] || '';
     this.divStack = [];
     this.openWindow();
-    this.createTopDiv();
+    this.createTopDiv(title);
   },
   openWindow: function openWindow(){
      if (!this.window || !this.window.document) {
-       this.window = window_factory($('popup_logger'));
+       this.window = window_factory($('popup_logger'), this.title);
        if (!this.window) {
          alert("Error : popup window not generated.");
          return;
        }
      }
   },
-  createTopDiv: function createTopDiv(){
-    var top = $('loggerDiv');
-    if (!top) {
-      top = new Element('div');
-      top.id = 'loggerDiv';
+  createTopDiv: function createTopDiv(title){
+    this.top = $(title + 'topDiv');
+    if (!this.top) {
+      this.top = new Element('div');
+      this.top.id = title + 'topDiv';
+      this.top.className = 'loggerDiv';
     }
-    top.style.width='100%';
-    var title = new Element('div');
-    title.className = "logRow";
-    var title_1 = new Element('div');
-    title_1.className = "logCell";
-    title_1.innerHTML = 'Time';
-    var title_2 = new Element('div');
-    title_2.className = "logCell";
-    title_2.innerHTML = 'Message';
-    title.appendChild(title_1);
-    title.appendChild(title_2);
-    top.appendChild(title);
-    this.window.container.insert(top);
-    this.divStack.push(top);
+    this.top.style.width='100%';
+    var topLine = new Element('div');
+    topLine.className = "logRow";
+    var topLine_1 = new Element('div');
+    topLine_1.className = "logCell_1";
+    topLine_1.innerHTML = 'Time';
+    var topLine_2 = new Element('div');
+    topLine_2.className = "logCell_3";
+    topLine_2.innerHTML = 'Message';
+    topLine.appendChild(topLine_1);
+    topLine.appendChild(topLine_2);
+    this.top.appendChild(topLine);
+//    $$('.window .window_contents')[0].insert(this.top);
+    //this.window.contents.insert(this.top);
+    this.window.contents.appendChild(this.top);
+    this.divStack.push(this.top);
   },
   currentDiv: function currentDiv(){
     return this.divStack[this.divStack.length - 1];
@@ -217,7 +230,8 @@ Log = Class.create({
     // msg : string, log message
     // level: number, such as Log.FATAL, Log.ERROR, Log.WARN,...
     // option: object, mainly used for css style setting
-    var opt = option || this.options;
+    //var opt = option || this.options;
+    var opt = this.options;
     var row = this.insertRowDiv();
     var cell_1 = this.insertCellDiv(row, 'logCell_1');
     if(opt['level']){
