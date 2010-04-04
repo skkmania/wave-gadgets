@@ -35,6 +35,7 @@
 <!-- Tests follow -->
 <script type="text/javascript" language="javascript" charset="utf-8">
 // <![CDATA[
+  var elem = null;
   var title = '';
   var TestCounter = 0;
   var logObj = null;
@@ -43,7 +44,6 @@
   setup: function() { with( this ) {
     title = 'popup' + TestCounter;
     HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
-    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
   } },
   // Log のinitilalize時に渡すoptionsの意味：
   // title : popup Logger の場合、log windowをopenするときのタイトル
@@ -56,29 +56,76 @@
   } },
 
   testOpen : function() {  with( this )  {
+    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
     logObj.debug('test Open');
     logObj.window.open();
   } },
 
   testInitializeWithoutOption : function() {  with( this )  {
+    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
     assertEqual( title, logObj.title );
   } },
 
+  testContainer : function() { with( this ) {
+    elem = new Element('a',{'id':'cont01','href':'#cont01','title':'log'});
+    elem.insert('popup logger test container');
+    $('links_pool').appendChild(elem);
+    title += '_cont01';
+    logObj = new Log(Log.DEBUG, 'popup', { 'container':'cont01', 'title': title, 'host' : HOST });
+    logObj.debug('test Container');
+  } },
+
   testEntry : function() { with( this ) {
+    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
     logObj.debug('test written');
   } },
 
   testMakeRectangle : function() { with( this ) {
+    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
     makeRectangle(1,2,3,4);
     logObj.window.open();
   } },
 
-  testPosition : function() { with( this ) {
-//    logObj.window.position([100,100]);
+  testMaxHight : function() { with( this ) {
+    logObj = new Log(Log.DEBUG, 'popup',
+       { 'title': title, 'host' : HOST , 'resizable':true, 'maxHeight':'150px'});
+    makeRectangle(1,2,3,4);
+    logObj.window.open();
+  } },
+
+  testDraggableTrue : function() { with( this ) {
+    title += '_draggable_true';
+    logObj = new Log(Log.DEBUG, 'popup', { 'draggable':true, 'title': title, 'host' : HOST, 'position':'relative' });
+    logObj.window.open();
+  } },
+
+  testRelative : function() { with( this ) {
+    title += '_relative';
+    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST, 'position':'relative' });
+    logObj.window.open();
+  } },
+
+  testPositionMouse: function() { with( this ) {
+    title += '_mouse';
+    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST, 'position':'mouse' });
+    logObj.window.open();
+  } },
+
+  testPositionArray: function() { with( this ) {
+    title += '_array';
+    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST, 'position':[150,150] });
+    logObj.window.open();
+  } },
+
+  testIframe : function() {  with( this )  {
+    title += '_iframe';
+    logObj = new Log(Log.DEBUG, 'popup', { 'iframe':true, 'title': title, 'host' : HOST });
+    assertEqual( 'dummy', obj.toString() );
   } },
 
   testToString : function() {  with( this )  {
-    //  assertEqual( 'dummy', obj.toString() );
+    logObj = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
+    assertEqual( 'dummy', obj.toString() );
   } }
   };
   new Test.Unit.Runner(TestSuitePopup, "testlog");
@@ -126,11 +173,13 @@ function makeRectangle(x,y,w,h){
   <button onclick="makeRectangle(1,2,3,4);">Make Rectangle</button>
 --!>
   <h2>ドラッグ可能なlogウィンドウ</h2>
-  <p><a 
+  <div id='links_pool'>
+    <a 
        href="#logger" 
        id="popup_logger" title="popup logger">
          popup logger
-     </a>、
-  </p>
+     </a><br>
+    <a href="#logger2" id="popup_logger2" title="popup logger 2"> popup logger 2 </a>
+  </div>
 </body>
 </html>

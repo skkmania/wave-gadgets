@@ -66,24 +66,34 @@
   } },
 
   testInitialize : function() {  with( this )  {
+    var logWinLink = new Element('a',
+        {'href':"#logger", 'id':"popup_logger0", 'title':"popup logger"});
+    $('loggerParagraph').appendChild(logWinLink);
     gameObj.log.debug('testInitialize');
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
   testMainRoutine : function() {  with( this )  {
+    var logWinLink = new Element('a',
+        {'href':"#logger", 'id':"popup_logger1", 'title':"popup logger"});
+    $('loggerParagraph').appendChild(logWinLink);
     gameObj.log.debug('testMainRoutine');
     gameObj.mainRoutine();
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
   testToString : function() {  with( this )  {
+    var logWinLink = new Element('a',
+        {'href':"#logger", 'id':"popup_logger2", 'title':"popup logger"});
+    $('loggerParagraph').appendChild(logWinLink);
     gameObj.log.debug('testToString');
     assertEqual( 'dummy', gameObj.toString() );
   } }
   }, "testlog");
 // ]]>
 </script>
-  <p><a 
+  <p id="loggerParagraph">
+     <a 
        href="#logger" 
        id="popup_logger" title="popup logger">
          popup logger

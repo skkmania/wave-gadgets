@@ -3,7 +3,7 @@
  *      2010.3.3 : log4js.jsを元手に作成した。
  */
 
-var window_factory = function(container,title){
+var window_factory = function(container,title,options){
    var window_header = new Element('div',{
       className: 'window_header'
    });
@@ -28,7 +28,7 @@ var window_factory = function(container,title){
       afterOpen: function(){
          window_title.update(title)
       }
-   },{}));
+   },options || {}));
    w.container.insert(window_header);
    window_header.insert(window_title);
    window_header.insert(window_close);
@@ -131,12 +131,13 @@ Log = Class.create({
     this.title = title;
     if(options)  this.title = options['title'] || '';
     this.divStack = [];
-    this.openWindow();
+    this.openWindow(options);
     this.createTopDiv(title);
   },
-  openWindow: function openWindow(){
+  openWindow: function openWindow(options){
+     var container = options && options['container'] ? $(options['container']) : $('popup_logger');
      if (!this.window || !this.window.document) {
-       this.window = window_factory($('popup_logger'), this.title);
+       this.window = window_factory(container, this.title, options);
        if (!this.window) {
          alert("Error : popup window not generated.");
          return;

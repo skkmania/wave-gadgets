@@ -102,6 +102,13 @@
  .window .window_header {
  text-align:center;
  }
+
+ .draggable_handle {
+ height:13px;
+ width:13px;
+ background-image:url("../img/window_close.gif");
+ }
+
  .window .window_title {
  margin-top:-7px;
  margin-bottom:7px;
