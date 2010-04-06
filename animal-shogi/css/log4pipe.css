@@ -33,6 +33,12 @@
 
 .foldbutton {
   color: green;
+  margin-left : 10px;
+}
+
+.foldallbutton {
+  color: red;
+  margin-left : 10px;
 }
 
 .logDivFirstLine {

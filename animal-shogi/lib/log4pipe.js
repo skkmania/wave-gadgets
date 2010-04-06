@@ -212,6 +212,7 @@ Log = Class.create({
     ret.folded = false;
     ret.appendChild(firstLine);
     this.addFoldButton(firstLine);
+    this.addFoldAllButton(firstLine);
     var parent = this.currentDiv();
     if(parent)
       parent.appendChild(ret);
@@ -230,13 +231,28 @@ Log = Class.create({
     div.appendChild(button);
   },
 
+  addFoldAllButton: function addFoldAllButton(div) {
+    var button = new Element('span', { 'className':'foldallbutton' });
+    button.div = div.up(); 
+    button.innerHTML = 'foldAll';
+    button.onclick = this.foldall(div.up());
+    div.appendChild(button);
+  },
+
   fold: function fold(div) {
     return function() {
-       var tail = div.descendants();
-       tail.shift(); tail.shift();
-       div.folded ? tail.invoke('show') : tail.invoke('hide');
-       div.folded = !(div.folded);
-    };
+      var targets = div.childElements().findAll(function(e){ return e.hasClassName('logRow'); });
+      div.folded ? targets.invoke('show') : targets.invoke('hide');
+      div.folded = !(div.folded);
+    }
+  },
+
+  foldall: function foldall(div) {
+    return function() {
+      var targets = div.select('.logRow');
+      div.folded ? targets.invoke('show') : targets.invoke('hide');
+      div.folded = !(div.folded);
+    }
   },
 
   goOut: function goOut(){
