@@ -31,6 +31,10 @@
   border : dashed blue 1px;
 }
 
+.foldbutton {
+  color: green;
+}
+
 .logDivFirstLine {
   color: blue;
   margin-left : 10px;

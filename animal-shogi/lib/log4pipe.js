@@ -209,7 +209,9 @@ Log = Class.create({
     var firstLine = new Element('div');
     firstLine.className = 'logDivFirstLine';
     firstLine.innerHTML = arguments.callee.caller.name;
+    ret.folded = false;
     ret.appendChild(firstLine);
+    this.addFoldButton(firstLine);
     var parent = this.currentDiv();
     if(parent)
       parent.appendChild(ret);
@@ -218,6 +220,23 @@ Log = Class.create({
     this.divStack.push(ret);
     ret.style.background = this.getCurrentDivColor();
     return ret;
+  },
+
+  addFoldButton: function addFoldButton(div) {
+    var button = new Element('span', { 'className':'foldbutton' });
+    button.div = div.up(); 
+    button.innerHTML = 'fold';
+    button.onclick = this.fold(div.up());
+    div.appendChild(button);
+  },
+
+  fold: function fold(div) {
+    return function() {
+       var tail = div.descendants();
+       tail.shift(); tail.shift();
+       div.folded ? tail.invoke('show') : tail.invoke('hide');
+       div.folded = !(div.folded);
+    };
   },
 
   goOut: function goOut(){
