@@ -39,7 +39,6 @@
   var elem = null;
   var HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
   var TestCounter = 0;
-  var logObj = null;
 
   function getContainerId(){
     return 'cont' + TestCounter;
@@ -49,16 +48,21 @@
   }
   function getDefaultOptions(){
     return  { 'container': getContainerId(), 'title': getTitle(), 'host' : HOST }
+     // ここでControl.Windowのcontainerのidを、アンカーのidと同じにしているのは
+     // 一見、奇妙だが、Control.Windowの生成時の仕様に基づいている。
+     // それは、containerとしてアンカーを受けとるとそのhrefをcontainerの要素のIDにするというものである。つまり、ここでcontainerとして渡すものがそのままwindowのidになるわけではない。
   }
 
-  function makeLogObj(options){
-    var opt = (options || getDefaultOptions());
+  function makeLogObj(testname, options){
+    var opt = Object.extend(getDefaultOptions(), options );
     opt['container'] = getContainerId();
     var href = '#logger' + TestCounter;
     elem = new Element('a',{'id':getContainerId(), 'href':href, 'title':'log'});
-    elem.insert('popup logger ' + TestCounter);
+    elem.insert(testname + ' ' + TestCounter);
     $('links_pool').appendChild(elem);
-    logObj = new Log(Log.DEBUG, 'popup', opt);
+    var ret = new Log(Log.DEBUG, 'popup', opt);
+    ret.debug(Log.dumpObject(opt));
+    return ret;
   }
 
   var TestSuitePopup = {
@@ -68,61 +72,98 @@
 
   teardown: function() { with( this ) {
     TestCounter++;
-    logObj.window.close();
-    delete logObj;
   } },
 
   testOpen : function() {  with( this )  {
-    makeLogObj({ 'container': getContainerId(), 'title': getTitle(), 'host' : HOST });
+    var logObj = makeLogObj('testOpen', { 'container': getContainerId(), 'title': getTitle(), 'host' : HOST });
     logObj.debug('test Open');
-    logObj.window.open();
+    logObj.debug("{ 'container': getContainerId(), 'title': getTitle(), 'host' : HOST }");
+   // logObj.window.open();
+    assertEqual(TestCounter+1, Control.Window.windows.length);
+  } },
+
+  testSimpleWindow : function() { with( this ) {
+    var logObj = makeLogObj('testSimpleWindow', { className: 'simple_window', closeOnClick: true  });
+    logObj.debug('test Simple Window');
+    logObj.debug("{ className: 'simple_window', closeOnClick: true  }");
+    assertEqual(TestCounter+1, Control.Window.windows.length);
+  } },
+
+  testToolTip : function() { with( this ) {
+    var logObj = makeLogObj('testToolTip', { position: 'relative', className: 'tooltip', hover:true, offsetLeft: 120  });
+    logObj.debug('test tooltip');
+    logObj.debug("options : { position: 'relative', className: 'tooltip', hover:true, offsetLeft: 120  } ");
     assertEqual(TestCounter+1, Control.Window.windows.length);
   } },
 
   testContainer : function() { with( this ) {
-    makeLogObj();
+    var logObj = makeLogObj('testContainer');
     logObj.debug('test Container');
     assertEqual(TestCounter+1, Control.Window.windows.length);
   } },
 
   testEntry : function() { with( this ) {
-    makeLogObj();
+    var logObj = makeLogObj('testEntry');
     logObj.debug('test written');
+    logObj.debug('window objects attributes : ');
+    logObj.debug('logObj.window.container : ' + logObj.window.container.id);
+    assertEqual(TestCounter+1, Control.Window.windows.length);
+  } },
+
+  testIndicator : function() { with( this ) {
+    var logObj = makeLogObj('testIndicator', { indicator: 'elmForIndicator' });
+    logObj.debug('test indicator');
+    logObj.debug('Control.Window.indicator : ' + Control.Window.indicator);
+    assertEqual(TestCounter+1, Control.Window.windows.length);
+  } },
+
+  testHover : function() { with( this ) {
+    var logObj = makeLogObj('testHover', { hover: true });
+    logObj.debug('test hover with link anchor');
+    logObj.debug('hover true');
+    assertEqual(TestCounter+1, Control.Window.windows.length);
+  } },
+
+  testHoverOverElement : function() { with( this ) {
+    var e = $('elmForHover');
+    var logObj = makeLogObj('testHoverOverElement', { position: 'relative', hover: e });
+    logObj.debug('test hover over an element');
+    logObj.debug('hover element is "elmForHover"');
     assertEqual(TestCounter+1, Control.Window.windows.length);
   } },
 
   testCloseOnClick : function() { with( this ) {
-    makeLogObj({ 'closeOnClick': true });
+    var logObj = makeLogObj('testCloseOnClick', { closeOnClick: 'container' });
     logObj.debug('test closeOnClick');
     assertEqual(TestCounter+1, Control.Window.windows.length);
   } },
 
   testMakeRectangle : function() { with( this ) {
-    makeLogObj();
-    makeRectangle(1,2,3,4);
-    logObj.window.open();
+    var logObj = makeLogObj('testMakeRectangle', {width:500, height:150, resizable:false});
+    logObj.debug('test makeRectangle');
+    logObj.debug('is maxHeight valid?');
+    makeRectangle(logObj, 1,2,3,4);
     assertEqual(TestCounter+1, Control.Window.windows.length);
   } },
 
   testMaxHight : function() { with( this ) {
-    makeLogObj({ 'title': title, 'host' : HOST , 'resizable':true, 'maxHeight':'150px'});
+    var logObj = makeLogObj('testMaxHight', { resizable:false, maxHeight:'100px'});
     logObj.debug('test MaxHight');
     logObj.debug('this logObjs id : ' + logObj.window.container.id);
-    makeRectangle(1,2,3,4);
-    logObj.window.open();
+    makeRectangle(logObj, 1,2,3,4);
     assertEqual(TestCounter+1, Control.Window.windows.length);
   } },
 
   testDraggableTrue : function() { with( this ) {
     title += '_draggable_true';
-    makeLogObj({ 'draggable':true, 'title': title, 'host' : HOST, 'position':'relative' });
+    var logObj = makeLogObj('testDraggableTrue', { 'draggable':true, 'title': title, 'host' : HOST, 'position':'relative' });
     logObj.window.open();
     assertEqual(TestCounter+1, Control.Window.windows.length);
   } },
 
   testRelative : function() { with( this ) {
     title += '_relative';
-    makeLogObj( { 'title': title, 'host' : HOST, 'position':'relative' });
+    var logObj = makeLogObj('testRelative',  { 'title': title, 'host' : HOST, 'position':'relative' });
     logObj.debug('test relative debug');
     logObj.warn('test relative warn');
     logObj.fatal('test relative fatal');
@@ -133,7 +174,7 @@
 
   testPositionMouse: function() { with( this ) {
     title += '_mouse';
-    makeLogObj( { 'title': title, 'host' : HOST, 'position':'mouse' });
+    var logObj = makeLogObj('testPositionMouse',  { 'title': title, 'host' : HOST, 'position':'mouse' });
     logObj.debug('test position mouse');
     //logObj.window.open();
     assertEqual(TestCounter+1, Control.Window.windows.length);
@@ -141,7 +182,7 @@
 
   testPositionArray: function() { with( this ) {
     title += '_array';
-    makeLogObj( { 'title': title, 'host' : HOST, 'position':[150,150] });
+    var logObj = makeLogObj('testPositionArray',  { 'title': title, 'host' : HOST, 'position':[150,150] });
     logObj.debug('test position array');
     logObj.window.open();
     assertEqual(TestCounter+1, Control.Window.windows.length);
@@ -149,13 +190,13 @@
 
   testIframe : function() {  with( this )  {
     title += '_iframe';
-    makeLogObj( { 'iframe':true, 'title': title, 'host' : HOST });
+    var logObj = makeLogObj('testIframe',  { 'iframe':true, 'title': title, 'host' : HOST });
     logObj.debug('test iframe');
     assertEqual(TestCounter+1, Control.Window.windows.length);
   } },
 
   testToString : function() {  with( this )  {
-    makeLogObj();
+    var logObj = makeLogObj('testToString');
     logObj.debug('test toString');
     assertEqual(TestCounter+1, Control.Window.windows.length);
   } }
@@ -164,7 +205,7 @@
 // ]]>
 </script>
 <script>
-function funcB(x,y){
+function funcB(logObj, x,y){
   var div = logObj.getInto();
   logObj.debug("entering funcB");
   x = x * 8;
@@ -176,12 +217,12 @@ function funcB(x,y){
   return x + y;
 }
 
-function funcA(x,y){
+function funcA(logObj, x,y){
   var div = logObj.getInto();
   logObj.debug("entering funcA");
   x = x * 10;
   logObj.debug("x was multiplied by 10");
-  funcB(3,2);
+  funcB(logObj, 3,2);
   y = y * 5;
   logObj.debug("y was multiplied by 5");
   logObj.debug("leaving funcA");
@@ -189,11 +230,11 @@ function funcA(x,y){
   return x + y;
 }
 
-function makeRectangle(x,y,w,h){
+function makeRectangle(logObj, x,y,w,h){
   logObj.debug("start logging");
   logObj.debug("entering makeRectangle");
   var r = {x:x, y:y, size: { w:w, h:h }};
-  funcA(1,2);
+  funcA(logObj, 1,2);
   //logObj.options.timestamp = true;
   logObj.debug("new Rectangle", r);
   //logObj.options.timestamp = false;
@@ -205,6 +246,7 @@ function makeRectangle(x,y,w,h){
   <button onclick="makeRectangle(1,2,3,4);">Make Rectangle</button>
 --!>
   <h2>ドラッグ可能なlogウィンドウ</h2>
+  <div id='closeAll' onclick='javascript:Control.Window.windows.invoke("close");return false;'>close all windows</div>
   <div id='links_pool'>
     <a href="#logger" id="popup_logger" title="popup logger"> default container </a>
   </div>
@@ -213,8 +255,14 @@ function makeRectangle(x,y,w,h){
   <div id="logger2"></div>
   <div id="logger3"></div>
   <div id="logger4"></div>
+  <div id="logger5"></div>
+  <div id="logger6"></div>
+  <div id="logger7"></div>
+  <div id="logger8"></div>
   <div id="logger9"></div>
   <div id="logger10"></div>
   <div id="logger11"></div>
+  <div id="elmForHover">Element for hover test. when mouse is over here, a window should open.</div>
+  <div id="elmForIndicator">Element for indicator test.</div>
 </body>
 </html>

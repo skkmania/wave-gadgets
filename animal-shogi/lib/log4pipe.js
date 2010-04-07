@@ -2,6 +2,11 @@
  * log4pipe.js : prototype.jsを使用したWebアプリのトレースログを得るためのツール
  *      2010.3.3 : log4js.jsを元手に作成した。
  */
+/* 使用上の注意：
+ 複数のpopupログを使うときは、new Logのoptionsの中で必ず個別のtitleを指定すること。
+さもなくば、ひとつのwindowに重ねて書き込まれてしまう。
+生成されるpopup windowの見た目や大きさはcssにより指定すること。
+*/
 
 var window_factory = function(container,title,options){
    var window_header = new Element('div',{
@@ -19,8 +24,9 @@ var window_factory = function(container,title,options){
    var window_contents = new Element('div',{
       className: 'window_contents'
    });
-   var w = new Control.Window(container,Object.extend({
+   var opt = Object.extend({
       className: 'window',
+      maxHeight: '130px',
       closeOnClick: window_close,
       draggable: window_header,
       resizable: window_resizable,
@@ -28,12 +34,13 @@ var window_factory = function(container,title,options){
       afterOpen: function(){
          window_title.update(title)
       }
-   },options || {}));
+   },options || {});
+   var w = new Control.Window(container,opt);
+     // 上記のoptionはdefaultとして働く。引数で渡したoptionがそれを上書きする。
    w.container.insert(window_header);
    window_header.insert(window_title);
    window_header.insert(window_close);
-   //window_header.insert(window_resizable);
-   w.container.insert(window_resizable);
+   if(opt.resizable) w.container.insert(window_resizable);
    w.container.insert(window_contents);
    w.contents = window_contents;
    w.contents.id = title;
@@ -136,6 +143,7 @@ Log = Class.create({
   },
   openWindow: function openWindow(options){
      var container = options && options['container'] ? $(options['container']) : $('popup_logger');
+alert('container is : ' + container);
      if (!this.window || !this.window.document) {
        this.window = window_factory(container, this.title, options);
        if (!this.window) {
@@ -208,7 +216,7 @@ Log = Class.create({
     ret.className = 'logDiv';
     var firstLine = new Element('div');
     firstLine.className = 'logDivFirstLine';
-    firstLine.innerHTML = arguments.callee.caller.name;
+    firstLine.innerHTML = arguments.callee.caller.name; 
     ret.folded = false;
     ret.appendChild(firstLine);
     this.addFoldButton(firstLine);
@@ -217,7 +225,7 @@ Log = Class.create({
     if(parent)
       parent.appendChild(ret);
     else
-      this.window.document.getElementById('loggerDiv').appendChild(ret);
+      this.top.appendChild(ret);
     this.divStack.push(ret);
     ret.style.background = this.getCurrentDivColor();
     return ret;
@@ -343,7 +351,8 @@ Log.dumpObject=function (obj,indent) {
 			var type=typeof(obj[p]);
 			type=type.toLowerCase();
 			if (type=='object') {
-				s+= Log.dumpObject(obj[p],indent+"----");
+			//	s+= Log.dumpObject(obj[p],indent+"----");
+                            s+= 'object';
 			} else {
 				s+= obj[p];
 			}
