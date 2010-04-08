@@ -116,11 +116,9 @@ GameController = Class.create({
 	/**
 	 * initialize(settings)
 	 */
-  initialize: function initialize(settings) {
+  initialize: function initialize(settings, log) {
     var title = settings['logTitle'] || 'popup';
-    this.log = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST, resizable: false, height:200, width:700 });
-    $('control_window_2').insert(new Element('img',{id:'handle9',src:"./img/window_close.gif"}));
-    new Resizable('control_window_2',{handle:'handle9'});
+    this.log = log;
     this.log.getInto('Game#initialize');
     this.settings = settings;
     if(settings === undefined){
@@ -131,7 +129,9 @@ GameController = Class.create({
 
     this.game = new AnimalShogiGame(settings, this.log);
     // this.game.open();
+    this.players = [];
     this.playingViewer = null;
+    this.getViewer();
     this.container = $(this.settings['containerId']);
     this.controlPanel = new ControlPanel(this);
     this.log.warn('CP created.');
@@ -155,6 +155,13 @@ GameController = Class.create({
     // this.debug_dump();
   },
 	/**
+	 * playerSetup()
+	 */
+  playerSetup: function playerSetup() { // GameController
+    this.log.getInto();
+    this.log.goOut();
+  },
+	/**
 	 * mainRoutine()
 	 */
   mainRoutine: function mainRoutine() { // Game
@@ -165,6 +172,7 @@ GameController = Class.create({
     // this.receiveResult(); これもthis.gameから呼び出される
     this.finishCheck();
     this.sendDelta();
+    this.log.debug('leaving mainRoutine');
     this.log.goOut();
   },
 	/**
@@ -174,10 +182,12 @@ GameController = Class.create({
     this.log.getInto();
     // 送信
     var delta = {};
+/*
     delta['board'] = this.game.board.toString();
     delta['bstand'] = this.game.blackStand.toString();
     delta['wstand'] = this.game.whiteStand.toString();
     delta['count'] = this.game.count.toString();
+*/
     this.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
     wave.getState().submitDelta(delta);
     this.log.goOut();
@@ -201,7 +211,8 @@ GameController = Class.create({
 	 * playerInTurn()
 	 */
   playerInTurn: function playerInTurn() { // Game
-    this.log.getInto();
+    this.log.getInto('GameController#playerInTurn');
+
     this.log.goOut();
     return null;
   },
@@ -256,8 +267,9 @@ this.log.goOut();
 	 */
         // GameのsetPlayerが呼ばれるのはjoinボタンが押されたときだけ
   setPlayer: function setPlayer(name, opponent) { // Game
-this.log.getInto();
+    this.log.getInto('Game#setPlayer');
     if (!this.player1) {
+      this.log.getInto('setting player1');
       this.player1 = new Player('player1', name, !opponent);
       if (!opponent) this.playingViewer = this.player1;
       this.controlPanel.update();
@@ -265,9 +277,11 @@ this.log.getInto();
       wave.getState().submitDelta({
         player1:name
       });
+      this.log.goOut();
     }
     else if (!this.player2) {
       if (name != this.player1.name){
+        this.log.getInto('setting player2');
         this.player2 = new Player('player2', name, !opponent);
         if (!opponent) this.playingViewer = this.player2;
         this.determineTop();
@@ -277,23 +291,25 @@ this.log.getInto();
         wave.getState().submitDelta({
           player2:name
         });
+        this.log.goOut();
       } else
         this.message(t('cannot_play_with_same_person'));
     }
       // TODO
       //throw 'Invalid Player Data';
-this.log.goOut();
+    this.log.goOut();
   },
 	/**
 	 * message(message)
 	 */
-  message: function message(message) {
-this.log.getInto();
+  message: function message(message) { // Game
+    this.log.getInto('Game#message');
     if (!this.messageElm) {
       this.messageElm = $('message-body');
     }
     this.messageElm.innerHTML = message;
-this.log.goOut();
+    this.log.debug(message);
+    this.log.goOut();
   },
 	/**
 	 * clearMessage()
@@ -417,23 +433,30 @@ this.log.warn('leaving stateChanged:');
     return ret;
   },
 	/**
+	 * getViewer()
+	 */
+  getViewer: function getViewer(){ // GameController
+    this.log.getInto('GameController#getViewer');
+    this.viewer = wave.getViewer().getId();
+    this.log.debug('viewer: ' + this.viewer);
+    this.log.goOut();
+  },
+	/**
 	 * processPlayer(state)
 	 */
   processPlayer: function processPlayer(state){ // Game
-this.log.getInto();
-    var viewer = wave.getViewer().getId();
-this.log.debug('entered Game#processPlayer: viewer: ' + viewer);
+    this.log.getInto('GameController#processPlayer');
     var pl1 = state.get('player1');
     var pl2 = state.get('player2');
     if(!pl1 && !pl2){
-this.log.debug('leaving processPlayer because state has no player.');
-this.log.goOut();
+    this.log.debug('leaving processPlayer because state has no player.');
+    this.log.goOut();
       return;
     }
     if (!this.player1 && pl1) {  // 各normalスナップに1回通る
 this.log.getInto();
 this.log.debug('processPlayer: processing Player1: ');
-      var pl1IsViewer = (pl1 == viewer);
+      var pl1IsViewer = (pl1 == this.viewer);
       this.player1 = new Player('player1', pl1, pl1IsViewer );
       this.controlPanel.update();
 this.log.info('leaving processing Player1: ');
@@ -442,7 +465,7 @@ this.log.goOut();
     if (!this.player2 && pl2) {  // 各normalスナップに1回通る
 this.log.getInto();
 this.log.warn('processPlayer: processing Player2: ');
-      var pl2IsViewer = (pl2 == viewer);
+      var pl2IsViewer = (pl2 == this.viewer);
       this.player2 = new Player('player2', pl2, pl2IsViewer );
 //this.debug_dump();
       this.controlPanel.update();
@@ -471,9 +494,9 @@ this.log.goOut();
 	 * fromState(state)
 	 */
   fromState: function fromState(state) { // game
-this.log.getInto();
-/*
+    this.log.getInto();
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
+/*
     this.processPlayer(state);
     this.count = state.get('count');
     this.board.read(state.get('board', this.board.initialString));

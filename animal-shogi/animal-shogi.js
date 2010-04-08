@@ -38,7 +38,7 @@ Piece = Class.create({
 	 */
   initialize: function initialize(chr, game) {
     this.game = game || window.game;
-this.game.log.getInto();
+this.game.log.getInto('Piece#initialize');
 this.game.log.warn('Piece#initialize entered with : ' + chr, {'indent':1});
     this.type = Chr2Type[chr.toLowerCase()];
 this.game.log.warn('Piece#initialize type is : ' + this.type);
@@ -80,7 +80,7 @@ this.game.log.goOut();
 	 * toggleDraggable()
 	 */
   toggleDraggable: function toggleDraggable(){ // Piece
-    this.game.log.getInto();
+    this.game.log.getInto('Piece#toggleDraggable');
     this.game.log.debug('entered Piece#toggleDraggable:'+this.toDebugString());
     this.game.log.debug('count : '+this.game.count);
     this.game.log.debug('isViewersP : '+this.isViewersP());
@@ -108,8 +108,7 @@ this.game.log.goOut();
 	 * createElm()
 	 */
   createElm: function createElm() {  // Piece
-this.game.log.getInto();
-this.game.log.warn('Piece#createElm entered : ');
+this.game.log.getInto('Piece#createElm');
     this.elm = document.createElement('img');
     this.elm.obj = this;
     this.elm.src = this.imageUrl;
@@ -120,15 +119,14 @@ this.game.log.warn('Piece#createElm entered : ');
     else {
       this.elm.addClassName('top');
     }
-this.game.log.warn('leaving Piece#createElm : ');
 this.game.log.goOut();
   },
 	/**
 	 * setClassName(player)
 	 */
   setClassName: function setClassName() { // Piece
-this.game.log.getInto();
-if (window.game) window.game.log.warn('piece setClassName entered: ' + this.chr + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
+this.game.log.getInto('Piece#setClassName');
+this.game.log.warn('chr : ' + this.chr + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
     if (!this.atTop()) {
       this.elm.addClassName('bottom');
       this.elm.removeClassName('top');
@@ -651,11 +649,12 @@ game.log.goOut();
 	 * idx2xy(idx)
 	 */
   idx2xy: function idx2xy(idx) { // Board
-    this.game.log.info('Board#idx2xy entered with : ' + idx);
+    this.game.log.getInto('Board#idx2xy with : ' + idx);
     // stateの文字列のindex(0スタート）を座標の配列[x,y]にして返す
     var h = this.game.height - 1;
     var ret = [Math.floor(idx/h) + 1.0, idx%h + 1.0]
     this.game.log.info('Board#idx2xy returning with : ' + ret.toString());
+    this.game.log.goOut();
     return ret;
   },
 	/**
@@ -1090,65 +1089,6 @@ this.game.log.goOut();
 });
 
 /**
- * Player
- */
-Player = Class.create({
-	/**
-	 * initialize(id, name, mine)
-	 */
-  initialize: function initialize(id, name, isViewer ) {
-    this.id = id;
-    this.name = name;
-    this.isViewer = isViewer;
-  },
-	/**
-	 * stand()
-	 */
-  stand: function stand(){
-    return (this.id == 'player1') ?
-        window.game.blackStand
-      : window.game.whiteStand;
-  },
-	/**
-	 * atTop()
-	 */
-  atTop: function atTop(game){ // Player
-    return (this.id == 'player1') == (window.game.top == 1);
-  },
-	/**
-	 * shortName()
-	 */
-  shortName: function shortName() {
-    return this.name.split('@').first();
-  },
-	/**
-	 * statusHtml()
-	 */
-  statusHtml: function statusHtml() {
-// playerのshort nameのspan のHTMLを返す。mine, turnのどちらかあるいは両方をclassとして指定する。
-// classの意味（効果はcssで次のように定義されている。）
-// mine は下線をひく
-// turn は背景色を黄色にする
-    var classNames = this.isViewer ? 'mine' : '';
-    if (window.game.getTurn() == this) classNames += ' turn';
-    return '<span class="' + classNames + '">' + this.shortName() + '</span>';
-  },
-	/**
-	 * toString()
-	 */
-  toString: function toString() { // Player
-    return this.name;
-  },
-	/**
-	 * toDebugString()
-	 */
-  toDebugString: function toDebugString() { // Player
-    return 'Player: name: ' + this.name + ', isViewer: ' +  this.isViewer + ', atTop: ' + this.atTop(); 
-  }
-});
-
-
-/**
  * AnimalShogiGame
  */
 AnimalShogiGame = Class.create({
@@ -1208,8 +1148,9 @@ AnimalShogiGame = Class.create({
 	/**
 	 * getPlayer(player)
 	 */ 
-  getPlayer: function getPlayer(player) { // Game
-    this.log.getInto();
+  getPlayer: function getPlayer(player) { // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#getPlayer');
+    this.log.debug('player : ' + player.toDebugString());
     this.log.goOut();
   },
 	/**
