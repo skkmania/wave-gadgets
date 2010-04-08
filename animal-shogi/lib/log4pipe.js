@@ -19,6 +19,7 @@ var window_factory = function(container,title,options){
       className: 'window_close'
    });
    var window_resizable = new Element('div',{
+      id: 'logwin_resize_handle',
       className: 'window_resizable'
    });
    var window_contents = new Element('div',{
@@ -136,7 +137,7 @@ Log = Class.create({
   popupInitialize: function(title, options){
     this.window = null;
     this.title = title;
-    if(options)  this.title = options['title'] || '';
+    if(!this.title)  this.title = options['title'] || '';
     this.divStack = [];
     this.openWindow(options);
     this.createTopDiv(title);
@@ -210,12 +211,13 @@ Log = Class.create({
         return '';
   },
 
-  getInto: function getInto() {
+  getInto: function getInto(str) {
+    // str : logDivの１行めに表示する文字列. なければ呼び出した関数の名前
     var ret = new Element('div');
     ret.className = 'logDiv';
     var firstLine = new Element('div');
     firstLine.className = 'logDivFirstLine';
-    firstLine.innerHTML = arguments.callee.caller.name; 
+    firstLine.innerHTML = str || arguments.callee.caller.name; 
     ret.folded = false;
     ret.appendChild(firstLine);
     this.addFoldButton(firstLine);
