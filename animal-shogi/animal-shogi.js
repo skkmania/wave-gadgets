@@ -611,7 +611,7 @@ Board = Class.create({
 	 * initialize(elm, game)
 	 */
   initialize: function initialize(elm, game) {
-game.log.getInto();
+game.log.getInto('Board#initialize');
     this.game = game;
     this.top = game.top;
     this.elm = elm || document.body;
@@ -626,7 +626,7 @@ game.log.getInto();
     this.initialString = 'bxxCdaADcxxB';
     game.log.warn('Board#initialize going to process initialString.');
     $A(this.initialString).each(function(chr, idx){
-game.log.getInto();
+game.log.getInto('reading initialString');
       game.log.warn('idx: ' + idx);
       if(chr == 'x'){ game.log.goOut(); return; }
       var xy = this.idx2xy(idx);

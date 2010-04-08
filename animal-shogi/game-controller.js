@@ -118,8 +118,10 @@ GameController = Class.create({
 	 */
   initialize: function initialize(settings) {
     var title = settings['logTitle'] || 'popup';
-    this.log = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST });
-    this.log.getInto();
+    this.log = new Log(Log.DEBUG, 'popup', { 'title': title, 'host' : HOST, resizable: false, height:200, width:700 });
+    $('control_window_2').insert(new Element('img',{id:'handle9',src:"./img/window_close.gif"}));
+    new Resizable('control_window_2',{handle:'handle9'});
+    this.log.getInto('Game#initialize');
     this.settings = settings;
     if(settings === undefined){
       this.log.debug('settings is undefined.');
@@ -470,6 +472,7 @@ this.log.goOut();
 	 */
   fromState: function fromState(state) { // game
 this.log.getInto();
+/*
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
     this.processPlayer(state);
     this.count = state.get('count');
@@ -477,6 +480,7 @@ this.log.getInto();
     this.blackStand.read(state.get('bstand', this.blackStand.initialString));
     this.whiteStand.read(state.get('wstand', this.whiteStand.initialString));
     this.toggleDraggable();
+*/
     this.controlPanel.update();
 this.log.warn('leaving Game#fromState');
 this.log.goOut();
@@ -508,8 +512,8 @@ this.log.goOut();
     //obj['whiteStand']	 = this.whiteStand.toString();
     //obj['Cell']	 = Cell.all.invoke('toDebugString').join('<br>');
     //obj['PieceOnBoard']	 = '<br>' + this.board.cells.flatten().findAll(function(c){ return c.piece != null; }).invoke('toDebugString').join('<br>');
-    obj['PieceOnBlackStand']	 = '<br>' + this.blackStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
-    obj['PieceOnWhiteStand']	 = '<br>' + this.whiteStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
+    //obj['PieceOnBlackStand']	 = '<br>' + this.blackStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
+    //obj['PieceOnWhiteStand']	 = '<br>' + this.whiteStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
     obj['Droppables']	= Droppables.toDebugString();
     obj['Draggables']	= Draggables.toDebugString();
     for(var p in obj){

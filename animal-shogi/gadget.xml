@@ -24,7 +24,7 @@
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/game-controller.js" charset="UTF-8"></script>
 <script>
   function init() {
-    window.game = new GameController({containerId:'animal-shogi'});
+    window.game = new GameController({containerId:'animal-shogi','logTitle':'gameLogger'});
     if (wave && wave.isInWaveContainer()) {
       wave.setStateCallback(window.game.stateChanged.bind(window.game));
     }
