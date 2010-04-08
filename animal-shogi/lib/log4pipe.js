@@ -143,7 +143,6 @@ Log = Class.create({
   },
   openWindow: function openWindow(options){
      var container = options && options['container'] ? $(options['container']) : $('popup_logger');
-alert('container is : ' + container);
      if (!this.window || !this.window.document) {
        this.window = window_factory(container, this.title, options);
        if (!this.window) {

@@ -139,11 +139,17 @@
   } },
 
   testMakeRectangle : function() { with( this ) {
+    // resizable:falseにし、windowのサイズを小さく固定することで、
+    // 枠を固定しつつ、スクロールバーを表示させている
     var logObj = makeLogObj('testMakeRectangle', {width:500, height:150, resizable:false});
     logObj.debug('test makeRectangle');
     logObj.debug('is maxHeight valid?');
     makeRectangle(logObj, 1,2,3,4);
     assertEqual(TestCounter+1, Control.Window.windows.length);
+    // 以下の行を足すことで、windowの枠をリサイズ可能にしている。
+    // なにやらまわりくどいおかしなことをしているような気もするが。
+    $('logger9').insert(new Element('img',{id:'handle9',src:"../../img/window_close.gif"}));
+    new Resizable('logger9',{handle:'handle9'});
   } },
 
   testMaxHight : function() { with( this ) {
