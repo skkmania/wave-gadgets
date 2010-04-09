@@ -1352,10 +1352,19 @@ this.log.warn('leaving stateChanged:');
     return ret;
   },
 	/**
+	 * askPlayersEnough(players)
+	 */
+  askPlayersEnough: function askPlayersEnough(players){ // Game
+    this.log.getInto('AnimalShogiGame#askPlayersEnough');
+    var ret = (players.length > 1);
+    this.log.goOut();
+    return ret;
+  },
+	/**
 	 * processPlayer(state)
 	 */
   processPlayer: function processPlayer(state){ // Game
-this.log.getInto();
+    this.log.getInto();
     var viewer = wave.getViewer().getId();
 this.log.debug('entered Game#processPlayer: viewer: ' + viewer);
     var pl1 = state.get('player1');

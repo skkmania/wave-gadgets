@@ -84,7 +84,14 @@ this.log.getInto();
     this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
     this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
     this.game.log.debug('ControlPanel#reverse end'); 
-this.log.goOut();
+    this.game.log.goOut();
+  }, 
+	/**
+	 * waitPlayer()
+	 */
+  waitPlayer: function waitPlayer() { // ControlPanel             
+    this.game.log.getInto();
+    this.game.log.goOut();
   }, 
 	/**
 	 * update()
@@ -129,7 +136,7 @@ GameController = Class.create({
 
     this.game = new AnimalShogiGame(settings, this.log);
     // this.game.open();
-    this.players = [];
+    this.players = $A([]);
     this.playingViewer = null;
     this.getViewer();
     this.container = $(this.settings['containerId']);
@@ -164,8 +171,8 @@ GameController = Class.create({
 	/**
 	 * mainRoutine()
 	 */
-  mainRoutine: function mainRoutine() { // Game
-    this.log.getInto();
+  mainRoutine: function mainRoutine() { // GameController
+    this.log.getInto('GameController#mainRoutine');
     this.providePlayer();
     // this.receiveAction(); これはthis.gameから呼び出される
     this.makeGameAct();
@@ -401,10 +408,11 @@ this.log.goOut();
 	 * stateChanged()
 	 */
   stateChanged: function stateChanged() {  // Game
+    this.log.getInto('GameController#stateChanged');
     var state = wave.getState();
-this.log.warn('stateChanged: ' + arrange(state));
+    this.log.debug('state is: ' + arrange(state));
     this.fromState(state);
-this.log.warn('leaving stateChanged:');
+    this.log.goOut();
   },
 	/**
 	 * toString()
@@ -495,19 +503,37 @@ this.log.goOut();
 	 */
   fromState: function fromState(state) { // game
     this.log.getInto();
+    this.log.debug('state is: ' + arrange(state));
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
-/*
-    this.processPlayer(state);
-    this.count = state.get('count');
-    this.board.read(state.get('board', this.board.initialString));
-    this.blackStand.read(state.get('bstand', this.blackStand.initialString));
-    this.whiteStand.read(state.get('wstand', this.whiteStand.initialString));
-    this.toggleDraggable();
-*/
-    this.controlPanel.update();
-this.log.warn('leaving Game#fromState');
-this.log.goOut();
+    this.getPlayersFromState(state);
+    if(!this.game.askPlayersEnough(this.players)){
+      this.controlPanel.waitPlayer();
+    } else {
+      this.mainRoutine();
+    }
+    this.log.warn('leaving Game#fromState');
+    this.log.goOut();
   },
+	/**
+	 * getPlayersFromState(state)
+	 */
+  getPlayersFromState: function getPlayersFromState(state) { // game
+    this.log.getInto();
+    var p1, p2;
+    if (p1 = state.get('player1')){
+      this.log.debug('player : ' + p1);
+      if (!this.players.include(p1))
+        this.players.push(p1);
+    }
+    if (p2 = state.get('player2')){
+      this.log.debug('player : ' + p2);
+      if (!this.players.include(p2))
+        this.players.push(p2);
+    }
+    this.log.debug('players : ' + this.players.join(', '))
+    this.log.goOut();
+  },
+   
 	/**
 	 * debug_dump()
 	 */

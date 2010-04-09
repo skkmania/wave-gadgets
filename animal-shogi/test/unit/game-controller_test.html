@@ -47,10 +47,15 @@
 <!-- Tests follow -->
 <script type="text/javascript" language="javascript" charset="utf-8">
 // <![CDATA[
+  var title;
+  var window_link; 
+  var resizable_id;
   new Test.Unit.Runner({
     
   setup: function() { with( this ) {
     title = 'popup' + TestCounter;
+    window_link = "logger"  + TestCounter;
+    resizable_id = "handle" + TestCounter;
     HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
   } },
 
@@ -62,8 +67,8 @@
   testInitialize : function() {  with( this )  {
     var logObj = makeLogObj('testInitialize', {width:500, height:150, resizable:false});
     logObj.debug('test Initialize');
-    $('logger0').insert(new Element('img',{id:'handle0',src:"../../img/window_close.gif"}));
-    new Resizable('logger0',{handle:'handle0'});
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
@@ -74,8 +79,8 @@
   testMainRoutine : function() {  with( this )  {
     var logObj = makeLogObj('testMainRoutine', {width:500, height:150, resizable:false});
     logObj.debug('test MainRoutine');
-    $('logger1').insert(new Element('img',{id:'handle1',src:"../../img/window_close.gif"}));
-    new Resizable('logger1',{handle:'handle1'});
+    $('logger0').insert(new Element('img',{id:'handle0',src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
@@ -84,11 +89,53 @@
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
+  testStateChangedWithEmptyState : function() {  with( this )  {
+    var logObj = makeLogObj('testStateChangedWithEmptyState', {width:600, height:350, resizable:false});
+    logObj.debug('test stateChanged with empty state');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'animal-shogi'};
+    var gameObj = new GameController(settings, logObj);
+    gameObj.log.debug('test stateChanged with empty state');
+    gameObj.stateChanged();
+    assertEqual( 'animal-shogi', gameObj.container.id );
+  } },
+
+  testStateChangedWithOnePersonState : function() {  with( this )  {
+    var logObj = makeLogObj('testStateChangedWithOnePersonState', {width:600, height:350, resizable:false});
+    logObj.debug('test stateChanged with one person state');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'animal-shogi'};
+    var gameObj = new GameController(settings, logObj);
+    gameObj.log.debug('test stateChanged with one person state');
+    wave.state.put('player1','skkmania@googlewave.com');
+    gameObj.stateChanged();
+    assertEqual( 'animal-shogi', gameObj.container.id );
+  } },
+
+  testStateChangedWithTwoPersonState : function() {  with( this )  {
+    var logObj = makeLogObj('testStateChangedWithTwoPersonState', {width:600, height:350, resizable:false});
+    logObj.debug('test stateChanged with two person state');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'animal-shogi'};
+    var gameObj = new GameController(settings, logObj);
+    gameObj.log.debug('test stateChanged with two person state');
+    wave.state.put('player1','skkmania@googlewave.com');
+    wave.state.put('player2','wajirou@googlewave.com');
+    gameObj.stateChanged();
+    assertEqual( 'animal-shogi', gameObj.container.id );
+  } },
+
   testToString : function() {  with( this )  {
     var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
     logObj.debug('test toString');
-    $('logger2').insert(new Element('img',{id:'handle2',src:"../../img/window_close.gif"}));
-    new Resizable('logger2',{handle:'handle2'});
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
