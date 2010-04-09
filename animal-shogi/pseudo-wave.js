@@ -120,6 +120,9 @@ wave.State.prototype = {
   get: function(key, optDefault) {
     return this.state[key];
   },
+  put: function(key, value) {
+    this.state[key] = value;
+  },
   getKeys: function() {
     var keys = [];
     for (var k in this.state) keys.push(k);
