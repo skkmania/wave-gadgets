@@ -28,11 +28,11 @@
     var logObj = makeLogObj('testInitialize', {width:500, height:150, resizable:false});
     $('logger0').insert(new Element('img',{id:'handle0',src:"img/window_close.gif"}));
     new Resizable('logger0',{handle:'handle0'});
-    window.game = new GameController({containerId:'animal-shogi'});
+    window.gameController = new GameController({containerId:'animal-shogi'});
     if (wave && wave.isInWaveContainer()) {
-      wave.setStateCallback(window.game.stateChanged.bind(window.game));
+      wave.setStateCallback(window.gameController.stateChanged.bind(window.gameController));
     }
-    window.game.show();
+    window.gameController.show();
   }
   gadgets.util.registerOnLoadHandler(init);
 </script>
@@ -58,18 +58,21 @@
   </div>
 </div>
 <div id="rev-b">
-  <button id="reverse-button" class="reverse t" onclick="window.game.reverse();">reverse</button>
-  <button id="dump-button" class="dump t" onclick="window.game.debug_dump();">dump</button>
+  <button id="reverse-button" class="reverse t" onclick="window.gameController.game.reverse();">reverse</button>
+  <button id="dump-button" class="dump t" onclick="window.gameController.game.debug_dump();">dump</button>
   <button id="test-button" class="testbutton t" onclick="new Test.Unit.Runner( testcases, 'testlog' );">run_test</button>
 </div>
 <div style="clear:both;text-align:right;">
     <a href="http://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi" target="_blank" class="t">help</a>
 </div>
 
-<button id="join-button" class="join t" onclick="window.game.setPlayer(wave.getViewer().getId()); this.hide();">join</button>
+<button id="join-button" class="join t" onclick="window.gameController.joinButtonPressed(wave.getViewer().getId()); this.hide();">join</button>
 
-  <p><a href="#logger0" id="popup_logger0" title="popup logger 0"> popup logger 0</a>
-  <p><a href="#logger1" id="popup_logger1" title="popup logger 1"> popup logger 1</a>
+  <p>
+    <a href="#logger0" id="popup_logger0" title="popup logger 0"> popup logger 0</a>
+    <a href="#logger1" id="popup_logger1" title="popup logger 1"> popup logger 1</a>
+    <div id="logger0"></div>
+    <div id="logger1"></div>
   </p>
 <!--pre id="json" style="margin-top:380px;"></pre-->
 ]]> 

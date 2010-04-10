@@ -4,27 +4,27 @@ var Type2chr = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd',
 var Chr2Type = { 'a' : 'chick', 'b' : 'elephant', 'c' : 'giraffe', 'd' : 'lion', 'e' : 'chicken' };
 
 function create_piece(chr){
-window.game.log.getInto();
-  window.game.log.debug('entered create_piece: ' );
+window.gameController.game.log.getInto();
+  window.gameController.game.log.debug('entered create_piece: ' );
   var p = new Piece(chr);
-  window.game.log.debug('leaving create_piece with :' + p.toDebugString() );
-window.game.log.goOut();
+  window.gameController.game.log.debug('leaving create_piece with :' + p.toDebugString() );
+window.gameController.game.log.goOut();
   return p;
 }
 
 function addDraggable(piece, startMessage){
-  window.game.log.debug('entered addDraggable and immidiately returning draggable, msg:' + startMessage,{3:{'color':'#aa8844'}});
+  window.gameController.game.log.debug('entered addDraggable and immidiately returning draggable, msg:' + startMessage,{3:{'color':'#aa8844'}});
   return  new Draggable(piece.elm, {
         onStart: function onStart() {
-          window.game.log.getInto();
-          window.game.log.warn('Drag started. : ' + startMessage, {3:{'color':'#33AA88'}});
-          window.game.log.goOut();
+          window.gameController.game.log.getInto();
+          window.gameController.game.log.warn('Drag started. : ' + startMessage, {3:{'color':'#33AA88'}});
+          window.gameController.game.log.goOut();
         },
         onEnd: function onEnd() {
-          window.game.log.getInto();
+          window.gameController.game.log.getInto();
           this.elm.style.top = 0;
           this.elm.style.left = 0;
-          window.game.log.goOut();
+          window.gameController.game.log.goOut();
         }.bind(piece)
       });
 }
@@ -37,7 +37,7 @@ Piece = Class.create({
 	 * initialize(chr)
 	 */
   initialize: function initialize(chr, game) {
-    this.game = game || window.game;
+    this.game = game || window.gameController.game;
 this.game.log.getInto('Piece#initialize');
 this.game.log.warn('Piece#initialize entered with : ' + chr, {'indent':1});
     this.type = Chr2Type[chr.toLowerCase()];
@@ -135,7 +135,7 @@ this.game.log.warn('chr : ' + this.chr + ',  atTop : ' + this.atTop() + ',  this
       this.elm.removeClassName('bottom');
       this.elm.addClassName('top');
     }
-if (window.game){ window.game.log.warn('leaving piece setClassName : ' + this.chr + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
+if (window.gameController.game){ window.gameController.game.log.warn('leaving piece setClassName : ' + this.chr + ',  atTop : ' + this.atTop() + ',  this.elm.classname: ' + this.elm.className);
 this.game.log.goOut();
 }
   },
@@ -157,8 +157,8 @@ this.game.log.debug('canMove entered.');
     }
     var dx = toCell.x - fromObj.x;
     var dy = toCell.y - fromObj.y;
-window.game.log.debug('from: ' + fromObj.toDebugString() + ', to: ' + toCell.toDebugString());
-window.game.log.debug('dx: ' + dx + ', dy: ' + dy);
+window.gameController.game.log.debug('from: ' + fromObj.toDebugString() + ', to: ' + toCell.toDebugString());
+window.gameController.game.log.debug('dx: ' + dx + ', dy: ' + dy);
     if (1 < Math.abs(dx) || 1 < Math.abs(dy)){
        this.game.log.goOut();
        return false;
@@ -173,13 +173,13 @@ this.game.log.goOut();
 	 */
   move: function move(fromCell, toCell, notCapture, dropOrState) {  // Piece
 this.game.log.getInto();
-window.game.log.warn('Piece#move 1 : ');
+window.gameController.game.log.warn('Piece#move 1 : ');
     var capturedPiece = null;
     var movingPiece = null;
     if(fromCell) movingPiece = fromCell.removeOwnPiece();
-window.game.log.warn('Piece#move 2 : ');
+window.gameController.game.log.warn('Piece#move 2 : ');
     capturedPiece = toCell.replaceOwnPieceWith(movingPiece);
-window.game.log.warn('Piece#move 3 : ');
+window.gameController.game.log.warn('Piece#move 3 : ');
 this.game.log.goOut();
     return capturedPiece;
   },
@@ -188,12 +188,12 @@ this.game.log.goOut();
 	 */
   sitOnto: function sitOnto(distination_cell) { // Piece
 this.game.log.getInto();
-window.game.log.debug('entered Piece#sitOnto : ' + distination_cell.toDebugString(), {'indent':1});
+window.gameController.game.log.debug('entered Piece#sitOnto : ' + distination_cell.toDebugString(), {'indent':1});
     if(this.cell) this.cell.elm.removeChild(this.elm);
     distination_cell.piece = this;
     distination_cell.elm.appendChild(this.elm);
     this.cell = distination_cell;
-window.game.log.debug('leaving Piece#sitOnto as ' + this.toDebugString(), {'indent':-1});
+window.gameController.game.log.debug('leaving Piece#sitOnto as ' + this.toDebugString(), {'indent':-1});
 this.game.log.goOut();
   },
 	/**
@@ -201,17 +201,17 @@ this.game.log.goOut();
 	 */
   gotoOpponentsStand: function gotoOpponentsStand() { // Piece
 this.game.log.getInto();
-window.game.log.debug('entered Piece#gotoOpponentsStand : ' + this.toDebugString(), {'indent':1});
+window.gameController.game.log.debug('entered Piece#gotoOpponentsStand : ' + this.toDebugString(), {'indent':1});
     if(this.isBlack()){
-window.game.log.debug('001');
+window.gameController.game.log.debug('001');
       this.game.whiteStand.put(this);
-window.game.log.debug('002');
+window.gameController.game.log.debug('002');
     } else {
-window.game.log.debug('101');
+window.gameController.game.log.debug('101');
       this.game.blackStand.put(this);
-window.game.log.debug('102');
+window.gameController.game.log.debug('102');
     }
-window.game.log.debug('leaving Piece#gotoOpponentsStand : ', {'indent':-1});
+window.gameController.game.log.debug('leaving Piece#gotoOpponentsStand : ', {'indent':-1});
 this.game.log.goOut();
   },
 	/**
@@ -363,13 +363,13 @@ this.game.log.warn('Cell#put leaving with piece : ' + this.piece.toDebugString()
 	 */
   getPosition: function getPosition(){ // Cell
     // top値により、各セルの画面上の座標が決まる
-if(this.x === 1 && this.y === 1) window.game.log.warn('-------Cell#getPosition -----------');
-    if (window.game.top == 1){
-      var bh = window.game.height;
+if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cell#getPosition -----------');
+    if (window.gameController.game.top == 1){
+      var bh = window.gameController.game.height;
       this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
       this.elm.style.top = (this.marginTop + this.hight * (bh - 1 - this.y)) + 'px';
     } else {
-      var bw = window.game.width;
+      var bw = window.gameController.game.width;
       this.elm.style.left = (this.marginLeft + this.width * (bw - 1 - this.x)) + 'px';
       this.elm.style.top = (this.marginTop + this.hight * this.y) + 'px';
     }
@@ -410,7 +410,7 @@ if(this.x === 1 && this.y === 1) window.game.log.warn('-------Cell#getPosition -
     this.elm.addClassName('cell');
     this.getPosition();
     this.board.elm.appendChild(this.elm);
-this.log.warn('Droppables to add ' + this.elm.id);
+this.game.log.warn('Droppables to add ' + this.elm.id);
     Droppables.add(this.elm, {
       toDebugString: function toDebugString(){
         return 'Droppable : ' + this.toDebugString();
@@ -420,7 +420,7 @@ this.log.warn('Droppables to add ' + this.elm.id);
 	 * onDrop(draggable)
 	 */
       onDrop: function onDrop(draggable) {
-        this.log.getInto({ "background":"#aaccff" });
+        this.game.log.getInto({ "background":"#aaccff" });
         // make action contents
         var fromObj = draggable.parentNode.obj;
         var toCell = this;
@@ -428,28 +428,28 @@ this.log.warn('Droppables to add ' + this.elm.id);
         var actionContents = [piece, fromObj, toCell];
         // send action to GameController
         GameController.receiveAction(actionContents);
-        this.log.goOut();
+        this.game.log.goOut();
 
 /*
           // Cell object or Stand object
-        this.log.warn('fromObj : <span style="color:#888800">' + fromObj.toDebugString() + '</span>');
+        this.game.log.warn('fromObj : <span style="color:#888800">' + fromObj.toDebugString() + '</span>');
           // Cell object
-        this.log.warn('<span style="color:#888800">onDrop called.</span>');
-        if(fromObj) this.log.debug('from: ' + fromObj.toDebugString());
-        if(toCell) this.log.debug(', to: ' + toCell.toDebugString());
+        this.game.log.warn('<span style="color:#888800">onDrop called.</span>');
+        if(fromObj) this.game.log.debug('from: ' + fromObj.toDebugString());
+        if(toCell) this.game.log.debug(', to: ' + toCell.toDebugString());
           // Piece object
         if (!moveValidate(piece, fromObj, toCell)){
-          this.log.goOut();
+          this.gaem.log.goOut();
           return;
         }
-        this.log.warn('canMove passed.');
+        this.gaem.log.warn('canMove passed.');
         if (toCell.piece){
-          this.log.warn('piece moving and capturing. : ');
-          this.log.debug('draggable.obj is : ' + piece.toDebugString());
-          this.log.debug('toCell.piece is : ' + toCell.piece.toDebugString());
+          this.gaem.log.warn('piece moving and capturing. : ');
+          this.gaem.log.debug('draggable.obj is : ' + piece.toDebugString());
+          this.gaem.log.debug('toCell.piece is : ' + toCell.piece.toDebugString());
           toCell.piece.gotoOpponentsStand();
         } else {
-          this.log.warn('piece moving without capturing.');
+          this.gaem.log.warn('piece moving without capturing.');
         }
         if(fromObj.type == 'cell'){
           fromObj.piece.sitOnto(toCell);
@@ -460,9 +460,9 @@ this.log.warn('Droppables to add ' + this.elm.id);
         }
 
         //if (checkFinish(piece, toCell))
-        //  window.game.finish(window.game.thisTurnPlayer());
+        //  window.gameController.game.finish(window.gameController.game.thisTurnPlayer());
         //else 
-        window.game.nextTurn();
+        window.gameController.game.nextTurn();
         sendDelta();
 */
 
@@ -473,32 +473,32 @@ this.log.warn('Droppables to add ' + this.elm.id);
 	 * show()
 	 */
   show: function show() { // Cell
-window.game.log.warn('entered show of Cell: ' + this.toDebugString(), {'indent':1});
+window.gameController.game.log.warn('entered show of Cell: ' + this.toDebugString(), {'indent':1});
     if (!this.elm) {
       (this.x === 0 || this.y === 0) ? this.createDummyElm() : this.createElm();
     }
     if (this.piece) {
-window.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugString());
+window.gameController.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugString());
       this.elm.appendChild(this.piece.elm);
-      if(this.piece.isBlack() == (window.game.top === 0)){
+      if(this.piece.isBlack() == (window.gameController.game.top === 0)){
         this.piece.elm.addClassName('bottom');
         this.piece.elm.removeClassName('top');
       } else {
         this.piece.elm.addClassName('top');
         this.piece.elm.removeClassName('bottom');
       }
-window.game.log.warn('in show of Cell, after process -> ' + this.piece.toDebugString());
+window.gameController.game.log.warn('in show of Cell, after process -> ' + this.piece.toDebugString());
     }
-window.game.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':-1});
+window.gameController.game.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':-1});
   },
 	/**
 	 * isOpponentFirstLine(player)
 	 */
   isOpponentFirstLine: function isOpponentFirstLine(player) {
-    if (window.game.player1.id == player.id) {
+    if (window.gameController.game.player1.id == player.id) {
       return this.y === 1;
     }
-    else if (window.game.player2.id == player.id) {
+    else if (window.gameController.game.player2.id == player.id) {
       return this.y === 4;
     }
     else {
@@ -509,9 +509,9 @@ window.game.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':
 	 * deleteOwnPiece()
 	 */
   deleteOwnPiece: function deleteOwnPiece(){  // Cell
-window.game.log.getInto();
-window.game.log.debug('entered Cell#deleteOwnPiece');
-if(this.piece)window.game.log.warn('this cell.piece to be deleted: ' + this.piece.toDebugString());
+window.gameController.game.log.getInto();
+window.gameController.game.log.debug('entered Cell#deleteOwnPiece');
+if(this.piece)window.gameController.game.log.warn('this cell.piece to be deleted: ' + this.piece.toDebugString());
     if(this.piece){
       this.piece.cell = null;
 // これができないときは？
@@ -524,16 +524,16 @@ if(this.piece)window.game.log.warn('this cell.piece to be deleted: ' + this.piec
       delete this.piece;
       this.piece = null;
     }
-window.game.log.warn('leaving Cell#deleteOwnPiece as :' + this.toDebugString());
-window.game.log.goOut();
+window.gameController.game.log.warn('leaving Cell#deleteOwnPiece as :' + this.toDebugString());
+window.gameController.game.log.goOut();
     return;
   }, 
 	/**
 	 * removeOwnPiece()
 	 */
   removeOwnPiece: function removeOwnPiece(){  // Cell
-window.game.log.debug('entered Cell#removeOwnPiece');
-if(this.piece)window.game.log.warn('this cell.piece to be removed: ' + this.piece.toDebugString());
+window.gameController.game.log.debug('entered Cell#removeOwnPiece');
+if(this.piece)window.gameController.game.log.warn('this cell.piece to be removed: ' + this.piece.toDebugString());
     var ret = null;
     if(this.piece){
       ret = this.piece;
@@ -541,7 +541,7 @@ if(this.piece)window.game.log.warn('this cell.piece to be removed: ' + this.piec
       this.elm.removeChild(this.piece.elm);
       this.piece = null;
     }
-window.game.log.warn('leaving Cell#removeOwnPiece as :' + this.toDebugString());
+window.gameController.game.log.warn('leaving Cell#removeOwnPiece as :' + this.toDebugString());
     return ret;
   },
 	/**
@@ -551,8 +551,8 @@ window.game.log.warn('leaving Cell#removeOwnPiece as :' + this.toDebugString());
     // 敵駒のあるセルに自駒を動かすとき、敵駒の敵stand(つまり自分のスタンド）
     // に駒を動かしてから自駒をこのセルに置く
     // この処理は駒を動かすとき、つまりmoveから呼ばれなければならない
-window.game.log.getInto();
-window.game.log.debug('entered Cell#replaceOwnPieceWith newPiece : ' + newPiece.toDebugString(), {'indent':1});
+window.gameController.game.log.getInto();
+window.gameController.game.log.debug('entered Cell#replaceOwnPieceWith newPiece : ' + newPiece.toDebugString(), {'indent':1});
     var tmp = null;
     if(this.piece){
       tmp = this.piece;
@@ -562,12 +562,12 @@ window.game.log.debug('entered Cell#replaceOwnPieceWith newPiece : ' + newPiece.
     this.piece = newPiece;
     this.put(newPiece);
 if (tmp){
-  window.game.log.debug('leaving Cell#replaceOwnPieceWith with : ' + tmp.toDebugString(), {'indent':-1});
-  window.game.goOut();
+  window.gameController.game.log.debug('leaving Cell#replaceOwnPieceWith with : ' + tmp.toDebugString(), {'indent':-1});
+  window.gameController.game.goOut();
     return tmp;
 } else {
-  window.game.log.debug('leaving Cell#replaceOwnPieceWith nothing', {'indent':-1});
-  window.game.goOut();
+  window.gameController.game.log.debug('leaving Cell#replaceOwnPieceWith nothing', {'indent':-1});
+  window.gameController.game.goOut();
     return;
 }
   },
@@ -712,8 +712,7 @@ this.game.log.goOut();
 	 * show()
 	 */
   show: function show() {  // Board
-this.game.log.getInto();
-this.game.log.warn('Board#show entered');
+this.game.log.getInto('Board#show');
     this.cells.flatten().invoke('show');
     this.adjustBorder();
 this.game.log.warn('Board#show leaving');
@@ -1095,8 +1094,9 @@ AnimalShogiGame = Class.create({
 	/**
 	 * initialize(settings, log)
 	 */
-  initialize: function initialize(settings, log) {
-    this.log = log;
+  initialize: function initialize(settings, gameController) {
+    this.controller = gameController;
+    this.log = gameController.log;
     this.log.getInto();
     this.log.warn('start AnimalShogiGame log',{'indent':1});
     this.width = 4;  // 0 is dummy
@@ -1114,7 +1114,7 @@ AnimalShogiGame = Class.create({
     this.log.warn('Stands created.');
     this.mode = 'init';
     this.log.warn('04');
-    this.message(t('click_join_button'));
+    this.controller.message(t('click_join_button'));
     this.count = 0;
        // 手数。このgameではcount手目を指した局面がthis.board, this.blackStand, this.whiteStandに反映されているものとする.
     this.top_by_viewer = false;
@@ -1151,6 +1151,7 @@ AnimalShogiGame = Class.create({
   getPlayer: function getPlayer(player) { // AnimalShogiGame
     this.log.getInto('AnimalShogiGame#getPlayer');
     this.log.debug('player : ' + player.toDebugString());
+    this.player = player;
     this.log.goOut();
   },
 	/**
@@ -1190,57 +1191,6 @@ this.log.debug('leaving determineTop with game.top : ' + this.top, {'indent':-1}
 this.log.goOut();
   },
 	/**
-	 * setPlayer(name, opponent)
-	 */
-        // GameのsetPlayerが呼ばれるのはjoinボタンが押されたときだけ
-  setPlayer: function setPlayer(name, opponent) { // Game
-this.log.getInto();
-    if (!this.player1) {
-      this.player1 = new Player('player1', name, !opponent);
-      if (!opponent) this.playingViewer = this.player1;
-      this.controlPanel.update();
-      this.message(t('waiting'));
-      wave.getState().submitDelta({
-        player1:name
-      });
-    }
-    else if (!this.player2) {
-      if (name != this.player1.name){
-        this.player2 = new Player('player2', name, !opponent);
-        if (!opponent) this.playingViewer = this.player2;
-        this.determineTop();
-        this.controlPanel.update();
-        this.message('');
-        this.start();
-        wave.getState().submitDelta({
-          player2:name
-        });
-      } else
-        this.message(t('cannot_play_with_same_person'));
-    }
-      // TODO
-      //throw 'Invalid Player Data';
-this.log.goOut();
-  },
-	/**
-	 * message(message)
-	 */
-  message: function message(message) {
-this.log.getInto();
-    if (!this.messageElm) {
-      this.messageElm = $('message-body');
-    }
-    this.messageElm.innerHTML = message;
-this.log.goOut();
-  },
-	/**
-	 * clearMessage()
-	 */
-  clearMessage: function clearMessage() {
-    this.message('');
-this.log.goOut();
-  },
-	/**
 	 * show()
 	 */
   show: function show() { // game
@@ -1251,11 +1201,11 @@ this.log.warn('game.show');
 	 * reverse()
 	 */
   reverse: function reverse() { // game
-this.log.getInto();
+this.log.getInto('AnimalShogiGame#reverse');
     var tmp = null;
     this.top = (this.top === 0 ? 1 : 0);
     this.top_by_viewer = this.top;
-    this.message('game.top became ' + this.top);
+    this.controller.message('game.top became ' + this.top);
     this.board.reverse();
     this.board.adjust();
     tmp = $('top-stand').childElements()[0];
@@ -1317,7 +1267,7 @@ this.log.goOut();
 	 * finish(winner)
 	 */
   finish: function finish(winner) {
-    this.message(winner.shortName() + t('win'));
+    this.controller.message(winner.shortName() + t('win'));
   },
 	/**
 	 * stateChanged()
@@ -1405,7 +1355,7 @@ this.log.goOut();
     this.determineTop();
 if(this.playingViewer) this.log.debug('playingViewer is defined : ' + this.playingViewer);
     if (this.player1 && this.player2) {
-      this.message('');
+      this.controller.message('');
       $('join-button').hide();
     }
 this.log.warn('leaving Game#processPlayer: viewer: ' + viewer);
@@ -1496,30 +1446,30 @@ this.log.goOut();
 	 * moveValidate(actionContents)
 	 */
 function moveValidate(actionContents){
-window.game.log.getInto();
+window.gameController.game.log.getInto();
   var piece = actionContents[0];
   var fromCell = actionContents[1];
   var toCell = actionContents[2];
-window.game.log.debug('moveValidate entered: piece: ' + piece.toDebugString(),{'indent':1});
-   if (!window.game.isViewersTurn()) {
-     window.game.message(t('not_your_turn')); return false;
+window.gameController.game.log.debug('moveValidate entered: piece: ' + piece.toDebugString(),{'indent':1});
+   if (!window.gameController.game.isViewersTurn()) {
+     window.gameController.gameController.message(t('not_your_turn')); return false;
    }
-window.game.log.debug('moveValidate 1');
+window.gameController.game.log.debug('moveValidate 1');
    if (toCell.piece) {
      if (piece.isBlack() == toCell.piece.isBlack()){
-       window.game.message(t('cannot_capture_yourown_piece')); return false;
+       window.gameController.gameController.message(t('cannot_capture_yourown_piece')); return false;
      }
    }
-window.game.log.debug('moveValidate 2');
+window.gameController.game.log.debug('moveValidate 2');
    if(!fromCell && toCell.piece) {
-     window.game.message(t('already_occupied')); return false;
+     window.gameController.gameController.message(t('already_occupied')); return false;
    }
-window.game.log.debug('moveValidate 3');
+window.gameController.game.log.debug('moveValidate 3');
    if (!piece.canMove(fromCell, toCell)) {
-     window.game.message(t('not_allowed')); return false;
+     window.gameController.gameController.message(t('not_allowed')); return false;
    }
-window.game.log.debug('leaving moveValidate', {'indent':-1});
-window.game.log.goOut();
+window.gameController.game.log.debug('leaving moveValidate', {'indent':-1});
+window.gameController.game.log.goOut();
    return true;
 }
 
@@ -1527,16 +1477,16 @@ window.game.log.goOut();
 	 * checkFinish(piece, toCell)
 	 */
 function checkFinish(piece, toCell){
-window.game.log.getInto();
-window.game.log.warn('entered checkFinish');
+window.gameController.game.log.getInto();
+window.gameController.game.log.warn('entered checkFinish');
    var ret = (
    // 相手のライオンを捕獲
    (toCell.piece.type == 'lion') || 
    // 自分のライオンが最奥に到達
    (piece.type == 'lion' && piece.isGoal(toCell))
-           //  && window.game.isSafety(piece))
+           //  && window.gameController.game.isSafety(piece))
   );
-window.game.log.warn('checkFinish leaving with : ' + ret);
-window.game.log.goOut();
+window.gameController.game.log.warn('checkFinish leaving with : ' + ret);
+window.gameController.game.log.goOut();
   return ret;
 }

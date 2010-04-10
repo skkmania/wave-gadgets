@@ -134,7 +134,7 @@ GameController = Class.create({
       this.log.debug(this.settings);
     }
 
-    this.game = new AnimalShogiGame(settings, this.log);
+    this.game = new AnimalShogiGame(settings, this);
     // this.game.open();
     this.players = $A([]);
     this.playingViewer = null;
@@ -176,9 +176,6 @@ GameController = Class.create({
     this.providePlayer();
     // this.receiveAction(); これはthis.gameから呼び出される
     this.makeGameAct();
-    // this.receiveResult(); これもthis.gameから呼び出される
-    this.finishCheck();
-    this.sendDelta();
     this.log.debug('leaving mainRoutine');
     this.log.goOut();
   },
@@ -236,6 +233,9 @@ GameController = Class.create({
 	 */
   receiveResult: function receiveResult() { // Game
     this.log.getInto();
+    if(this.finishCheck()){
+      this.sendDelta();
+    }
     this.log.goOut();
     return null;
   },
@@ -270,11 +270,52 @@ this.log.debug('leaving determineTop with game.top : ' + this.top, {'indent':-1}
 this.log.goOut();
   },
 	/**
-	 * setPlayer(name, opponent)
+	 * joinButtonPressed(name)
 	 */
-        // GameのsetPlayerが呼ばれるのはjoinボタンが押されたときだけ
-  setPlayer: function setPlayer(name, opponent) { // Game
-    this.log.getInto('Game#setPlayer');
+        // 機能：　joinボタン押下に対し反応し再びjoinボタン押下待ち状態に戻る
+        // this.playersの人数が２人になったら次の段階へ進む
+  joinButtonPressed: function joinButtonPressed(name) { // GameController
+    this.log.getInto('GameController#joinButtonPressed');
+    var deltakey = null; 
+    switch (this.players.length){
+      case  0:
+        this.log.debug('first player added');
+        this.players.push(name);
+        this.message(t('waiting'));
+        deltakey = 'player_candidate_1';
+        break;
+      case 1:
+        this.log.debug('second player added');
+        this.players.push(name);
+        this.setPlayersOrder();
+        this.hideJoinButton();
+        deltakey = 'player_candidate_2';
+        break;
+    }
+    this.controlPanel.update();
+    this.log.goOut();
+    // 以下を呼べば、stateChangedに飛んでしまう
+    wave.getState().submitDelta({
+      deltakey:name
+    });
+  },
+	/**
+	 * setPlayersOrder()
+	 */
+        // 前提： 2人のプレイヤーがいる（this.players.length == 2)
+        // 機能： 2つのPlayerオブジェクトを生成し、ランダムに2人のプレイヤーに割り当てる
+  setPlayersOrder: function setPlayersOrder() { // GameController
+    this.log.getInto('GameController#setPlayersOrder');
+    if(Math.random() < 0.5){ 
+      this.player1 = new Player('player1', this.players[0]);
+      this.player2 = new Player('player2', this.players[1]);
+    } else {
+      this.player1 = new Player('player1', this.players[1]);
+      this.player2 = new Player('player2', this.players[0]);
+    }
+    this.log.goOut();
+  },
+/*
     if (!this.player1) {
       this.log.getInto('setting player1');
       this.player1 = new Player('player1', name, !opponent);
@@ -306,11 +347,12 @@ this.log.goOut();
       //throw 'Invalid Player Data';
     this.log.goOut();
   },
+*/
 	/**
 	 * message(message)
 	 */
-  message: function message(message) { // Game
-    this.log.getInto('Game#message');
+  message: function message(message) { // GameController
+    this.log.getInto('GameController#message');
     if (!this.messageElm) {
       this.messageElm = $('message-body');
     }
@@ -410,7 +452,7 @@ this.log.goOut();
   stateChanged: function stateChanged() {  // Game
     this.log.getInto('GameController#stateChanged');
     var state = wave.getState();
-    this.log.debug('state is: ' + arrange(state));
+    this.log.debug('state in string is: ' + arrange(state));
     this.fromState(state);
     this.log.goOut();
   },
@@ -501,10 +543,8 @@ this.log.goOut();
 	/**
 	 * fromState(state)
 	 */
-  fromState: function fromState(state) { // game
-    this.log.getInto();
-    this.log.debug('state is: ' + arrange(state));
-    this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
+  fromState: function fromState(state) { // GameController
+    this.log.getInto('GameController#fromState');
     this.getPlayersFromState(state);
     if(!this.game.askPlayersEnough(this.players)){
       this.controlPanel.waitPlayer();
@@ -520,13 +560,13 @@ this.log.goOut();
   getPlayersFromState: function getPlayersFromState(state) { // game
     this.log.getInto();
     var p1, p2;
-    if (p1 = state.get('player1')){
-      this.log.debug('player : ' + p1);
+    if (p1 = state.get('player_candidate_1')){
+      this.log.debug('player_candidate_1 : ' + p1);
       if (!this.players.include(p1))
         this.players.push(p1);
     }
-    if (p2 = state.get('player2')){
-      this.log.debug('player : ' + p2);
+    if (p2 = state.get('player_candidate_2')){
+      this.log.debug('player_candidate_2 : ' + p2);
       if (!this.players.include(p2))
         this.players.push(p2);
     }

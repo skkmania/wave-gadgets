@@ -2,17 +2,34 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
 <head>
-  <title>Board test : animal-shogi Unit test file</title>
+  <title>Board Unit test file</title>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <script src="../../prototype.js" type="text/javascript"></script>
-  <script src="../../scriptaculous.js" type="text/javascript"></script>
-  <script src="../../unittest.js" type="text/javascript"></script>
-  <script src="../../log4js.js" type="text/javascript"></script>
-  <script src="../../pseudo-wave.js" type="text/javascript"></script>
-  <script src="../../m17n.js" type="text/javascript"></script>
-  <script src="../../animal-shogi.js" type="text/javascript"></script>
-  <link rel="stylesheet" href="./../test.css" type="text/css" />
-  
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/prototype.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/scriptaculous.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/builder.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/effects.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/controls.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/slider.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/dragdrop.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/resizable.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/livepipe/livepipe.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/livepipe/window.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/unittest.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/m17n.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/log4pipe.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/test/unit/log4pipe_test_common_functions.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/common-utils.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/pseudo-wave.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/game-controller.js" charset="UTF-8"></script>
+<script src="../../unittest.js" type="text/javascript"></script>
+<link rel="stylesheet" href="./../test.css" type="text/css" />
+<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/log4pipe.css" type="text/css" />
+  <style type="text/css" media="screen">
+  /* <![CDATA[ */
+    #div_absolute_test { position: absolute }
+  /* ]]> */
+  </style>
 </head>
 <body>
 <h1>Board test</h1>
@@ -52,38 +69,64 @@
 <!-- Tests follow -->
 <script type="text/javascript" language="javascript" charset="utf-8">
 // <![CDATA[
+  var title;
+  var window_link; 
+  var resizable_id;
 
   new Test.Unit.Runner({
     
-    setup : function() { with( this ) {
-      window.game = new AnimalShogiGame({containerId:'animal-shogi'});
+  setup: function() { with( this ) {
+    title = 'popup' + TestCounter;
+    window_link = "logger"  + TestCounter;
+    resizable_id = "handle" + TestCounter;
+    HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
+  } },
+
+  teardown: function() { with( this ) {
+    TestCounter++;
+    delete settings;
+  } },
+
+  testBoardShow : function() {  with( this )  {
+    var logObj = makeLogObj('testBoardShow', {width:600, height:350, resizable:false});
+    logObj.debug('test Board show');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'animal-shogi'};
+    window.gameController = new GameController(settings, logObj);
+    window.gameController.log.debug('test board show');
+    window.gameController.game.board.show();
+    assertEqual( 'animal-shogi', window.gameController.container.id );
     } },
 
-    testIdx2xy : function() {  with( this )  {
-      assertEqual( "1,1" ,  window.game.board.idx2xy(0).toString() );
-      assertEqual( "2,1" ,  window.game.board.idx2xy(4).toString() );
-    } },
+  testToString : function() {  with( this )  {
+    var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
+    logObj.debug('test toString');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
 
-    testXy2idx : function() {  with( this )  {
-      assertEqual( "0" ,  window.game.board.xy2idx([1,1]).toString() );
-      assertEqual( "4" ,  window.game.board.xy2idx([2,1]).toString() );
-    } },
-
-  testSubtract : function() {  with( this )  {
-    assertEqual( "abcd", "abcdefj".subtract("efj") );
-    assertEqual( "bd", "abcdefj".subtract("acefj") );
-    assertEqual( "acefj", "abcdefj".subtract("bd") );
-    assertEqual( "", "abcdefj".subtract("abcdefj") );
-    assertEqual( "abcdefj", "aaabcdefj".subtract("aa") );
-    // 返されるのはコピーである
-    var s = "abcdefj";
-    var s2 = s.subtract("bej");
-    assertEqual( "acdf", s2 );
-    // 元のsは変化しない
-    assertEqual( "abcdefj", s );
+    settings = {'containerId':'animal-shogi'};
+    var gameObj = new GameController(settings, logObj);
+    gameObj.log.debug('test ToString');
+    assertEqual( 'dummy', gameObj.toString() );
   } }
   }, "testlog");
 // ]]>
 </script>
+  <p id="links_pool"> </p>
+  <hr>
+  <p id="window_pool">
+    <div id="logger0"></div>
+    <div id="logger1"></div>
+    <div id="logger2"></div>
+    <div id="logger3"></div>
+    <div id="logger4"></div>
+    <div id="logger5"></div>
+    <div id="logger6"></div>
+    <div id="logger7"></div>
+    <div id="logger8"></div>
+  </p>
+<button id="join-button" class="join t" onclick="gameObj.setPlayer(wave.getViewer().getId()); this.hide();">join</button>
 </body>
 </html>

@@ -111,7 +111,7 @@
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
     gameObj.log.debug('test stateChanged with one person state');
-    wave.state.put('player1','skkmania@googlewave.com');
+    wave.state.put('player_candidate_1','skkmania@googlewave.com');
     gameObj.stateChanged();
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
@@ -125,10 +125,24 @@
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
     gameObj.log.debug('test stateChanged with two person state');
-    wave.state.put('player1','skkmania@googlewave.com');
-    wave.state.put('player2','wajirou@googlewave.com');
+    wave.state.put('player_candidate_1','skkmania@googlewave.com');
+    wave.state.put('player_candidate_2','wajirou@googlewave.com');
     gameObj.stateChanged();
+    assertEaual( true, gameObj.game.askPlayersEnough(gameObj.players) );
     assertEqual( 'animal-shogi', gameObj.container.id );
+  } },
+
+  testBoardShow : function() {  with( this )  {
+    var logObj = makeLogObj('testBoardShow', {width:600, height:350, resizable:false});
+    logObj.debug('test Board show');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'animal-shogi'};
+    window.gameController = new GameController(settings, logObj);
+    window.gameController.log.debug('test board show');
+    window.gameController.game.board.show();
+    assertEqual( 'animal-shogi', window.gameController.container.id );
   } },
 
   testToString : function() {  with( this )  {
@@ -153,6 +167,11 @@
     <div id="logger2"></div>
     <div id="logger3"></div>
     <div id="logger4"></div>
+    <div id="logger5"></div>
+    <div id="logger6"></div>
+    <div id="logger7"></div>
+    <div id="logger8"></div>
   </p>
+<button id="join-button" class="join t" onclick="gameObj.setPlayer(wave.getViewer().getId()); this.hide();">join</button>
 </body>
 </html>
