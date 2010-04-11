@@ -23,6 +23,7 @@
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/game-controller.js" charset="UTF-8"></script>
 <script src="../../unittest.js" type="text/javascript"></script>
+<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/animal-shogi.css" type="text/css" />
 <link rel="stylesheet" href="./../test.css" type="text/css" />
 <link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/log4pipe.css" type="text/css" />
   <style type="text/css" media="screen">
@@ -39,32 +40,6 @@
 
 <!-- Log output -->
 <div id="testlog"> </div>
-
-<!-- animal-shogi body -->
-<div id="container">
-  <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
-  <div id="top-stand"></div>
-  <div id="animal-shogi"></div>
-  <div id="bottom-stand"></div>
-  <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
-</div>
-<div id="sidebar">
-  <div id="control-panel">
-    <div id="message">
-      <div class="t">message</div>
-      <div id="message-body"></div>
-    </div>
-  </div>
-</div>
-<div id="rev-b">
-  <button id="reverse-button" class="reverse t" onclick="window.game.reverse();">reverse</button>
-  <button id="dump-button" class="dump t" onclick="window.game.debug_dump();">dump</button>
-  <button id="test-button" class="testbutton t" onclick="new Test.Unit.Runner( testcases, 'testlog' );">run_test</button>
-</div>
-<div style="clear:both;text-align:right;">
-    <a href="http://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi" target="_blank" class="t">help</a>
-</div>
-<button id="join-button" class="join t" onclick="window.game.setPlayer(wave.getViewer().getId()); this.hide();">join</button>
 
 <!-- Tests follow -->
 <script type="text/javascript" language="javascript" charset="utf-8">
@@ -127,6 +102,27 @@
     <div id="logger7"></div>
     <div id="logger8"></div>
   </p>
-<button id="join-button" class="join t" onclick="gameObj.setPlayer(wave.getViewer().getId()); this.hide();">join</button>
+<div id="container">
+  <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
+  <div id="top-stand"></div>
+  <div id="animal-shogi"></div>
+  <div id="bottom-stand"></div>
+  <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
+</div>
+<div id="sidebar">
+  <div id="control-panel">
+    <div id="message">
+      <div class="t">message</div>
+      <div id="message-body"></div>
+    </div>
+  </div>
+</div>
+<div id="rev-b">
+  <button id="reverse-button" class="reverse t" onclick="window.gameController.game.reverse();">reverse</button>
+  <button id="dump-button" class="dump t" onclick="window.gameController.game.debug_dump();">dump</button>
+</div>
+
+<button id="join-button" class="join t" onclick="window.gameController.joinButtonPressed(wave.getViewer().getId()); this.hide();">join</button>
+
 </body>
 </html>
