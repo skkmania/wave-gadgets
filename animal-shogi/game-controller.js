@@ -174,8 +174,8 @@ GameController = Class.create({
   mainRoutine: function mainRoutine() { // GameController
     this.log.getInto('GameController#mainRoutine');
     this.providePlayer();
-    // this.receiveAction(); これはthis.gameから呼び出される
     this.makeGameAct();
+    this.turn++;
     this.log.debug('leaving mainRoutine');
     this.log.goOut();
   },
@@ -214,11 +214,15 @@ GameController = Class.create({
 	/**
 	 * playerInTurn()
 	 */
+        // 現在の手番のplayer objectを返す
   playerInTurn: function playerInTurn() { // Game
     this.log.getInto('GameController#playerInTurn');
-
+    if (this.turn % 2 == 0)
+      ret = this.blackplayers[0];
+    else
+      ret = this.whiteplayers[0];
     this.log.goOut();
-    return null;
+    return ret;
   },
 	/**
 	 * makeGameAct()
@@ -243,12 +247,48 @@ GameController = Class.create({
 	 * receiveAction()
 	 */
   // ユーザのアクションがここに通知される
-  //   (具体的には、onDropの中でこの関数を呼び出す)
-  receiveAction: function receiveAction(actionContents) { // Game
-    this.log.getInto();
+  //   (具体的には、gameのPieceがonDropの中でこの関数を呼び出す)
+  // actionContents : [piece, fromObj, toCell]
+  receiveAction: function receiveAction(actionContents) { // GameController
+    this.log.getInto('GameController#receiveAction');
     if(this.game.respondValidity(actionContents)){
-      this.confirmAction();
+      this.confirmActionByUser(actionContents);
+    } else {
+      this.noticeBadActionToUser();
     }
+    this.log.goOut();
+  },
+	/**
+	 * confirmActionByUser(actionContents)
+	 */
+        // action内容をユーザに提示し、ユーザからそれでよいかどうか確認をとる
+        // 成り・不成りを確認することを想定
+  confirmActionByUser: function confirmActionByUser(actionContents) { // GameController
+    this.log.getInto('GameController#confirmActionByUser');
+    this.log.goOut();
+  },
+	/**
+	 * getResponseToConfirmActionByUser()
+	 */
+        // ユーザ対しに表示した確認用要素のクリックイベントはこの関数を呼び出す
+  getResponseToConfirmActionByUser: function getResponseToConfirmActionByUser(response) {
+    this.log.getInto('GameController#getResponseToConfirmActionByUser');
+    switch (response) {
+      case yes:
+        this.game.doAction(yes);
+      break;
+      case no:
+        this.game.doAction(no);
+      break;
+    }
+    this.log.goOut();
+  },
+	/**
+	 * noticeBadActionToUser()
+	 */
+        // action内容がゲームから不正といわれたときに、ユーザにそれを知らせる
+  noticeBadActionToUser: function noticeBadActionToUser(actionContents) { // GameController
+    this.log.getInto('GameController#noticeBadActionToUser');
     this.log.goOut();
   },
 	/**
@@ -411,15 +451,14 @@ this.log.goOut();
 	/**
 	 * nextTurn()
 	 */
-  nextTurn: function nextTurn() { // Game
-this.log.getInto();
-this.log.debug('entered Game#nextTurn', {'indent':1});
+  nextTurn: function nextTurn() { // GameController
+    this.log.getInto('GameController#nextTurn');
     this.count++;
     this.controlPanel.update();
     this.clearMessage();
     this.toggleDraggable();
-this.log.debug('leaving Game#nextTurn', {'indent':-1});
-this.log.goOut();
+    this.log.debug('leaving Game#nextTurn', {'indent':-1});
+    this.log.goOut();
   },
 	/**
 	 * getTurn()
@@ -444,7 +483,12 @@ this.log.goOut();
 	 * finish(winner)
 	 */
   finish: function finish(winner) {
-    this.message(winner.shortName() + t('win'));
+    this.log.getInto();
+    if (this.checkFinish(piece, toCell))
+      this.message(winner.shortName() + t('win'));
+    else
+      this.sendDelta();
+    this.log.goOut();
   },
 	/**
 	 * stateChanged()

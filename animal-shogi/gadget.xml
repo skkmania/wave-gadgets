@@ -38,7 +38,7 @@
 </script>
 <link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/test.css" type="text/css" />
 <link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/log4pipe.css" type="text/css" />
-<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.css" type="text/css" />
+<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/animal-shogi.css" type="text/css" />
 
 <div id="testlog"> </div>
 

@@ -1,5 +1,3 @@
-HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
-
 var Type2chr = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
 var Chr2Type = { 'a' : 'chick', 'b' : 'elephant', 'c' : 'giraffe', 'd' : 'lion', 'e' : 'chicken' };
 
@@ -249,7 +247,7 @@ var PieceTypeObjects = {
 	 * Lion
 	 */
   'lion': {
-  imageUrl: HOST + 'lion.png',
+  imageUrl: HOST + 'img/lion.png',
   type: 'lion',
   movableArea: [
     [ true,  true,  true],
@@ -261,7 +259,7 @@ var PieceTypeObjects = {
 	 * Elephant
 	 */
   'elephant': {
-  imageUrl: HOST + 'elephant.png',
+  imageUrl: HOST + 'img/elephant.png',
   type: 'elephant',
   movableArea: [
     [ true, false,  true],
@@ -273,7 +271,7 @@ var PieceTypeObjects = {
 	 * Giraffe
 	 */
   'giraffe': {
-  imageUrl: HOST + 'giraffe.png',
+  imageUrl: HOST + 'img/giraffe.png',
   type: 'giraffe',
   movableArea: [
     [false,  true, false],
@@ -285,7 +283,7 @@ var PieceTypeObjects = {
 	 * Chick
 	 */
   'chick': {
-  imageUrl: HOST + 'chick.png',
+  imageUrl: HOST + 'img/chick.png',
   type: 'chick',
   movableArea: [
     [false,  true, false],
@@ -297,7 +295,7 @@ var PieceTypeObjects = {
 	 * Chicken
 	 */
   'chicken': {
-  imageUrl : HOST + 'chicken.png',
+  imageUrl : HOST + 'img/chicken.png',
   type : 'chicken',
   movableArea : [
       [ true,  true,  true],
@@ -427,7 +425,7 @@ this.game.log.warn('Droppables to add ' + this.elm.id);
         var piece = draggable.obj;
         var actionContents = [piece, fromObj, toCell];
         // send action to GameController
-        GameController.receiveAction(actionContents);
+        this.game.receiveAction(actionContents);
         this.game.log.goOut();
 
 /*
@@ -1140,8 +1138,10 @@ AnimalShogiGame = Class.create({
 	/**
 	 * respondValidity(actionContents)
 	 */ 
-  respondValidity: function respondValidity(actionContents) { // Game
-    this.log.getInto();
+        // GameControllerからactionの正当性を問われる
+        // 
+  respondValidity: function respondValidity(actionContents) { // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#respondValidity');
     this.log.goOut();
     return moveValidate(actionContents);
   },
@@ -1262,21 +1262,6 @@ this.log.goOut();
 	 */
   isViewersTurn: function isViewersTurn() { // Game
     return this.thisTurnPlayer().isViewer;
-  },
-	/**
-	 * finish(winner)
-	 */
-  finish: function finish(winner) {
-    this.controller.message(winner.shortName() + t('win'));
-  },
-	/**
-	 * stateChanged()
-	 */
-  stateChanged: function stateChanged() {  // Game
-    var state = wave.getState();
-this.log.warn('stateChanged: ' + arrange(state));
-    this.fromState(state);
-this.log.warn('leaving stateChanged:');
   },
 	/**
 	 * toString()
@@ -1401,6 +1386,46 @@ this.log.warn('leaving Game#toggleDraggable');
 this.log.goOut();
   },
 	/**
+	 * confirmActionByUser(actionContents)
+	 */
+        // action内容をユーザに提示し、ユーザからそれでよいかどうか確認をとる
+        // 成り・不成りを確認することを想定
+  confirmActionByUser: function confirmActionByUser(actionContents) { // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#confirmActionByUser');
+    // userがクリックする要素を作成
+    var confirmActionElement = new Element('div',{id:, className:, });
+    // userがクリックする要素を表示
+    $().appendChild(confirmActionElement);
+    // userがクリックする要素を監視開始
+    confirmActionElement.observe();
+    this.log.goOut();
+  },
+	/**
+	 * doAction(actionContents)
+	 */
+  doAction: function doAction(actionContents) { // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#doAction');
+        if (toCell.piece){
+          this.gaem.log.warn('piece moving and capturing. : ');
+          this.gaem.log.debug('draggable.obj is : ' + piece.toDebugString());
+          this.gaem.log.debug('toCell.piece is : ' + toCell.piece.toDebugString());
+          toCell.piece.gotoOpponentsStand();
+        } else {
+          this.gaem.log.warn('piece moving without capturing.');
+        }
+        if(fromObj.type == 'cell'){
+          fromObj.piece.sitOnto(toCell);
+          fromObj.piece = null;
+        } else if(fromObj.type == 'stand'){
+          fromObj.removeByObj(piece);
+          piece.sitOnto(toCell);
+        }
+
+        this.gameController.finish();
+    
+    this.log.goOut();
+  },
+	/**
 	 * debug_dump()
 	 */
   debug_dump: function debug_dump(){
@@ -1445,31 +1470,29 @@ this.log.goOut();
 	/**
 	 * moveValidate(actionContents)
 	 */
+        // actionの正当性を判断して返す
+        // actionContents : [piece, fromObj, toCell]
 function moveValidate(actionContents){
-window.gameController.game.log.getInto();
+  window.gameController.log.getInto('moveValidate');
   var piece = actionContents[0];
   var fromCell = actionContents[1];
   var toCell = actionContents[2];
-window.gameController.game.log.debug('moveValidate entered: piece: ' + piece.toDebugString(),{'indent':1});
-   if (!window.gameController.game.isViewersTurn()) {
-     window.gameController.gameController.message(t('not_your_turn')); return false;
-   }
-window.gameController.game.log.debug('moveValidate 1');
+  window.gameController.log.debug('moveValidate entered: piece: ' + piece.toDebugString());
    if (toCell.piece) {
      if (piece.isBlack() == toCell.piece.isBlack()){
-       window.gameController.gameController.message(t('cannot_capture_yourown_piece')); return false;
+       window.gameController.message(t('cannot_capture_yourown_piece')); return false;
      }
    }
-window.gameController.game.log.debug('moveValidate 2');
+   window.gameController.game.log.debug('own capturing check passed.');
    if(!fromCell && toCell.piece) {
-     window.gameController.gameController.message(t('already_occupied')); return false;
+     window.gameController.message(t('already_occupied')); return false;
    }
-window.gameController.game.log.debug('moveValidate 3');
+   window.gameController.game.log.debug('put piece on filled cell check passed.');
    if (!piece.canMove(fromCell, toCell)) {
-     window.gameController.gameController.message(t('not_allowed')); return false;
+     window.gameController.message(t('not_allowed')); return false;
    }
-window.gameController.game.log.debug('leaving moveValidate', {'indent':-1});
-window.gameController.game.log.goOut();
+   window.gameController.log.debug('illegal move check passed.');
+   window.gameController.log.goOut();
    return true;
 }
 
