@@ -228,6 +228,23 @@ this.game.log.goOut();
     return ( this.isBlack() ? (cell.y === 1) : (cell.y === 4) );
   },
 	/**
+	 * promote(actionContents)
+	 */
+  promote: function promote(actionContents) {  // Piece
+    if(this.promote){
+      this.imageUrl = PieceTypeObjects[this.promote].imageUrl;
+      this.elm.src = this.imageUrl;
+      this.type = PieceTypeObjects[this.promote].type;
+      if(this.isBlack())
+        this.chr = Type2chr[this.type].toUpperCase();
+      else
+        this.chr = Type2chr[this.type];
+      this.movableArea = PieceTypeObjects[this.promote].movableArea;
+    } else {
+      this.log.fatal('this piece cannot promote.');
+    }
+  },
+	/**
 	 * toDebugString()
 	 */
   toDebugString: function toDebugString() {  // Piece
@@ -289,7 +306,8 @@ var PieceTypeObjects = {
     [false,  true, false],
     [false, false, false],
     [false, false, false]
-  ]
+  ],
+  promote: 'chicken'
   },
 	/**
 	 * Chicken
@@ -1093,6 +1111,9 @@ AnimalShogiGame = Class.create({
 	 * initialize(settings, log)
 	 */
   initialize: function initialize(settings, gameController) {
+// for test only
+window.gameController = gameController;
+window.gameController.game = this;
     this.controller = gameController;
     this.log = gameController.log;
     this.log.getInto();
@@ -1112,7 +1133,7 @@ AnimalShogiGame = Class.create({
     this.log.warn('Stands created.');
     this.mode = 'init';
     this.log.warn('04');
-    this.controller.message(t('click_join_button'));
+//    this.controller.message(t('click_join_button'));
     this.count = 0;
        // 手数。このgameではcount手目を指した局面がthis.board, this.blackStand, this.whiteStandに反映されているものとする.
     this.top_by_viewer = false;
@@ -1131,6 +1152,7 @@ AnimalShogiGame = Class.create({
       //  持ち駒の位置も決めておく
     this.setStandPosition();
 */
+    this.makeConfirmActionElement();
     this.log.warn('leaving AnimalShogiGame#initialize',{'indent':-1, 'date':true,3:{'color':'green'}});
     this.log.goOut();
     // this.debug_dump();
@@ -1267,12 +1289,15 @@ this.log.goOut();
 	 * toString()
 	 */
   toString: function toString() { // Game
+/*
     var ret = '';
     var json = this.toJSON();
     for (var key in json) {
       ret += key + ' : ' + json[key] + '\n';
     }
     return ret;
+*/
+    return 'AnimalShogiGame';
   },
 	/**
 	 * toHTML()
@@ -1386,29 +1411,78 @@ this.log.warn('leaving Game#toggleDraggable');
 this.log.goOut();
   },
 	/**
+	 * proceedAsItis(actionContents)
+	 */
+  proceedAsItis: function proceedAsItis(actionContents) { // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#proceedAsItis');
+    var ret = actionContents[0].proceed;
+    this.log.goOut();
+    return ret;
+  },
+	/**
+	 * promotePiece(actionContents)
+	 */
+  promotePiece: function promotePiece(actionContents) { // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#promotePiece');
+    var ret = actionContents[0].promote;
+    this.log.goOut();
+    return ret;
+  },
+	/**
+	 * makeConfirmActionElement()
+	 */
+  makeConfirmActionElement: function makeConfirmActionElement() { // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#makeConfirmActionElement');
+    // userがクリックする要素を作成
+/*
+    this.confirmActionElement = new Element('div',{id:'promoteOrNot', className:'confirmAction' });
+    this.yesElement = new Element('div',{id:'yesElement'});
+    this.noElement = new Element('div',{id:'noElement'});
+    this.confirmActionElement.appendChild(this.yesElement);
+    this.confirmActionElement.appendChild(this.noElement);
+    this.confirmActionElement.style.display = 'block';
+*/
+    this.confirmActionElement = $('promoteOrNot');
+    this.yesElement = $('yesElement');
+    this.noElement = $('noElement');
+    this.log.goOut();
+  },
+  	/**
 	 * confirmActionByUser(actionContents)
 	 */
         // action内容をユーザに提示し、ユーザからそれでよいかどうか確認をとる
         // 成り・不成りを確認することを想定
   confirmActionByUser: function confirmActionByUser(actionContents) { // AnimalShogiGame
     this.log.getInto('AnimalShogiGame#confirmActionByUser');
-    // userがクリックする要素を作成
-    var confirmActionElement = new Element('div',{id:, className:, });
-    // userがクリックする要素を表示
-    $().appendChild(confirmActionElement);
     // userがクリックする要素を監視開始
-    confirmActionElement.observe();
+    this.confirmActionElement.observe('click',this.controller.getResponseToConfirmActionByUser.bindAsEventListner(actionContents));
+    //this.yesElement.observe('click', this.promotePiece(actionContents));
+    //this.noElement.observe('click', this.proceedAsItis(actionContents));
+    // userがクリックする要素を表示
+    //actionContents[2].elm.appendChild(this.confirmActionElement);
+    //actionContents[2].elm.hide();
+    this.confirmActionElement.show();
+    //alert('cell top : ' +  actionContents[2].elm.style.top);
+    //alert('cell left : ' +  actionContents[2].elm.style.left);
+    this.confirmActionElement.style.left = actionContents[2].elm.cumulativeOffset()[0];
+    this.confirmActionElement.style.top = actionContents[2].elm.cumulativeOffset()[1];
+    this.confirmActionElement.style.position='absolute';
+    this.confirmActionElement.style.zIndex=1000;
+    this.confirmActionElement.style.width=100;
+    this.confirmActionElement.style.hight=100;
     this.log.goOut();
   },
 	/**
 	 * doAction(actionContents)
 	 */
   doAction: function doAction(actionContents) { // AnimalShogiGame
+    var fromObj = actionContents[1];
+    var toCell = actionContents[2];
     this.log.getInto('AnimalShogiGame#doAction');
         if (toCell.piece){
-          this.gaem.log.warn('piece moving and capturing. : ');
-          this.gaem.log.debug('draggable.obj is : ' + piece.toDebugString());
-          this.gaem.log.debug('toCell.piece is : ' + toCell.piece.toDebugString());
+          this.log.warn('piece moving and capturing. : ');
+          this.log.debug('draggable.obj is : ' + piece.toDebugString());
+          this.log.debug('toCell.piece is : ' + toCell.piece.toDebugString());
           toCell.piece.gotoOpponentsStand();
         } else {
           this.gaem.log.warn('piece moving without capturing.');

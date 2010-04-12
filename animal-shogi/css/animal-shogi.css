@@ -72,6 +72,16 @@ div.rowNum {
 div#cornerDummy {
   background-color: #008;
 }
+div#yesElement {
+  content: 'yes';
+  color: red;
+  background-color: yellow;
+}
+div#noElement {
+  content: 'no';
+  color: blue;
+  background-color: yellow;
+}
 img.piece {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;

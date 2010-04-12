@@ -137,6 +137,8 @@ GameController = Class.create({
     this.game = new AnimalShogiGame(settings, this);
     // this.game.open();
     this.players = $A([]);
+    this.blackplayers = $A([]);
+    this.whiteplayers = $A([]);
     this.playingViewer = null;
     this.getViewer();
     this.container = $(this.settings['containerId']);
@@ -265,22 +267,24 @@ GameController = Class.create({
         // 成り・不成りを確認することを想定
   confirmActionByUser: function confirmActionByUser(actionContents) { // GameController
     this.log.getInto('GameController#confirmActionByUser');
+    this.game.confirmActionByUser(actionContents);
     this.log.goOut();
   },
 	/**
 	 * getResponseToConfirmActionByUser()
 	 */
-        // ユーザ対しに表示した確認用要素のクリックイベントはこの関数を呼び出す
-  getResponseToConfirmActionByUser: function getResponseToConfirmActionByUser(response) {
+        // ユーザに対し表示した確認用要素のクリックイベントはこの関数を呼び出す
+  getResponseToConfirmActionByUser: function getResponseToConfirmActionByUser(event,actionContents) {
     this.log.getInto('GameController#getResponseToConfirmActionByUser');
-    switch (response) {
-      case yes:
-        this.game.doAction(yes);
+    switch (event.element().id) {
+      case 'yesElement':
+        this.game.promotePiece()(actionContents);
+        this.game.doAction(actionContents);
       break;
-      case no:
-        this.game.doAction(no);
+      case 'noElement':
       break;
     }
+    $('promoteOrNot').stopObserving();
     this.log.goOut();
   },
 	/**
