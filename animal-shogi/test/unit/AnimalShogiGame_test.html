@@ -70,27 +70,40 @@
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
-    animalShogiGameObj = new AnimalShogiGame(settings,
-      {log:logObj, getResponseToConfirmActionByUser:function(){}});
-    animalShogiGameObj.log.debug('board show');
-    animalShogiGameObj.board.show();
-    var toCell = animalShogiGameObj.board.getCell(2,1);
-    var fromCell = animalShogiGameObj.board.getCell(2,2);
-    var piece = animalShogiGameObj.board.getCell(2,2).piece;
-    animalShogiGameObj.confirmActionByUser([piece, fromCell, toCell]);
-    assertEqual( 'animal-shogi', animalShogiGameObj.container.id );
+    var gameObj = new GameController(settings, logObj);
+    gameObj.log.debug('board show');
+    assertEqual(logObj, gameObj.log);
+    gameObj.game.board.show();
+    logObj.debug('logObj still alive 0');
+    var toCell = gameObj.game.board.getCell(2,1);
+    var fromCell = gameObj.game.board.getCell(2,2);
+    var piece = gameObj.game.board.getCell(2,2).piece;
+    logObj.debug('logObj still alive 1');
+    gameObj.game.confirmActionByUser([piece, fromCell, toCell]);
+    logObj.debug('logObj still alive 2');
+    gameObj.game.yesElement.fire('click');
+    logObj.debug('logObj still alive 3');
+    gameObj.game.confirmActionElement.fire('click');
+    logObj.debug('logObj still alive 4');
+    assertEqual(logObj, gameObj.log);
+    assertEqual( 'animal-shogi', gameObj.game.container.id );
+    logObj.debug('logObj still alive 5');
     } },
-
+/*
   testToString : function() {  with( this )  {
     var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
     logObj.debug('test toString');
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    animalShogiGameObj = gameObj.game;
     animalShogiGameObj.log = logObj;
     animalShogiGameObj.log.debug('logObj is set to animalShogiGameObj.log');
 
     assertEqual( 'AnimalShogiGame', animalShogiGameObj.toString() );
   } }
+*/
   }, "testlog");
 // ]]>
 </script>
@@ -106,7 +119,6 @@
     <div id="logger6"></div>
     <div id="logger7"></div>
     <div id="logger8"></div>
-  </p>
 <div id="container">
   <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
   <div id="top-stand"></div>

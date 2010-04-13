@@ -861,7 +861,7 @@ this.game.log.goOut();
 	 * toString()
 	 */
   toString: function toString(){ // Board
-this.game.log.getInto();
+this.game.log.getInto('Board#toString');
     game.log.warn('entered Board#toString',{'indent':3});
     // stateに載せる文字列を返す
     var ret = '';
@@ -1081,7 +1081,7 @@ this.game.log.goOut();
 	 * toString()
 	 */
   toString: function toString(){ // Stand
-this.game.log.getInto();
+this.game.log.getInto('Stand#toString');
     this.game.log.debug('entered Stand#toString : id : ' + this.id + ', size : ' + this.pieces.length);
     // stateに載せる文字列を返す
     var ret = '';
@@ -1423,9 +1423,12 @@ this.log.goOut();
 	 * promotePiece(actionContents)
 	 */
   promotePiece: function promotePiece(actionContents) { // AnimalShogiGame
-    this.log.getInto('AnimalShogiGame#promotePiece');
+    var log = window.gameController.log;
+    log.getInto('AnimalShogiGame#promotePiece');
+    //log.debug('actionContents : ' + Log.dumpObject(actionContents));
+    log.debug('actionContents[0] : ' + actionContents[0].toString());
     var ret = actionContents[0].promote;
-    this.log.goOut();
+    log.goOut();
     return ret;
   },
 	/**
@@ -1455,7 +1458,7 @@ this.log.goOut();
   confirmActionByUser: function confirmActionByUser(actionContents) { // AnimalShogiGame
     this.log.getInto('AnimalShogiGame#confirmActionByUser');
     // userがクリックする要素を監視開始
-    this.confirmActionElement.observe('click',this.controller.getResponseToConfirmActionByUser.bindAsEventListner(actionContents));
+    this.confirmActionElement.observe('click',this.controller.getResponseToConfirmActionByUser.bindAsEventListener(actionContents));
     //this.yesElement.observe('click', this.promotePiece(actionContents));
     //this.noElement.observe('click', this.proceedAsItis(actionContents));
     // userがクリックする要素を表示

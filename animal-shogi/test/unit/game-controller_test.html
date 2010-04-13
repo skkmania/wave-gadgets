@@ -79,7 +79,7 @@
   testMainRoutine : function() {  with( this )  {
     var logObj = makeLogObj('testMainRoutine', {width:500, height:150, resizable:false});
     logObj.debug('test MainRoutine');
-    $('logger0').insert(new Element('img',{id:'handle0',src:"../../img/window_close.gif"}));
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'animal-shogi'};
@@ -128,7 +128,7 @@
     wave.state.put('player_candidate_1','skkmania@googlewave.com');
     wave.state.put('player_candidate_2','wajirou@googlewave.com');
     gameObj.stateChanged();
-    assertEaual( true, gameObj.game.askPlayersEnough(gameObj.players) );
+    assertEqual( true, gameObj.game.askPlayersEnough(gameObj.players) );
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 

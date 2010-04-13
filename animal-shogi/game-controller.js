@@ -17,14 +17,14 @@ Player = Class.create({
 	 */
   stand: function stand(){
     return (this.id == 'player1') ?
-        window.game.blackStand
-      : window.game.whiteStand;
+        window.gameController.game.blackStand
+      : window.gameController.game.whiteStand;
   },
 	/**
 	 * atTop()
 	 */
   atTop: function atTop(game){ // Player
-    return (this.id == 'player1') == (window.game.top == 1);
+    return (this.id == 'player1') == (window.gameController.game.top == 1);
   },
 	/**
 	 * shortName()
@@ -41,7 +41,7 @@ Player = Class.create({
 // mine は下線をひく
 // turn は背景色を黄色にする
     var classNames = this.isViewer ? 'mine' : '';
-    if (window.game.getTurn() == this) classNames += ' turn';
+    if (window.gameController.game.getTurn() == this) classNames += ' turn';
     return '<span class="' + classNames + '">' + this.shortName() + '</span>';
   },
 	/**
@@ -126,7 +126,7 @@ GameController = Class.create({
   initialize: function initialize(settings, log) {
     var title = settings['logTitle'] || 'popup';
     this.log = log;
-    this.log.getInto('Game#initialize');
+    this.log.getInto('GameController#initialize');
     this.settings = settings;
     if(settings === undefined){
       this.log.debug('settings is undefined.');
@@ -184,8 +184,8 @@ GameController = Class.create({
 	/**
 	 * sendDelta()
 	 */
-  sendDelta: function sendDelta(){
-    this.log.getInto();
+  sendDelta: function sendDelta(){ // GameController
+    this.log.getInto('GameController#sendDelta');
     // 送信
     var delta = {};
 /*
@@ -201,15 +201,15 @@ GameController = Class.create({
 	/**
 	 * finishCheck()
 	 */
-  finishCheck: function finishCheck() { // Game
-    this.log.getInto();
+  finishCheck: function finishCheck() { // GameController
+    this.log.getInto('GameController#finishCheck');
     this.log.goOut();
   },
 	/**
 	 * providePlayer()
 	 */
-  providePlayer: function providePlayer() { // Game
-    this.log.getInto();
+  providePlayer: function providePlayer() { // GameController
+    this.log.getInto('GameController#providePlayer');
     this.game.getPlayer(this.playerInTurn());
     this.log.goOut();
   },
@@ -274,18 +274,30 @@ GameController = Class.create({
 	 * getResponseToConfirmActionByUser()
 	 */
         // ユーザに対し表示した確認用要素のクリックイベントはこの関数を呼び出す
-  getResponseToConfirmActionByUser: function getResponseToConfirmActionByUser(event,actionContents) {
-    this.log.getInto('GameController#getResponseToConfirmActionByUser');
+  //getResponseToConfirmActionByUser: function getResponseToConfirmActionByUser(event,actionContents) {
+  getResponseToConfirmActionByUser: function getResponseToConfirmActionByUser(event) {
+    var log = window.gameController.log;
+    log.getInto('GameController#getResponseToConfirmActionByUser');
+      // この関数にはactionContentsがbindされているので、thisはこの中ではactionContentsを指す
+    var actionContents = this;
+    log.debug('actionContents[0] : ' + actionContents[0].toString());
+
+    log.debug('event.element : ' + event.element().id);
+
     switch (event.element().id) {
       case 'yesElement':
-        this.game.promotePiece()(actionContents);
-        this.game.doAction(actionContents);
+        log.debug('yesElement was clicked.');
+        window.gameController.game.promotePiece(actionContents)();
+        //this.game.promotePiece()(actionContents);
+        window.gameController.game.doAction(actionContents);
+        //this.game.doAction(actionContents);
       break;
       case 'noElement':
+        log.debug('noElement was clicked.');
       break;
     }
     $('promoteOrNot').stopObserving();
-    this.log.goOut();
+    log.goOut();
   },
 	/**
 	 * noticeBadActionToUser()
@@ -357,6 +369,8 @@ this.log.goOut();
       this.player1 = new Player('player1', this.players[1]);
       this.player2 = new Player('player2', this.players[0]);
     }
+    this.blackplayers.push(this.player1);
+    this.whiteplayers.push(this.player2);
     this.log.goOut();
   },
 /*
@@ -618,6 +632,9 @@ this.log.goOut();
       if (!this.players.include(p2))
         this.players.push(p2);
     }
+    if (p1 && p2) {
+      this.setPlayersOrder();
+    }
     this.log.debug('players : ' + this.players.join(', '))
     this.log.goOut();
   },
@@ -670,11 +687,11 @@ this.log.goOut();
 function sendDelta(){
    // 送信
    var delta = {};
-   delta['board'] = window.game.board.toString();
-   delta['bstand'] = window.game.blackStand.toString();
-   delta['wstand'] = window.game.whiteStand.toString();
-   delta['count'] = window.game.count.toString();
-window.game.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
+   delta['board'] = window.gameController.game.board.toString();
+   delta['bstand'] = window.gameController.game.blackStand.toString();
+   delta['wstand'] = window.gameController.game.whiteStand.toString();
+   delta['count'] = window.gameController.game.count.toString();
+window.gameController.game.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
    wave.getState().submitDelta(delta);
 }
 
@@ -682,16 +699,16 @@ window.game.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta
 	 * checkFinish(piece, toCell)
 	 */
 function checkFinish(piece, toCell){
-window.game.log.getInto();
-window.game.log.warn('entered checkFinish');
+window.gameController.game.log.getInto();
+window.gameController.game.log.warn('entered checkFinish');
    var ret = (
    // 相手のライオンを捕獲
    (toCell.piece.type == 'lion') || 
    // 自分のライオンが最奥に到達
    (piece.type == 'lion' && piece.isGoal(toCell))
-           //  && window.game.isSafety(piece))
+           //  && window.gameController.game.isSafety(piece))
   );
-window.game.log.warn('checkFinish leaving with : ' + ret);
-window.game.log.goOut();
+window.gameController.game.log.warn('checkFinish leaving with : ' + ret);
+window.gameController.game.log.goOut();
   return ret;
 }
