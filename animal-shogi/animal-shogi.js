@@ -352,13 +352,18 @@ Cell.prototype = {
 	 * say()
 	 */
   say: function say(){ // Cell
+    this.game.log.getInto('Cell#say');
     // このセルにいるpieceの状態を文字にして返す
     if (!this.piece) return 'x';
     var retChar = Type2chr[this.piece.type];
-    if(this.piece.isBlack())
+    this.game.log.debug('retChar : ' + retChar);
+    if(this.piece.isBlack()){
+      this.game.log.goOut();
       return retChar.toUpperCase();
-    else
+    } else {
+      this.game.log.goOut();
       return retChar; 
+    }
   },
 	/**
 	 * put(piece)
@@ -864,21 +869,21 @@ this.game.log.goOut();
 	 * toString()
 	 */
   toString: function toString(){ // Board
-this.game.log.getInto('Board#toString');
-    game.log.warn('entered Board#toString',{'indent':3});
+    this.game.log.getInto('Board#toString');
+    this.game.log.debug('entered Board#toString',{'indent':3});
     // stateに載せる文字列を返す
     var ret = '';
     for (var c = 1; c < this.game.width; c++) {
       for (var r = 1; r < this.game.height; r++) {
-// game.log.debug('start check at r: ' + r + ', c : ' + c);
-if(this.cells && this.cells[r] && this.cells[r][c])
-        ret += this.cells[r][c].say();
-else
-  game.log.warn('no cell at r: ' + r + ', c : ' + c);
+        // this.game.log.debug('start check at r: ' + r + ', c : ' + c);
+        if(this.cells && this.cells[r] && this.cells[r][c])
+                ret += this.cells[r][c].say();
+        else
+          game.log.warn('no cell at r: ' + r + ', c : ' + c);
       }
     }
-    game.log.warn('leaving Board#toString with : ' + ret, {'indent':-3});
-this.game.log.goOut();
+    this.game.log.warn('leaving Board#toString with : ' + ret, {'indent':-3});
+    this.game.log.goOut();
     return ret;
   },
 	/**

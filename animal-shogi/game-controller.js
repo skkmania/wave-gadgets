@@ -287,8 +287,14 @@ GameController = Class.create({
     switch (event.element().id) {
       case 'yesElement':
         log.debug('yesElement was clicked.');
+        window.gameController.game.promotePiece(actionContents).call(actionContents[0]);
+/*
+  ここは、以下の意味。
         var f = window.gameController.game.promotePiece(actionContents);
-        f();
+        log.debug('got function? -- type is  ' + typeof f);
+        f.call(actionContents[0]);
+        log.debug('function called.');
+*/
         window.gameController.game.doAction(actionContents);
       break;
       case 'noElement':
