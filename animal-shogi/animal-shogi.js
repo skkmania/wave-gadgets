@@ -231,18 +231,21 @@ this.game.log.goOut();
 	 * promote(actionContents)
 	 */
   promote: function promote(actionContents) {  // Piece
-    if(this.promote){
-      this.imageUrl = PieceTypeObjects[this.promote].imageUrl;
+    this.game.log.getInto('Piece#promote');
+    if(this.promote_type){
+      this.imageUrl = PieceTypeObjects[this.promote_type].imageUrl;
       this.elm.src = this.imageUrl;
-      this.type = PieceTypeObjects[this.promote].type;
+      this.type = PieceTypeObjects[this.promote_type].type;
       if(this.isBlack())
         this.chr = Type2chr[this.type].toUpperCase();
       else
         this.chr = Type2chr[this.type];
-      this.movableArea = PieceTypeObjects[this.promote].movableArea;
+      this.movableArea = PieceTypeObjects[this.promote_type].movableArea;
+      this.game.log.debug('promoted : ' + this.toDebugString());
     } else {
-      this.log.fatal('this piece cannot promote.');
+      this.game.log.fatal('this piece cannot promote.');
     }
+    this.game.log.goOut();
   },
 	/**
 	 * toDebugString()
@@ -307,7 +310,7 @@ var PieceTypeObjects = {
     [false, false, false],
     [false, false, false]
   ],
-  promote: 'chicken'
+  promote_type: 'chicken'
   },
 	/**
 	 * Chicken
@@ -1426,7 +1429,7 @@ this.log.goOut();
     var log = window.gameController.log;
     log.getInto('AnimalShogiGame#promotePiece');
     //log.debug('actionContents : ' + Log.dumpObject(actionContents));
-    log.debug('actionContents[0] : ' + actionContents[0].toString());
+    log.debug('actionContents[0] : ' + actionContents[0].toDebugString());
     var ret = actionContents[0].promote;
     log.goOut();
     return ret;

@@ -280,17 +280,16 @@ GameController = Class.create({
     log.getInto('GameController#getResponseToConfirmActionByUser');
       // この関数にはactionContentsがbindされているので、thisはこの中ではactionContentsを指す
     var actionContents = this;
-    log.debug('actionContents[0] : ' + actionContents[0].toString());
+    log.debug('actionContents[0] : ' + actionContents[0].toDebugString());
 
     log.debug('event.element : ' + event.element().id);
 
     switch (event.element().id) {
       case 'yesElement':
         log.debug('yesElement was clicked.');
-        window.gameController.game.promotePiece(actionContents)();
-        //this.game.promotePiece()(actionContents);
+        var f = window.gameController.game.promotePiece(actionContents);
+        f();
         window.gameController.game.doAction(actionContents);
-        //this.game.doAction(actionContents);
       break;
       case 'noElement':
         log.debug('noElement was clicked.');
