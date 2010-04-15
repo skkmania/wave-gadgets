@@ -74,22 +74,16 @@
     gameObj.log.debug('board show');
     assertEqual(logObj, gameObj.log);
     gameObj.game.board.show();
-    logObj.debug('logObj still alive 0');
     var toCell = gameObj.game.board.getCell(2,1);
     var fromCell = gameObj.game.board.getCell(2,2);
     var piece = gameObj.game.board.getCell(2,2).piece;
-    logObj.debug('logObj still alive 1');
     gameObj.game.confirmActionByUser([piece, fromCell, toCell]);
-    logObj.debug('logObj still alive 2');
     gameObj.game.yesElement.fire('click');
-    logObj.debug('logObj still alive 3');
-    gameObj.game.confirmActionElement.fire('click');
-    logObj.debug('logObj still alive 4');
+    //gameObj.game.confirmActionElement.yesElement.fire('click');
     assertEqual(logObj, gameObj.log);
     assertEqual( 'animal-shogi', gameObj.game.container.id );
     logObj.debug('logObj still alive 5');
     } },
-/*
   testToString : function() {  with( this )  {
     var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
     logObj.debug('test toString');
@@ -103,7 +97,6 @@
 
     assertEqual( 'AnimalShogiGame', animalShogiGameObj.toString() );
   } }
-*/
   }, "testlog");
 // ]]>
 </script>

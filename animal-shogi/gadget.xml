@@ -28,9 +28,10 @@
     var logObj = makeLogObj('testInitialize', {width:500, height:150, resizable:false});
     $('logger0').insert(new Element('img',{id:'handle0',src:"img/window_close.gif"}));
     new Resizable('logger0',{handle:'handle0'});
-    window.gameController = new GameController({containerId:'animal-shogi'});
+if(wave) 
+    window.gameController = new GameController({containerId:'animal-shogi'}, logObj);
     if (wave && wave.isInWaveContainer()) {
-      wave.setStateCallback(window.gameController.stateChanged.bind(window.gameController));
+      wave.setStateCallback(window.gameController.noPlayers.bind(window.gameController));
     }
     window.gameController.show();
   }
@@ -68,9 +69,8 @@
 
 <button id="join-button" class="join t" onclick="window.gameController.joinButtonPressed(wave.getViewer().getId()); this.hide();">join</button>
 
-  <p>
-    <a href="#logger0" id="popup_logger0" title="popup logger 0"> popup logger 0</a>
-    <a href="#logger1" id="popup_logger1" title="popup logger 1"> popup logger 1</a>
+  <p id="links_pool"> </p>
+  <p id="window_pool">
     <div id="logger0"></div>
     <div id="logger1"></div>
   </p>

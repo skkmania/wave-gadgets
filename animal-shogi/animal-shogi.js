@@ -11,7 +11,10 @@ window.gameController.game.log.goOut();
 }
 
 function addDraggable(piece, startMessage){
-  window.gameController.game.log.debug('entered addDraggable and immidiately returning draggable, msg:' + startMessage,{3:{'color':'#aa8844'}});
+  window.gameController.log.getInto('addDraggable');
+  window.gameController.log.debug('msg:' + startMessage,{3:{'color':'#aa8844'}});
+  window.gameController.log.goOut();
+
   return  new Draggable(piece.elm, {
         onStart: function onStart() {
           window.gameController.game.log.getInto();
@@ -637,6 +640,7 @@ game.log.getInto('Board#initialize');
     this.game = game;
     this.top = game.top;
     this.elm = elm || document.body;
+    this.shown = false;
     this.cells = [];
     for (var r = 0; r < this.game.height; r++) {
       var row = [];
@@ -739,6 +743,7 @@ this.game.log.goOut();
 this.game.log.getInto('Board#show');
     this.cells.flatten().invoke('show');
     this.adjustBorder();
+    this.shown = true;
 this.game.log.warn('Board#show leaving');
 this.game.log.goOut();
   },
@@ -907,13 +912,15 @@ this.game.log.goOut();
 	 * reverse(top)
 	 */
   reverse: function reverse(top) { // Board
-this.game.log.warn('reverse called.');
+    var log = this.game.log;
+    var game = this.game;
+    log.getInto('Board#reverse');
     this.cells.flatten().each(function(c){
-this.game.log.warn('reverse called. cell is ' + c.toDebugString());
+      log.warn('reverse called. cell is ' + c.toDebugString());
       if (c.piece) {
-this.game.log.warn('reverse class name called. piece is ' + c.piece.toDebugString());
+        log.warn('reverse class name called. piece is ' + c.piece.toDebugString());
         if (c.piece.isBlack()) {
-          if (this.game.top === 0){
+          if (game.top === 0){
             c.piece.elm.removeClassName('top');
             c.piece.elm.addClassName('bottom');
           } else {
@@ -921,7 +928,7 @@ this.game.log.warn('reverse class name called. piece is ' + c.piece.toDebugStrin
             c.piece.elm.addClassName('top');
           }
         } else {
-          if (this.game.top === 0){
+          if (game.top === 0){
             c.piece.elm.removeClassName('bottom');
             c.piece.elm.addClassName('top');
           } else {
@@ -929,9 +936,10 @@ this.game.log.warn('reverse class name called. piece is ' + c.piece.toDebugStrin
             c.piece.elm.addClassName('bottom');
           }
         }
-this.game.log.warn('reverse class name after process. ' + c.piece.toDebugString());
+        log.warn('reverse class name after process. ' + c.piece.toDebugString());
       }
     });
+    log.goOut();
   },
 	/**
 	 * toDebugString()
@@ -961,7 +969,7 @@ Stand = Class.create({
 	 * initialize(id, game)
 	 */
   initialize: function initialize(id, game) {
-game.log.getInto();
+    game.log.getInto('Stand#initialize');
     this.game = game;
     this.top = game.top;
     this.width = 1; 
@@ -977,21 +985,22 @@ game.log.goOut();
 	 * createElm()
 	 */
   createElm: function createElm() {  // Stand
-this.game.log.getInto();
+    this.game.log.getInto('Stand#createElm');
     this.elm = document.createElement('div');
     this.elm.id = this.id;
     this.elm.obj = this;
     this.elm.style.height = (this.game.height - 1)*30 + 'px';
-this.game.log.goOut();
+    this.game.log.goOut();
   },
 	/**
 	 * removeByObj(piece)
 	 */
   removeByObj: function removeByObj(piece){  // Stand
     // 指定された駒のオブジェクトを駒台から取り除く
+    this.game.log.getInto('Stand#removeByObj');
     this.elm.removeChild(piece.elm);
-    //this.pieces.subtract([piece]);
     this.pieces = this.pieces.reject(function(p){ return p==piece; });
+    this.game.log.goOut();
   },
 	/**
 	 * removeStandsPieceByChr(chr)
@@ -1009,7 +1018,7 @@ this.game.log.goOut();
 	 * read(str)
 	 */
   read: function read(strFromState){ // Stand
-this.game.log.getInto();
+    this.game.log.getInto('Stand#read');
     this.game.log.debug('entered Stand#read with : ' + strFromState );
     // stateから読んだ文字列を元に駒を駒台に置く
     // strFromStateが空文字列ならclearして終わり
@@ -1124,8 +1133,8 @@ window.gameController = gameController;
 window.gameController.game = this;
     this.controller = gameController;
     this.log = gameController.log;
-    this.log.getInto();
-    this.log.warn('start AnimalShogiGame log',{'indent':1});
+    this.log.getInto('AnimalShogiGame#initialize');
+    this.log.warn('start AnimalShogiGame log');
     this.width = 4;  // 0 is dummy
     this.height = 5;
     this.settings = settings;
@@ -1231,23 +1240,25 @@ this.log.warn('game.show');
 	 * reverse()
 	 */
   reverse: function reverse() { // game
-this.log.getInto('AnimalShogiGame#reverse');
+    this.controller.log.getInto('AnimalShogiGame#reverse');
     var tmp = null;
     this.top = (this.top === 0 ? 1 : 0);
     this.top_by_viewer = this.top;
     this.controller.message('game.top became ' + this.top);
     this.board.reverse();
     this.board.adjust();
-    tmp = $('top-stand').childElements()[0];
-    $('top-stand').appendChild($('bottom-stand').childElements()[0]);
-    $('bottom-stand').appendChild(tmp);
-    tmp = $$('#top-stand img', '#bottom-stand img');
-    if(tmp.size() > 0){
-      tmp.invoke('toggleClassName', 'top');
-      tmp.invoke('toggleClassName', 'bottom');
+    if($('top-stand') && $('bottom-stand')){
+      tmp = $('top-stand').childElements();
+      $('top-stand').update($('bottom-stand').childElements());
+      $('bottom-stand').update(tmp);
+      tmp = $$('#top-stand img', '#bottom-stand img');
+      if(tmp.size() > 0){
+        tmp.invoke('toggleClassName', 'top');
+        tmp.invoke('toggleClassName', 'bottom');
+      }
     }
-    this.controlPanel.reverse();
-this.log.goOut();
+    this.controller.controlPanel.reverse();
+    this.controller.log.goOut();
   },
 	/**
 	 * start()
@@ -1382,13 +1393,13 @@ this.log.goOut();
         /**
          * allPieces()
          */
-  allPieces: function allPieces() { // game
+  allPieces: function allPieces() { // AnimalShogiGame
     return $A(this.board.cells.flatten().pluck('piece'), this.blackStand.pieces, this.whiteStand.pieces).flatten();
   },
 	/**
 	 * fromState(state)
 	 */
-  fromState: function fromState(state) { // game
+  fromState: function fromState(state) { // AnimalShogiGame
 this.log.getInto();
 this.log.warn('entered Game#fromState: ');
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
@@ -1405,18 +1416,17 @@ this.log.goOut();
 	/**
 	 * toggleDraggable()
 	 */
-  toggleDraggable: function toggleDraggable(){
-this.log.getInto();
-this.log.warn('entered Game#toggleDraggable: processing drags pieces');
+  toggleDraggable: function toggleDraggable(){ // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#toggleDraggable');
+    this.log.warn('processing pieces of Draggables.drags');
     Draggables.drags.pluck('element').pluck('obj').invoke('toggleDraggable');
-this.log.warn('entered Game#toggleDraggable: processing board pieces');
+    this.log.warn('processing pieces of board.cells');
     this.board.cells.flatten().pluck('piece').compact().invoke('toggleDraggable');
-this.log.warn('Game#toggleDraggable: processing blackStand');
+    this.log.warn('processing blackStand');
     this.blackStand.pieces.invoke('toggleDraggable');
-this.log.warn('Game#toggleDraggable: processing whiteStand');
+    this.log.warn('processing whiteStand');
     this.whiteStand.pieces.invoke('toggleDraggable');
-this.log.warn('leaving Game#toggleDraggable');
-this.log.goOut();
+    this.log.goOut();
   },
 	/**
 	 * proceedAsItis(actionContents)
@@ -1487,6 +1497,7 @@ this.log.goOut();
 	 * doAction(actionContents)
 	 */
   doAction: function doAction(actionContents) { // AnimalShogiGame
+    var piece = actionContents[0];
     var fromObj = actionContents[1];
     var toCell = actionContents[2];
     this.log.getInto('AnimalShogiGame#doAction');
@@ -1506,7 +1517,7 @@ this.log.goOut();
           piece.sitOnto(toCell);
         }
 
-        this.gameController.finish();
+        this.controller.finish();
     
     this.log.goOut();
   },

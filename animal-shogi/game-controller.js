@@ -64,55 +64,71 @@ ControlPanel = Class.create({
 	/**
 	 * initialize(game)
 	 */
-  initialize: function initialize(game) {
-    this.game = game;
-    if(this.game) this.game.log.warn('CP initialized.');
+  initialize: function initialize(controller) { // ControlPanel
+    controller.log.getInto('ControlPanel#initialize');
+    this.controller = controller;
+    this.controller.log.goOut();
   },
 	/**
 	 * reverse()
 	 */
   reverse: function reverse() { // ControlPanel              
-this.log.getInto();
-     this.game.log.debug('start reverse cp'); 
-      if (this.game.top == 1){                                                
+     this.controller.log.getInto('ControlPanel#reverse');
+     this.controller.log.debug('start reverse cp'); 
+      if (this.controller.game.top == 1){                                                
         this.player1Elm = $('top-panel');
         this.player2Elm = $('bottom-panel');
       } else {       
         this.player2Elm = $('top-panel');
         this.player1Elm = $('bottom-panel');
       }                    
-    this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
-    this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
-    this.game.log.debug('ControlPanel#reverse end'); 
-    this.game.log.goOut();
+    this.player1Elm.innerHTML = t('sente') + (this.controller.player1 ? this.controller.player1.statusHtml() : t('waiting'));
+    this.player2Elm.innerHTML = t('gote') +  (this.controller.player2 ? this.controller.player2.statusHtml() : t('waiting'));
+    this.controller.log.debug('ControlPanel#reverse end'); 
+    this.controller.log.goOut();
   }, 
 	/**
 	 * waitPlayer()
 	 */
   waitPlayer: function waitPlayer() { // ControlPanel             
-    this.game.log.getInto();
-    this.game.log.goOut();
+    this.controller.log.getInto();
+    this.controller.log.goOut();
   }, 
 	/**
 	 * update()
 	 */
-  update: function update() { // ControlPanel             
-    this.game.log.getInto();
-    this.game.log.debug('cp update entered.'); 
-    // this.game.determineTop();
-    // this.game.log.debug('cp update : top is ' + this.game.top); 
+  update: function update(mode) { // ControlPanel             
+    this.controller.log.getInto('ControlPanel#update');
+    this.controller.log.debug('mode : ' + mode);
     if (!this.elm) this.elm = $('control-panel');                         
-    if (this.game.top == 1){                                                
+    if (this.controller.game.top == 1){                                                
       this.player1Elm = $('top-panel');
       this.player2Elm = $('bottom-panel');
     } else {       
       this.player2Elm = $('top-panel');
       this.player1Elm = $('bottom-panel');
     }                    
-    this.player1Elm.innerHTML = t('sente') + (this.game.player1 ? this.game.player1.statusHtml() : t('waiting'));
-    this.player2Elm.innerHTML = t('gote') +  (this.game.player2 ? this.game.player2.statusHtml() : t('waiting'));
-    this.game.log.warn('cp update leaving'); 
-    this.game.log.goOut();
+    switch(mode){
+      case 'onePlayer':
+        if(this.controller.players[0])
+          $('message-body').update(this.controller.players[0] + ' is waiting');
+        break;
+      case 'playing':
+        if(this.controller.player1)
+          this.player1Elm.innerHTML = t('sente') + this.controller.player1.statusHtml();
+        else
+          this.player1Elm.innerHTML = t('sente');
+        if(this.controller.player2)
+          this.player2Elm.innerHTML = t('gote') + this.controller.player2.statusHtml();
+        else
+          this.player2Elm.innerHTML = t('gote');
+        break;
+      default:
+        this.player1Elm.innerHTML = t('sente') + (this.controller.player1 ? this.controller.player1.statusHtml() : t('waiting'));
+        this.player2Elm.innerHTML = t('gote') +  (this.controller.player2 ? this.controller.player2.statusHtml() : t('waiting'));
+    }
+    this.controller.log.warn('cp update leaving'); 
+    this.controller.log.goOut();
   } 
 });
 
@@ -123,7 +139,7 @@ GameController = Class.create({
 	/**
 	 * initialize(settings)
 	 */
-  initialize: function initialize(settings, log) {
+  initialize: function initialize(settings, log) { // GameController
     var title = settings['logTitle'] || 'popup';
     this.log = log;
     this.log.getInto('GameController#initialize');
@@ -140,11 +156,11 @@ GameController = Class.create({
     this.blackplayers = $A([]);
     this.whiteplayers = $A([]);
     this.playingViewer = null;
-    this.getViewer();
+    //this.getViewer();
     this.container = $(this.settings['containerId']);
     this.controlPanel = new ControlPanel(this);
     this.log.warn('CP created.');
-    this.mode = 'init';
+    this.mode = '';
     this.message(t('click_join_button'));
     this.count = 0;
        // 手数。このgameではcount手目を指した局面がthis.gameのboard,blackStand, whiteStandに反映されているものとする.
@@ -163,6 +179,59 @@ GameController = Class.create({
     this.log.goOut();
     // this.debug_dump();
   },
+	/**
+	 * noPlayers()
+	 */
+        // gadget起動時のstate changeに対するコールバック
+        // 機能：最初の参加者を受付、次の参加を待つ
+  noPlayers: function noPlayers() { // GameController
+    this.log.getInto('GameController#noPlayers');
+    if(wave) {
+      var state = wave.getState();
+      this.log.debug('state in string is: ' + arrange(state));
+      if (this.mode = state.get('mode')){
+        this.log.debug('mode read from state is : ' + this.mode);
+        switch(this.mode){
+          case 'onePlayer':
+            this.controlPanel.update('onePlayer');
+            this.onePlayer();
+            break;
+          case 'playing':
+            this.controlPanel.update('playing');
+            this.stateChanged();
+            break;
+          default:
+        }
+      } else {
+        this.log.debug('there is no mode in state');
+        this.controlPanel.update('noPlayer');
+        wave.setStateCallback(this.onePlayer.bind(this));
+      }
+    } else {
+      this.log.fatal('wave not found');
+    }
+    this.log.goOut();
+  },
+        /*
+	 * onePlayer()
+	 */
+        // gadget起動時のstate changeに対するコールバック
+        // 参加者が一人だけいるstateに対応する
+        // 機能：2人目の参加者を受付
+  onePlayer: function onePlayer() { // GameController
+    if(this.mode != 'onePlayer') return;
+    this.log.getInto('GameController#onePlayer');
+    if(wave) {
+      var state = wave.getState();
+      this.log.debug('state in string is: ' + arrange(state));
+      this.getPlayersFromState(state);
+      this.controlPanel.update('onePlayer');
+      wave.setStateCallback(this.stateChanged.bind(this));
+    } else {
+      this.log.fatal('wave not found');
+    }
+    this.log.goOut();
+  }, 
 	/**
 	 * playerSetup()
 	 */
@@ -231,6 +300,7 @@ GameController = Class.create({
 	 */
   makeGameAct: function makeGameAct() { // Game
     this.log.getInto();
+    this.game.toggleDraggable();
     this.log.goOut();
     return null;
   },
@@ -337,6 +407,8 @@ this.log.goOut();
         // this.playersの人数が２人になったら次の段階へ進む
   joinButtonPressed: function joinButtonPressed(name) { // GameController
     this.log.getInto('GameController#joinButtonPressed');
+    this.log.debug('arguments : ' + name);
+    this.log.debug('this.players : ' + this.players.length + ' : ' + this.players.join(', '));
     var deltakey = null; 
     switch (this.players.length){
       case  0:
@@ -344,21 +416,25 @@ this.log.goOut();
         this.players.push(name);
         this.message(t('waiting'));
         deltakey = 'player_candidate_1';
+        this.mode = 'onePlayer';
         break;
       case 1:
         this.log.debug('second player added');
         this.players.push(name);
         this.setPlayersOrder();
-        this.hideJoinButton();
+        //this.hideJoinButton();
+        $('join-button').hide();
         deltakey = 'player_candidate_2';
+        this.mode = 'playing';
         break;
     }
     this.controlPanel.update();
     this.log.goOut();
-    // 以下を呼べば、stateChangedに飛んでしまう
-    wave.getState().submitDelta({
-      deltakey:name
-    });
+    // 以下を呼べば、onePlayer か、stateChangedに飛んでしまう
+    var delta = {};
+    delta[deltakey] = name;
+    delta['mode'] = this.mode;
+    wave.getState().submitDelta(delta);
   },
 	/**
 	 * setPlayersOrder()
@@ -374,8 +450,12 @@ this.log.goOut();
       this.player1 = new Player('player1', this.players[1]);
       this.player2 = new Player('player2', this.players[0]);
     }
+    this.log.debug('player1 : ' + this.player1.toString());
+    this.log.debug('player2 : ' + this.player2.toString());
     this.blackplayers.push(this.player1);
+    this.log.debug('blackplayers : ' + this.blackplayers.invoke('toString').join('<br>'));
     this.whiteplayers.push(this.player2);
+    this.log.debug('whiteplayers : ' + this.whiteplayers.invoke('toString').join('<br>'));
     this.log.goOut();
   },
 /*
@@ -438,28 +518,6 @@ this.log.warn('game.show');
     //this.board.show();
   },
 	/**
-	 * reverse()
-	 */
-  reverse: function reverse() { // game
-this.log.getInto();
-    var tmp = null;
-    this.top = (this.top === 0 ? 1 : 0);
-    this.top_by_viewer = this.top;
-    this.message('game.top became ' + this.top);
-    this.game.board.reverse();
-    this.game.board.adjust();
-    tmp = $('top-stand').childElements()[0];
-    $('top-stand').appendChild($('bottom-stand').childElements()[0]);
-    $('bottom-stand').appendChild(tmp);
-    tmp = $$('#top-stand img', '#bottom-stand img');
-    if(tmp.size() > 0){
-      tmp.invoke('toggleClassName', 'top');
-      tmp.invoke('toggleClassName', 'bottom');
-    }
-    this.controlPanel.reverse();
-this.log.goOut();
-  },
-	/**
 	 * start()
 	 */
   start: function start() { // Game
@@ -516,10 +574,17 @@ this.log.goOut();
 	/**
 	 * stateChanged()
 	 */
+        // プレイヤーが揃ってゲームが始まった後のstateChangeへのコールバック
+        // これが呼ばれたときにはstateのmodeは'playing'であり
+        // stateのplayersにはメンバーの名の文字列が
+        // コンマ区切りで複数個並んでいる
   stateChanged: function stateChanged() {  // Game
+    if (this.mode != 'playing') return;
     this.log.getInto('GameController#stateChanged');
+    $('join-button').hide();
     var state = wave.getState();
     this.log.debug('state in string is: ' + arrange(state));
+    if (!this.game.board.shown) this.game.board.show();
     this.fromState(state);
     this.log.goOut();
   },
@@ -554,7 +619,18 @@ this.log.goOut();
 	 */
   getViewer: function getViewer(){ // GameController
     this.log.getInto('GameController#getViewer');
-    this.viewer = wave.getViewer().getId();
+    if(wave){
+      if(wave.getViewer()){
+        this.viewer = wave.getViewer().getId();
+      } else {
+        this.log.fatal('wave.getViewer is null');
+        alert('wave.getViewer is null');
+      }
+    } else {
+      this.log.fatal('wave is null');
+      alert('wave is null');
+    }
+
     this.log.debug('viewer: ' + this.viewer);
     this.log.goOut();
   },
@@ -616,6 +692,7 @@ this.log.goOut();
     if(!this.game.askPlayersEnough(this.players)){
       this.controlPanel.waitPlayer();
     } else {
+      this.controlPanel.update('playing');
       this.mainRoutine();
     }
     this.log.warn('leaving Game#fromState');
