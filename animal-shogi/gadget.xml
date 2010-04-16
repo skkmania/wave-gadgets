@@ -31,7 +31,7 @@
 if(wave) 
     window.gameController = new GameController({containerId:'animal-shogi'}, logObj);
     if (wave && wave.isInWaveContainer()) {
-      wave.setStateCallback(window.gameController.noPlayers.bind(window.gameController));
+      wave.setStateCallback(window.gameController.acceptState.bind(window.gameController));
     }
     window.gameController.show();
   }
