@@ -25,7 +25,7 @@
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/game-controller.js" charset="UTF-8"></script>
 <script>
   function init() {
-    var logObj = makeLogObj('testInitialize', {width:500, height:150, resizable:false});
+    var logObj = makeLogObj('testInitialize', {width:800, height:550, resizable:false});
     $('logger0').insert(new Element('img',{id:'handle0',src:"img/window_close.gif"}));
     new Resizable('logger0',{handle:'handle0'});
 if(wave) 
