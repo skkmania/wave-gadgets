@@ -661,40 +661,22 @@ this.log.goOut();
     return this.thisTurnPlayer().isViewer;
   },
 	/**
-	 * reportActEnds(actionContents)
+	 * reportActEnds(player, movingPieceType,moveTo, capturedPieceType)
 	 */
-  reportActEnds: function reportActEnds(actionContents) { // GameController
+  reportActEnds: function reportActEnds(player, movingPieceType,moveTo, capturedPieceType) { // GameController
+    var winner = null;
     this.log.getInto('GameController#reportActEnds');
-    var piece = actionContents[0];
-    var fromObj = actionContents[1];
-    var toCell = actionContents[2];
-    if (this.checkFinish(piece, toCell))
-      this.finish();
+    if (winner = this.game.checkFinish(player, movingPieceType, moveTo, capturedPieceType))
+      this.finish(winner);
     else
       this.sendDelta(this.makeDelta('continue'));
     this.log.goOut();
   },
 	/**
-	 * checkFinish(piece, toCell)
-	 */
-  checkFinish: function checkFinish(piece, toCell){ // GameController
-    this.log.getInto('checkFinish');
-    var ret = (
-    // 相手のライオンを捕獲
-    (toCell.piece.type == 'lion') || 
-    // 自分のライオンが最奥に到達
-    (piece.type == 'lion' && piece.isGoal(toCell)));
-           //  && window.gameController.game.isSafety(piece));
-    this.log.warn('checkFinish leaving with : ' + ret);
-    this.log.goOut();
-    return ret;
-  },
-	/**
 	 * finish()
 	 */
-  finish: function finish() { // GameController
+  finish: function finish(winner) { // GameController
     this.log.getInto('GameController#finish');
-    var winner = this.thisTurnPlayer();
     this.message(winner.shortName() + t('win'));
     this.sendDelta(this.makeDelta('finish'));
     this.log.goOut();
