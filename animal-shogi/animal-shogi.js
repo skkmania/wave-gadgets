@@ -219,10 +219,16 @@ this.game.log.goOut();
 	 * isViewersP()
 	 */
   isViewersP: function isViewersP(game) { // Piece
-    if (this.isBlack())
-      return this.game.player1.isViewer;
-    else
-      return this.game.player2.isViewer;
+    this.game.log.getInto('Piece#isViewersP');
+    if (this.isBlack()){
+      this.game.log.debug('owner name : ' + this.game.controller.player1.name);
+      this.game.log.goOut();
+      return this.game.controller.player1.isViewer;
+    } else {
+      this.game.log.debug('owner name : ' + this.game.controller.player2.name);
+      this.game.log.goOut();
+      return this.game.controller.player2.isViewer;
+    }
   },
 	/**
 	 * isGoal(cell)
@@ -454,7 +460,7 @@ this.game.log.warn('Droppables to add ' + this.elm.id);
         var piece = draggable.obj;
         var actionContents = [piece, fromObj, toCell];
         // send action to GameController
-        this.game.receiveAction(actionContents);
+        this.game.controller.receiveAction(actionContents);
         this.game.log.goOut();
 
 /*
@@ -521,11 +527,11 @@ window.gameController.game.log.warn('leaving show of Cell: ' + this.toDebugStrin
 	/**
 	 * isOpponentFirstLine(player)
 	 */
-  isOpponentFirstLine: function isOpponentFirstLine(player) {
-    if (window.gameController.game.player1.id == player.id) {
+  isOpponentFirstLine: function isOpponentFirstLine(player) { // Cell
+    if (window.gameController.player1.id == player.id) {
       return this.y === 1;
     }
-    else if (window.gameController.game.player2.id == player.id) {
+    else if (window.gameController.player2.id == player.id) {
       return this.y === 4;
     }
     else {
@@ -1295,19 +1301,19 @@ this.log.goOut();
 	/**
 	 * thisTurnPlayer()
 	 */
-  thisTurnPlayer: function thisTurnPlayer() {
-    return this.getTurn() ? this.player1 : this.player2;
+  thisTurnPlayer: function thisTurnPlayer() { // AnimalShogiGame
+    return this.getTurn() ? this.controller.player1 : this.controller.player2;
   },
 	/**
 	 * isViewersTurn()
 	 */
-  isViewersTurn: function isViewersTurn() { // Game
+  isViewersTurn: function isViewersTurn() { // AnimalShogiGame
     return this.thisTurnPlayer().isViewer;
   },
 	/**
 	 * toString()
 	 */
-  toString: function toString() { // Game
+  toString: function toString() { // AnimalShogiGame
 /*
     var ret = '';
     var json = this.toJSON();
@@ -1394,7 +1400,7 @@ this.log.goOut();
          * allPieces()
          */
   allPieces: function allPieces() { // AnimalShogiGame
-    return $A(this.board.cells.flatten().pluck('piece'), this.blackStand.pieces, this.whiteStand.pieces).flatten();
+    return $A(this.board.cells.flatten().pluck('piece'), this.blackStand.pieces, this.whiteStand.pieces).flatten().compact();
   },
 	/**
 	 * fromState(state)
@@ -1414,12 +1420,46 @@ this.log.warn('leaving Game#fromState');
 this.log.goOut();
   },
 	/**
+	 * initialDraggable(turn)
+	 */
+        // turnには'black','white',falseのいずれかが渡る。
+        // falseならなにもしない
+        // 'black'なら先手のコマにdraggableをつける
+        // 'white'なら後手のコマにdraggableをつける
+  initialDraggable: function initialDraggable(turn){ // AnimalShogiGame
+    var viewersPiece;
+    this.log.getInto('AnimalShogiGame#initialDraggable');
+    if(!turn){
+      this.log.debug('return withoud adding draggable');
+      this.log.goOut();
+      return;
+    }
+    if(turn == 'black'){
+      viewersPiece = this.allPieces().findAll(function(e){ return e.chr == e.chr.toUpperCase(); });
+    } else {
+      viewersPiece = this.allPieces().findAll(function(e){ return e.chr == e.chr.toLowerCase(); });
+    }
+    this.log.debug('viewersPiece # : ' + viewersPiece.length);
+    viewersPiece.each(function(e){ addDraggable(e, 'initially added draggable'); });
+    this.log.goOut();
+  },
+	/**
 	 * toggleDraggable()
 	 */
   toggleDraggable: function toggleDraggable(){ // AnimalShogiGame
     this.log.getInto('AnimalShogiGame#toggleDraggable');
-    this.log.warn('processing pieces of Draggables.drags');
-    Draggables.drags.pluck('element').pluck('obj').invoke('toggleDraggable');
+    this.log.debug('processing pieces of Draggables.drags');
+    this.log.debug('Draggables.drags #: ' + Draggables.drags.length);
+    if(Draggables.drags.length > 0){
+      this.log.debug('contents of Draggables.drags :');
+      Draggables.drags.each(function(e){
+        var str = e.element && e.element.obj ? e.element.obj.chr : e.toString();
+        this.log.debug(str);
+      }.bind(this));
+    }
+    for(var i=1,length=Draggables.drags.length; i<length; i++){
+      Draggables.drags[i].element.obj.toggleDraggable();
+    }
     this.log.warn('processing pieces of board.cells');
     this.board.cells.flatten().pluck('piece').compact().invoke('toggleDraggable');
     this.log.warn('processing blackStand');

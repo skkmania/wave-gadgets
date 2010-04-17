@@ -347,7 +347,7 @@ GameController = Class.create({
 	/**
 	 * makeGameAct()
 	 */
-  makeGameAct: function makeGameAct() { // Game
+  makeGameAct: function makeGameAct() { // GameController
     this.log.getInto();
     this.game.toggleDraggable();
     this.log.goOut();
@@ -493,13 +493,15 @@ this.log.goOut();
         // 返値 : stateに載せる情報としてdeltaを作成し返す
   setPlayersOrder: function setPlayersOrder() { // GameController
     var delta = {};
+    var viewer = wave.getViewer().getId();
     this.log.getInto('GameController#setPlayersOrder');
+    
     if(Math.random() < 0.5){ 
-      this.player1 = new Player('player1', this.players[0]);
-      this.player2 = new Player('player2', this.players[1]);
+      this.player1 = new Player('player1', this.players[0], this.players[0]==viewer);
+      this.player2 = new Player('player2', this.players[1], this.players[1]==viewer);
     } else {
-      this.player1 = new Player('player1', this.players[1]);
-      this.player2 = new Player('player2', this.players[0]);
+      this.player1 = new Player('player1', this.players[1], this.players[1]==viewer);
+      this.player2 = new Player('player2', this.players[0], this.players[0]==viewer);
     }
     this.log.debug('player1 : ' + this.player1.toString());
     this.log.debug('player2 : ' + this.player2.toString());
@@ -522,9 +524,12 @@ this.log.goOut();
         // 返値 : stateに載せる情報としてdeltaを作成し返す
   createPlayer: function createPlayer(bs, ws) { // GameController
     var delta = {};
+    var viewer = wave.getViewer().getId();
+    var b = bs.split(',')[0];
+    var w = ws.split(',')[0];
     this.log.getInto('GameController#createPlayer');
-    this.player1 = new Player('player1', bs.split(',')[0]);
-    this.player2 = new Player('player2', ws.split(',')[0]);
+    this.player1 = new Player('player1', b, b==viewer);
+    this.player2 = new Player('player2', w, w==viewer);
     this.log.debug('player1 : ' + this.player1.toString());
     this.log.debug('player2 : ' + this.player2.toString());
     this.blackplayers.push(this.player1);
@@ -778,7 +783,10 @@ this.log.goOut();
           this.log.debug('players : ' + ps);
           this.players = ps.split(',');
           this.log.debug('this.players : ' + this.players)
-          if(!this.player1) this.setPlayersOrder();
+          if(!this.player1){
+            this.setPlayersOrder();
+            if(this.viewersTurn()) this.game.initialDraggable(this.viewersTurn());
+          }
         } else {
           this.log.fatal('players not found in state');
         }
@@ -787,7 +795,10 @@ this.log.goOut();
         bs = state.get('blacks');  ws = state.get('whites');
         if (bs && ws){
           this.log.debug('blacks : ' + bs + '<br>' + 'whites : ' + ws);
-          if(!this.player1) this.createPlayer(bs, ws);
+          if(!this.player1){
+            this.createPlayer(bs, ws);
+            if(this.viewersTurn()) this.game.initialDraggable(this.viewersTurn());
+          }
         } else {
           this.log.fatal('blacks and whites are not found in state');
         }
@@ -795,6 +806,30 @@ this.log.goOut();
       default:
     }
     this.log.goOut();
+  },
+	/**
+	 * viewersTurn()
+	 */
+        // viewerが先手なら'black'を返し
+        //         後手なら'white'を返す
+        // viewerが先手でも後手でもなければfalseを返す
+  viewersTurn: function viewersTurn(){ // GameController
+    this.log.getInto('GameController#viewersTurn');
+    var ret = false;
+    var viewer = wave.getViewer().getId();
+    switch(viewer){
+      case this.player1.name:
+        ret = 'black';
+        break;
+      case this.player2.name:
+        ret = 'white';
+        break;
+      default:
+        ret = false;
+        break;
+     } 
+    this.log.goOut();
+    return ret;
   },
    
 	/**
