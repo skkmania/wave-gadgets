@@ -47,6 +47,9 @@ if(wave)
   <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
   <div id="top-stand"></div>
   <div id="animal-shogi"></div>
+  <div id="promoteOrNot"></div>
+  <div id="yesElement"></div>
+  <div id="noElement"></div>
   <div id="bottom-stand"></div>
   <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
 </div>
