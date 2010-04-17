@@ -300,28 +300,35 @@ GameController = Class.create({
     this.log.goOut();
   },
 	/**
-	 * sendDelta()
+	 * makeDelta()
 	 */
-  sendDelta: function sendDelta(){ // GameController
-    this.log.getInto('GameController#sendDelta');
-    // 送信
+  makeDelta: function makeDelta(flag){ // GameController
+    this.log.getInto('GameController#makeDelta');
     var delta = {};
-/*
     delta['board'] = this.game.board.toString();
     delta['bstand'] = this.game.blackStand.toString();
     delta['wstand'] = this.game.whiteStand.toString();
     delta['count'] = this.game.count.toString();
-*/
-    this.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
-    wave.getState().submitDelta(delta);
+    switch(flag){
+      case 'continue':
+        break;
+      case 'finish':
+        break;
+      default:
+        break;
+    }
     this.log.goOut();
+    return delta;
   },
 	/**
-	 * finishCheck()
+	 * sendDelta()
 	 */
-  finishCheck: function finishCheck() { // GameController
-    this.log.getInto('GameController#finishCheck');
+  sendDelta: function sendDelta(delta){ // GameController
+    this.log.getInto('GameController#sendDelta');
+    // 送信
+    this.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
     this.log.goOut();
+    wave.getState().submitDelta(delta);
   },
 	/**
 	 * providePlayer()
@@ -358,7 +365,7 @@ GameController = Class.create({
 	 */
   receiveResult: function receiveResult() { // Game
     this.log.getInto();
-    if(this.finishCheck()){
+    if(this.checkFinish()){
       this.sendDelta();
     }
     this.log.goOut();
@@ -372,10 +379,16 @@ GameController = Class.create({
   // actionContents : [piece, fromObj, toCell]
   receiveAction: function receiveAction(actionContents) { // GameController
     this.log.getInto('GameController#receiveAction');
-    if(this.game.respondValidity(actionContents)){
-      this.confirmActionByUser(actionContents);
-    } else {
-      this.noticeBadActionToUser();
+    switch(this.game.respondValidity(actionContents)){
+      case 'needConfirm':
+        this.confirmActionByUser(actionContents);
+        break;
+      case 'badAction':
+        this.noticeBadActionToUser();
+        break;
+      default:
+        this.game.doAction(actionContents);
+        break;
     }
     this.log.goOut();
   },
@@ -386,6 +399,7 @@ GameController = Class.create({
         // 成り・不成りを確認することを想定
   confirmActionByUser: function confirmActionByUser(actionContents) { // GameController
     this.log.getInto('GameController#confirmActionByUser');
+    this.game.makeConfirmActionElement();
     this.game.confirmActionByUser(actionContents);
     this.log.goOut();
   },
@@ -647,14 +661,42 @@ this.log.goOut();
     return this.thisTurnPlayer().isViewer;
   },
 	/**
-	 * finish(winner)
+	 * reportActEnds(actionContents)
 	 */
-  finish: function finish(winner) { // GameController
-    this.log.getInto();
+  reportActEnds: function reportActEnds(actionContents) { // GameController
+    this.log.getInto('GameController#reportActEnds');
+    var piece = actionContents[0];
+    var fromObj = actionContents[1];
+    var toCell = actionContents[2];
     if (this.checkFinish(piece, toCell))
-      this.message(winner.shortName() + t('win'));
+      this.finish();
     else
-      this.sendDelta();
+      this.sendDelta(this.makeDelta('continue'));
+    this.log.goOut();
+  },
+	/**
+	 * checkFinish(piece, toCell)
+	 */
+  checkFinish: function checkFinish(piece, toCell){ // GameController
+    this.log.getInto('checkFinish');
+    var ret = (
+    // 相手のライオンを捕獲
+    (toCell.piece.type == 'lion') || 
+    // 自分のライオンが最奥に到達
+    (piece.type == 'lion' && piece.isGoal(toCell)));
+           //  && window.gameController.game.isSafety(piece));
+    this.log.warn('checkFinish leaving with : ' + ret);
+    this.log.goOut();
+    return ret;
+  },
+	/**
+	 * finish()
+	 */
+  finish: function finish() { // GameController
+    this.log.getInto('GameController#finish');
+    var winner = this.thisTurnPlayer();
+    this.message(winner.shortName() + t('win'));
+    this.sendDelta(this.makeDelta('finish'));
     this.log.goOut();
   },
 	/**
@@ -870,38 +912,3 @@ this.log.goOut();
     this.log.goOut();
   }
 });
-
-/**
- * common functions
- */
-	/**
-	 * sendDelta()
-	 */
-function sendDelta(){
-   // 送信
-   var delta = {};
-   delta['board'] = window.gameController.game.board.toString();
-   delta['bstand'] = window.gameController.game.blackStand.toString();
-   delta['wstand'] = window.gameController.game.whiteStand.toString();
-   delta['count'] = window.gameController.game.count.toString();
-window.gameController.game.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
-   wave.getState().submitDelta(delta);
-}
-
-	/**
-	 * checkFinish(piece, toCell)
-	 */
-function checkFinish(piece, toCell){
-window.gameController.game.log.getInto();
-window.gameController.game.log.warn('entered checkFinish');
-   var ret = (
-   // 相手のライオンを捕獲
-   (toCell.piece.type == 'lion') || 
-   // 自分のライオンが最奥に到達
-   (piece.type == 'lion' && piece.isGoal(toCell))
-           //  && window.gameController.game.isSafety(piece))
-  );
-window.gameController.game.log.warn('checkFinish leaving with : ' + ret);
-window.gameController.game.log.goOut();
-  return ret;
-}

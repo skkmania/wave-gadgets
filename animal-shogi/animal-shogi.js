@@ -12,6 +12,7 @@ window.gameController.game.log.goOut();
 
 function addDraggable(piece, startMessage){
   window.gameController.log.getInto('addDraggable');
+  window.gameController.log.debug('piece:' + piece.toDebugString());
   window.gameController.log.debug('msg:' + startMessage,{3:{'color':'#aa8844'}});
   window.gameController.log.goOut();
 
@@ -150,8 +151,7 @@ this.game.log.goOut();
 	 * canMove(fromObj, toCell)
 	 */
   canMove: function canMove(fromObj, toCell) { // Piece
-this.game.log.getInto();
-this.game.log.debug('canMove entered.');
+this.game.log.getInto('Piece#canMove');
     if (fromObj.type == 'stand'){
        this.game.log.goOut();
        return true; // 打ち駒はどこでもOK
@@ -1187,8 +1187,9 @@ window.gameController.game = this;
         // 
   respondValidity: function respondValidity(actionContents) { // AnimalShogiGame
     this.log.getInto('AnimalShogiGame#respondValidity');
+    var ret = moveValidate(actionContents);
     this.log.goOut();
-    return moveValidate(actionContents);
+    return ret;
   },
 	/**
 	 * getPlayer(player)
@@ -1557,7 +1558,7 @@ this.log.goOut();
           piece.sitOnto(toCell);
         }
 
-        this.controller.finish();
+        this.controller.reportActEnds(actionContents);
     
     this.log.goOut();
   },
@@ -1608,30 +1609,72 @@ this.log.goOut();
 	 */
         // actionの正当性を判断して返す
         // actionContents : [piece, fromObj, toCell]
+        // 返り値 :'needConfirm' ユーザconfirmを求める手だという意味 
+        // 返り値 :'badAction' ルールにそわない手だという意味 
+        // 返り値 :'normal' ルールにそい、そのまま進めてよい手だという意味 
 function moveValidate(actionContents){
   window.gameController.log.getInto('moveValidate');
   var piece = actionContents[0];
   var fromCell = actionContents[1];
   var toCell = actionContents[2];
+  var ret = 'normal';
   window.gameController.log.debug('moveValidate entered: piece: ' + piece.toDebugString());
-   if (toCell.piece) {
-     if (piece.isBlack() == toCell.piece.isBlack()){
-       window.gameController.message(t('cannot_capture_yourown_piece')); return false;
-     }
-   }
-   window.gameController.game.log.debug('own capturing check passed.');
-   if(!fromCell && toCell.piece) {
-     window.gameController.message(t('already_occupied')); return false;
-   }
-   window.gameController.game.log.debug('put piece on filled cell check passed.');
-   if (!piece.canMove(fromCell, toCell)) {
-     window.gameController.message(t('not_allowed')); return false;
-   }
-   window.gameController.log.debug('illegal move check passed.');
-   window.gameController.log.goOut();
-   return true;
+  for(;;){
+    if (toCell.piece) {
+      if (piece.isBlack() == toCell.piece.isBlack()){
+        window.gameController.message(t('cannot_capture_yourown_piece')); ret = 'badAction';
+        break;
+      }
+    }
+    window.gameController.game.log.debug('own capturing check passed.');
+    if(!fromCell && toCell.piece) {
+      window.gameController.message(t('already_occupied')); ret = 'badAction';
+      break;
+    }
+    window.gameController.game.log.debug('put piece on filled cell check passed.');
+    if (!piece.canMove(fromCell, toCell)) {
+      window.gameController.message(t('not_allowed')); ret = 'badAction';
+      break;
+    }
+    window.gameController.log.debug('illegal move check passed.');
+    if (promoteCheck(actionContents)){
+      ret = 'needConfirm';
+      break;
+    }
+    window.gameController.log.debug('this move not require promotion.');
+    break;
+  }
+  window.gameController.log.debug('returning with : ' + ret);
+  window.gameController.log.goOut();
+  return ret;
 }
 
+	/**
+	 * promoteCheck(actionContents)
+	 */
+        // 成ることができるコマの動き方ならtrueを返し
+        // そうでないならfalseを返す
+function promoteCheck(actionContents){
+  window.gameController.log.getInto('promoteCheck');
+  var ret = false;
+  var piece = actionContents[0];
+  var player = piece.isBlack() ? window.gameController.player1 : window.gameController.player2;
+  var fromCell = actionContents[1];
+  var toCell = actionContents[2];
+  for(;;){
+    if (piece.type != 'chick'){
+      ret = false;
+      break;
+    }
+    if (toCell.isOpponentFirstLine(player)){
+      ret = true;
+      break;
+    }
+    break;
+  } 
+  window.gameController.log.goOut();
+  return ret;
+}
 	/**
 	 * checkFinish(piece, toCell)
 	 */
