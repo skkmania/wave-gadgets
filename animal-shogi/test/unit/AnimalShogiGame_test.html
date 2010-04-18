@@ -64,6 +64,21 @@
     delete settings;
   } },
 
+  testGetPlayer : function() {  with( this )  {
+    var logObj = makeLogObj('testgetPlayer', {width:600, height:350, resizable:false});
+    logObj.debug('test confirmActionByUser');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    gameObj.log.debug('test getPlayer');
+    gameObj.game.getPlayer(gameObj.player1);
+    assertEqual(logObj, gameObj.log);
+    assertEqual( 'animal-shogi', gameObj.game.container.id );
+    } },
+
   testConfirmActionByUser : function() {  with( this )  {
     var logObj = makeLogObj('testConfirmActionByUser', {width:600, height:350, resizable:false});
     logObj.debug('test confirmActionByUser');
@@ -84,6 +99,7 @@
     assertEqual( 'animal-shogi', gameObj.game.container.id );
     logObj.debug('logObj still alive 5');
     } },
+
   testToString : function() {  with( this )  {
     var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
     logObj.debug('test toString');

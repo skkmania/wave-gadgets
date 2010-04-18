@@ -23,6 +23,7 @@
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
 <script src="http://skkmania.sakura.ne.jp/animal-shogi/game-controller.js" charset="UTF-8"></script>
 <script src="../../unittest.js" type="text/javascript"></script>
+<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/animal-shogi.css" type="text/css" />
 <link rel="stylesheet" href="./../test.css" type="text/css" />
 <link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/log4pipe.css" type="text/css" />
   <style type="text/css" media="screen">
@@ -30,7 +31,6 @@
     #div_absolute_test { position: absolute }
   /* ]]> */
   </style>
-  
 </head>
 <body>
 <div id="animal-shogi"></div>
@@ -72,64 +72,89 @@
 
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
+    //wave.state.reset();
     gameObj.log.debug('test Initialize');
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
-  testMainRoutine : function() {  with( this )  {
-    var logObj = makeLogObj('testMainRoutine', {width:500, height:150, resizable:false});
-    logObj.debug('test MainRoutine');
+  testsetPlayersOrder : function() {  with( this )  {
+    var logObj = makeLogObj('testsetPlayersOrder', {width:600, height:450, resizable:false});
+    logObj.debug('test setPlayersOrder');
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
+    //wave.state.reset();
+    gameObj.log.debug('test setPlayersOrder');
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    assertEqual( 'animal-shogi', gameObj.container.id );
+  } },
+
+  testMainRoutine : function() {  with( this )  {
+    var logObj = makeLogObj('testMainRoutine', {width:600, height:450, resizable:false});
+    logObj.debug('test MainRoutine');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+    // 準備
+    settings = {'containerId':'animal-shogi'};
+    var gameObj = new GameController(settings, logObj);
+    //wave.state.reset();
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    // test
     gameObj.log.debug('test MainRoutine');
     gameObj.mainRoutine();
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
-  testStateChangedWithEmptyState : function() {  with( this )  {
-    var logObj = makeLogObj('testStateChangedWithEmptyState', {width:600, height:350, resizable:false});
-    logObj.debug('test stateChanged with empty state');
+  testAcceptStateWithEmptyState : function() {  with( this )  {
+    var logObj = makeLogObj('testAcceptStateWithEmptyState', {width:600, height:350, resizable:false});
+    logObj.debug('test acceptState with empty state');
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
-    gameObj.log.debug('test stateChanged with empty state');
-    gameObj.stateChanged();
+    gameObj.log.debug('test acceptState with empty state');
+    //wave.state.reset();
+    gameObj.acceptState();
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
-  testStateChangedWithOnePersonState : function() {  with( this )  {
-    var logObj = makeLogObj('testStateChangedWithOnePersonState', {width:600, height:350, resizable:false});
-    logObj.debug('test stateChanged with one person state');
+  testAcceptStateWithOnePersonState : function() {  with( this )  {
+    var logObj = makeLogObj('testAcceptStateWithOnePersonState', {width:600, height:350, resizable:false});
+    logObj.debug('test acceptState with one person state');
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
-    gameObj.log.debug('test stateChanged with one person state');
-    wave.state.put('player_candidate_1','skkmania@googlewave.com');
-    gameObj.stateChanged();
+    gameObj.log.debug('test acceptState with one person state');
+    wave.state.reset();
+    wave.state.put('player_candidate','skkmania@googlewave.com');
+    gameObj.acceptState();
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
-  testStateChangedWithTwoPersonState : function() {  with( this )  {
-    var logObj = makeLogObj('testStateChangedWithTwoPersonState', {width:600, height:350, resizable:false});
-    logObj.debug('test stateChanged with two person state');
+  testAcceptStateWithTwoPersonState : function() {  with( this )  {
+    var logObj = makeLogObj('testAcceptStateWithTwoPersonState', {width:600, height:350, resizable:false});
+    logObj.debug('test acceptState with two person state');
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'animal-shogi'};
     var gameObj = new GameController(settings, logObj);
-    gameObj.log.debug('test stateChanged with two person state');
-    wave.state.put('player_candidate_1','skkmania@googlewave.com');
-    wave.state.put('player_candidate_2','wajirou@googlewave.com');
-    gameObj.stateChanged();
-    assertEqual( true, gameObj.game.askPlayersEnough(gameObj.players) );
-    assertEqual( 'animal-shogi', gameObj.container.id );
+    gameObj.log.debug('test acceptState with two person state');
+    if(wave.state) wave.state.reset();
+    else gameObj.log.debug('wave.state not exists');
+    wave.state.put('blacks','skkmania@googlewave.com');
+    wave.state.put('whites','wajirou@googlewave.com');
+    wave.state.put('mode','playing');
+    gameObj.acceptState();
+    assertEqual( true, gameObj.game.askPlayersEnough(gameObj.players), 'askPlayersEnough answer' );
+    assertEqual( 'animal-shogi', gameObj.container.id, 'container id test');
   } },
 
   testToString : function() {  with( this )  {
@@ -159,5 +184,27 @@
     <div id="logger7"></div>
     <div id="logger8"></div>
   </p>
+<div id="container">
+  <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
+  <div id="top-stand"></div>
+  <div id="animal-shogi"></div>
+  <div id="bottom-stand"></div>
+  <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
+</div>
+<div id="sidebar">
+  <div id="control-panel">
+    <div id="message">
+      <div class="t">message</div>
+      <div id="message-body"></div>
+    </div>
+  </div>
+</div>
+<div id="rev-b">
+  <button id="reverse-button" class="reverse t" onclick="window.gameController.game.reverse();">reverse</button>
+  <button id="dump-button" class="dump t" onclick="window.gameController.game.debug_dump();">dump</button>
+</div>
+
+<button id="join-button" class="join t" onclick="window.gameController.joinButtonPressed(wave.getViewer().getId()); this.hide();">join</button>
+
 </body>
 </html>

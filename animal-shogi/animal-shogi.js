@@ -566,7 +566,7 @@ window.gameController.game.log.warn('leaving show of Cell: ' + this.toDebugStrin
     for(var i = -1; i < 2; i++){
       for(var j = -1; j < 2; j++){
         if(p = this.board.cells(x+i,y+j).piece){
-          if(p.isTurn() && ret = p.canMoveTo(x,y)){
+          if(p.isTurn() && (ret = p.canMoveTo(x,y))){
             break;
           }
         }
@@ -1544,9 +1544,18 @@ this.log.goOut();
         this.log.debug(str);
       }.bind(this));
     }
+      Draggables.drags.each(function(e){
+        if(e.element && e.element.obj && e.element.obj.toggleDraggable){
+           e.element.obj.toggleDraggable();
+        } else {
+          this.log.debug('not piece object in drags');
+        }
+      }.bind(this));
+/*
     for(var i=1,length=Draggables.drags.length; i<length; i++){
       Draggables.drags[i].element.obj.toggleDraggable();
     }
+*/
     this.log.warn('processing pieces of board.cells');
     this.board.cells.flatten().pluck('piece').compact().invoke('toggleDraggable');
     this.log.warn('processing blackStand');
