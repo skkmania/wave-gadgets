@@ -542,17 +542,23 @@ this.log.goOut();
     var b = bs.split(',')[0];
     var w = ws.split(',')[0];
     this.log.getInto('GameController#createPlayer');
+    // Player オブジェクトを生成
     this.player1 = new Player('player1', b, b==viewer);
     this.player2 = new Player('player2', w, w==viewer);
     this.log.debug('player1 : ' + this.player1.toString());
     this.log.debug('player2 : ' + this.player2.toString());
+    // blackplayers, whiteplayersの各配列におく
     this.blackplayers.push(this.player1);
-    delta['blacks'] = this.blackplayers.pluck('name').join(',');
     this.log.debug('blackplayers : ' + this.blackplayers.pluck('name').join('<br>'));
     this.whiteplayers.push(this.player2);
-    delta['whites'] = this.whiteplayers.pluck('name').join(',');
     this.log.debug('whiteplayers : ' + this.whiteplayers.pluck('name').join('<br>'));
+    // state 用にdeltaに登録
+    delta['blacks'] = this.blackplayers.pluck('name').join(',');
+    delta['whites'] = this.whiteplayers.pluck('name').join(',');
     delta['mode'] = 'playing';
+    // playersにも登録しておく（途中から受け取ったユーザのために）
+    if (!this.players.include(b)) this.players.push(b);
+    if (!this.players.include(w)) this.players.push(w);
     this.log.goOut();
     return delta;
   },

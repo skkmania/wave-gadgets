@@ -1428,6 +1428,7 @@ this.log.goOut();
 	 */
   askPlayersEnough: function askPlayersEnough(players){ // Game
     this.log.getInto('AnimalShogiGame#askPlayersEnough');
+    this.log.debug('contents of players : ' + players.join(','));
     var ret = (players.length > 1);
     this.log.goOut();
     return ret;

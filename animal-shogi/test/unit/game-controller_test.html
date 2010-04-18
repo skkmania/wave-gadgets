@@ -153,6 +153,8 @@
     wave.state.put('whites','wajirou@googlewave.com');
     wave.state.put('mode','playing');
     gameObj.acceptState();
+    assert( gameObj.players.include('skkmania@googlewave.com'), 'skkmania is not included in players');
+    assert( gameObj.players.include('wajirou@googlewave.com'), 'wajirou is not included in players');
     assertEqual( true, gameObj.game.askPlayersEnough(gameObj.players), 'askPlayersEnough answer' );
     assertEqual( 'animal-shogi', gameObj.container.id, 'container id test');
   } },
