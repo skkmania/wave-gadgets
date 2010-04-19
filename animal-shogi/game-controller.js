@@ -279,6 +279,7 @@ GameController = Class.create({
     if(!this.player1) this.getPlayersFromState(state);
     //$('join-button').hide();
     if (!this.game.board.shown) this.game.board.show();
+    this.game.fromState(state);
     this.fromState(state);
     this.log.goOut();
   }, 

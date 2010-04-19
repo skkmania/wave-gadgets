@@ -1174,7 +1174,7 @@ AnimalShogiGame = Class.create({
 	/**
 	 * initialize(settings, log)
 	 */
-  initialize: function initialize(settings, gameController) {
+  initialize: function initialize(settings, gameController) { // AnimalShogiGame
 // for test only
 window.gameController = gameController;
 window.gameController.game = this;
@@ -1208,14 +1208,12 @@ window.gameController.game = this;
       //  viewer == player1 のとき、top = 0 (player1がbottomなので)
       //  viewer == player2 のとき、top = 1 (player2がbottomなので)
       //  viewer がplayerでないとき、top = 0 （先手がbottomがデフォルトであるので)
-/*
     this.controller.determineTop();
       //  Boardのinitializeにおいてはtop=0を前提にstyle.top, style.leftを決めている
       //  ので、topが決まったこの時点で必要なら修正しておく必要がある
     this.board.adjust();
       //  持ち駒の位置も決めておく
     this.setStandPosition();
-*/
     this.makeConfirmActionElement();
     this.log.warn('leaving AnimalShogiGame#initialize',{'indent':-1, 'date':true,3:{'color':'green'}});
     this.log.goOut();
