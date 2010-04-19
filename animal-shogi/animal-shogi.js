@@ -1188,6 +1188,7 @@ window.gameController.game = this;
     this.playingViewer = null;
     this.log.warn('01');
     this.container = $(settings.containerId);
+    this.container.style.width = this.width * 35 + 'px';
     this.log.warn('02');
     this.board = new Board(this.container, this);
     this.log.warn('Board created.');

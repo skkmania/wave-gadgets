@@ -69,6 +69,7 @@ ControlPanel = Class.create({
     controller.log.getInto('ControlPanel#initialize');
     this.controller = controller;
     this.controller.log.goOut();
+    this.counterElm = $('counterNum');
   },
 	/**
 	 * reverse()
@@ -101,6 +102,7 @@ ControlPanel = Class.create({
   update: function update(mode) { // ControlPanel             
     this.controller.log.getInto('ControlPanel#update');
     this.controller.log.debug('mode : ' + mode);
+    this.counterElm.update(this.controller.count);
     if (!this.elm) this.elm = $('control-panel');                         
     if (this.controller.game.top == 1){                                                
       this.player1Elm = $('top-panel');
@@ -357,7 +359,7 @@ GameController = Class.create({
 	 */
   makeGameAct: function makeGameAct() { // GameController
     this.log.getInto();
-    this.game.toggleDraggable();
+    this.nextTurn();
     this.log.goOut();
     return null;
   },
@@ -643,7 +645,7 @@ this.log.goOut();
     this.count++;
     this.controlPanel.update();
     this.clearMessage();
-    this.toggleDraggable();
+    this.game.toggleDraggable();
     this.log.debug('leaving Game#nextTurn', {'indent':-1});
     this.log.goOut();
   },

@@ -5,6 +5,7 @@ M17N = {
     ja: {
       sente: '先手: ',
       gote: '後手: ',
+      count: '手数: ',
       waiting: '参加者受付中',
       player: 'プレイヤー',
       message: 'メッセージ',
@@ -28,6 +29,7 @@ M17N = {
     en: {
       sente: 'Black: ',
       gote: 'White: ',
+      count: 'count: ',
       waiting: 'Waiting',
       player: 'Players',
       message: 'Message',

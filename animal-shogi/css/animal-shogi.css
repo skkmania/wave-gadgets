@@ -12,6 +12,7 @@ div#container {
   hight: 400px;
 }
 div#top-stand {
+  clear: both;
   background-color: #c80;
   float: left;
   margin: 10px;
@@ -111,6 +112,16 @@ img.bottom {
   text-align: center;
   background-color: black;
   color: white;
+}
+#top-panel {
+  float: left;
+  text-align: left;
+  margin-top: 2px;
+}
+#counter {
+  margin-top: 2px;
+  margin-right: 2px;
+  text-align: right;
 }
 #bottom-panel {
   clear:both;
