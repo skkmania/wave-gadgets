@@ -40,17 +40,17 @@ Piece = Class.create({
 	 */
   initialize: function initialize(chr, game) {
     this.game = game || window.gameController.game;
-this.game.log.getInto('Piece#initialize');
-this.game.log.warn('Piece#initialize entered with : ' + chr, {'indent':1});
+    this.game.log.getInto('Piece#initialize');
+    this.game.log.warn('Piece#initialize entered with : ' + chr, {'indent':1});
     this.type = Chr2Type[chr.toLowerCase()];
-this.game.log.warn('Piece#initialize type is : ' + this.type);
+    this.game.log.warn('Piece#initialize type is : ' + this.type);
     Object.extend(this, PieceTypeObjects[this.type]);
-this.game.log.warn('Piece#initialize imageUrl is : ' + this.imageUrl);
+    this.game.log.warn('Piece#initialize imageUrl is : ' + this.imageUrl);
     this.cell = null;
     this.chr = chr;
     this.createElm();
-this.game.log.warn('leaving Piece#initialize', {'indent':-1}); 
-this.game.log.goOut();
+    this.game.log.debug(this.toDebugString()); 
+    this.game.log.goOut();
   },
 	/**
 	 * isBlack()
@@ -65,8 +65,7 @@ this.game.log.goOut();
 	 * toggleBW()
 	 */
   toggleBW: function toggleBW() {  // Piece
-    this.game.log.getInto();
-    this.game.log.debug('entered Piece#toggleBW');
+    this.game.log.getInto('Piece#toggleBW');
     if (this.chr == this.chr.toUpperCase())
       this.chr = this.chr.toLowerCase(); 
     else
@@ -75,7 +74,6 @@ this.game.log.goOut();
     this.elm.toggleClassName('top');
     this.elm.toggleClassName('bottom');
 
-    this.game.log.debug('leaving Piece#toggleBW');
     this.game.log.goOut();
   },
 	/**
@@ -145,7 +143,7 @@ this.game.log.goOut();
 	 * atTop()
 	 */
   atTop: function atTop(){ // Piece
-    return (this.game.top == 1) == this.isBlack();
+    return (this.game.controller.top == 1) == this.isBlack();
   },
 	/**
 	 * isTurn()
@@ -284,9 +282,9 @@ this.game.log.goOut();
 	 */
   toDebugString: function toDebugString() {  // Piece
     var ret = 'chr: <span style="color: #3F8080">' + this.chr + '</span>, ';
-    ret += (', cn: ' + this.elm.className);
-    if (this.cell && this.cell.elm) ret += ('cell_name:' + this.cell.elm.id);
-    else ret += '[no cell]';
+    ret += (', className: ' + this.elm.className);
+    if (this.cell && this.cell.elm) ret += (', cell_name:' + this.cell.elm.id);
+    else ret += ', [no cell]';
     return ret;
   }
 });
@@ -420,7 +418,7 @@ this.game.log.warn('Cell#put leaving with piece : ' + this.piece.toDebugString()
   getPosition: function getPosition(){ // Cell
     // top値により、各セルの画面上の座標が決まる
 if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cell#getPosition -----------');
-    if (window.gameController.game.top == 1){
+    if (window.gameController.top == 1){
       var bh = window.gameController.game.height;
       this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
       this.elm.style.top = (this.marginTop + this.hight * (bh - 1 - this.y)) + 'px';
@@ -476,12 +474,18 @@ this.game.log.warn('Droppables to add ' + this.elm.id);
 	 * onDrop(draggable)
 	 */
       onDrop: function onDrop(draggable) {
-        this.game.log.getInto({ "background":"#aaccff" });
+        this.game.log.getInto('Droppable#onDrop',{ "background":"#aaccff" });
+
         // make action contents
         var fromObj = draggable.parentNode.obj;
         var toCell = this;
         var piece = draggable.obj;
         var actionContents = [piece, fromObj, toCell];
+        this.game.log.debug('actionContents:');
+        this.game.log.debug('piece :' + piece.toDebugString());
+        this.game.log.debug('fromObj :' + fromObj.toDebugString());
+        this.game.log.debug('toCell :' + toCell.toDebugString());
+
         // send action to GameController
         this.game.controller.receiveAction(actionContents);
         this.game.log.goOut();
@@ -536,7 +540,7 @@ window.gameController.game.log.warn('entered show of Cell: ' + this.toDebugStrin
     if (this.piece) {
 window.gameController.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugString());
       this.elm.appendChild(this.piece.elm);
-      if(this.piece.isBlack() == (window.gameController.game.top === 0)){
+      if(this.piece.isBlack() == (window.gameController.top === 0)){
         this.piece.elm.addClassName('bottom');
         this.piece.elm.removeClassName('top');
       } else {
@@ -730,14 +734,14 @@ Board = Class.create({
   initialize: function initialize(elm, game) {
 game.log.getInto('Board#initialize');
     this.game = game;
-    this.top = game.top;
+    this.top = game.controller.top;
     this.elm = elm || document.body;
     this.shown = false;
     this.cells = [];
     for (var r = 0; r < this.game.height; r++) {
       var row = [];
       for (var c = 0; c < this.game.width; c++) {
-        row.push(new Cell(this, c, r, this.game.top));
+        row.push(new Cell(this, c, r, this.top));
       }
       this.cells.push(row);
     }
@@ -792,7 +796,7 @@ game.log.goOut();
     if(!this.cells[1][1].elm) return;
     if(!this.game) return;
 this.game.log.getInto();
-this.game.log.warn('Board#adjust entered--top is ' + this.game.top);  
+this.game.log.warn('Board#adjust entered--top is ' + this.top);  
     this.cells.flatten().invoke('getPosition');
     this.adjustBorder();
 this.game.log.warn('Board#adjust ended.');
@@ -806,7 +810,7 @@ this.game.log.getInto();
 this.game.log.warn('Board#adjustBoarder entered');
     if(!this.cells[1][1].elm) return;
     if(!this.game) return;
-    if(this.game.top === 0){
+    if(this.top === 0){
       for (var r = 1; r < this.game.height; r++) {
         this.cells[r][1].elm.addClassName('rightCell');
         this.cells[r][this.game.width - 1].elm.removeClassName('rightCell');
@@ -1012,7 +1016,7 @@ this.game.log.goOut();
       if (c.piece) {
         log.warn('reverse class name called. piece is ' + c.piece.toDebugString());
         if (c.piece.isBlack()) {
-          if (game.top === 0){
+          if (this.top === 0){
             c.piece.elm.removeClassName('top');
             c.piece.elm.addClassName('bottom');
           } else {
@@ -1020,7 +1024,7 @@ this.game.log.goOut();
             c.piece.elm.addClassName('top');
           }
         } else {
-          if (game.top === 0){
+          if (this.top === 0){
             c.piece.elm.removeClassName('bottom');
             c.piece.elm.addClassName('top');
           } else {
@@ -1063,7 +1067,7 @@ Stand = Class.create({
   initialize: function initialize(id, game) {
     game.log.getInto('Stand#initialize');
     this.game = game;
-    this.top = game.top;
+    this.top = game.controller.top;
     this.width = 1; 
     this.height = game.height - 1;
     this.id = id;
@@ -1151,14 +1155,13 @@ this.game.log.goOut();
 	 */
   put: function put(piece){ // Stand
     // 駒台に持ち駒を載せる
-this.game.log.getInto();
-    this.game.log.debug('entered  Stand#put with : ' );
-    //this.game.log.debug('entered ' + this.id + ' Stand#put with : ' + piece.toDebugString());
+    this.game.log.getInto('Stand#put');
+    this.game.log.debug('this is : ' + this.id + ', piece : ' + piece.toDebugString());
     piece.toggleBW();
     piece.cell = null;
     this.pieces.push(piece);
     this.elm.appendChild(piece.elm);
-    this.game.log.debug('leaving ' + this.id + ' Stand#put : ' + piece.toDebugString());
+    this.game.log.debug('leaving ' + this.id + ', Stand#put : ' + piece.toDebugString());
 this.game.log.goOut();
   },
 	/**
@@ -1254,7 +1257,7 @@ window.gameController.game = this;
       //  viewer == player2 のとき、top = 1 (player2がbottomなので)
       //  viewer がplayerでないとき、top = 0 （先手がbottomがデフォルトであるので)
 /*
-    this.determineTop();
+    this.controller.determineTop();
       //  Boardのinitializeにおいてはtop=0を前提にstyle.top, style.leftを決めている
       //  ので、topが決まったこの時点で必要なら修正しておく必要がある
     this.board.adjust();
@@ -1305,39 +1308,21 @@ window.gameController.game = this;
     $('animal-shogi').style.width = 80 + (this.width)*30 + 'px';
   },
 	/**
-	 * determineTop()
-	 */
-  determineTop: function determineTop() { // Game
-this.log.getInto();
-this.log.debug('entered Game#determineTop : ', {'indent':1});
-     // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
-     // はじめからtop が１になるのはplayer2がviewerのときだけ
-     // あとはviewerが反転ボタンで指定したとき
-    if (this.top_by_viewer){
-       this.top = this.top_by_viewer;
-    } else {
-      this.top = 0;  // by default
-      if (this.player2 && this.player2.isViewer) this.top = 1;
-    }
-this.log.debug('leaving determineTop with game.top : ' + this.top, {'indent':-1});
-this.log.goOut();
-  },
-	/**
 	 * show()
 	 */
-  show: function show() { // game
+  show: function show() { // AnimalShogiGame
 this.log.warn('game.show');
     //this.board.show();
   },
 	/**
 	 * reverse()
 	 */
-  reverse: function reverse() { // game
+  reverse: function reverse() { // AnimalShogiGame
     this.controller.log.getInto('AnimalShogiGame#reverse');
     var tmp = null;
-    this.top = (this.top === 0 ? 1 : 0);
+    this.controller.top = (this.controller.top === 0 ? 1 : 0);
     this.top_by_viewer = this.top;
-    this.controller.message('game.top became ' + this.top);
+    this.controller.message('top became ' + this.controller.top);
     this.board.reverse();
     this.board.adjust();
     if($('top-stand') && $('bottom-stand')){
@@ -1356,10 +1341,10 @@ this.log.warn('game.show');
 	/**
 	 * start()
 	 */
-  start: function start() { // Game
+  start: function start() { // AnimalShogiGame
 this.log.getInto();
     this.log.warn('game.start was called.');
-    this.determineTop();
+    this.controller.determineTop();
     this.controlPanel.update();
     this.board.show();
     this.log.warn('leaving game.start.');
@@ -1475,7 +1460,7 @@ this.log.goOut();
     else if (this.player2 && this.player2.isViewer) {
       this.playingViewer = this.player2;
     }
-    this.determineTop();
+    this.controller.determineTop();
 if(this.playingViewer) this.log.debug('playingViewer is defined : ' + this.playingViewer);
     if (this.player1 && this.player2) {
       this.controller.message('');
@@ -1665,7 +1650,7 @@ this.log.goOut();
 	/**
 	 * debug_dump()
 	 */
-  debug_dump: function debug_dump(){
+  debug_dump: function debug_dump(){ //AnimalShogiGame
     this.log.getInto({ "background":"#ff88aa","font-size":"12px" });
     this.log.warn('debug_dump enterd', {'indent':2});
     try{
@@ -1682,7 +1667,7 @@ this.log.goOut();
     obj['player1']	 = (this.player1 ? this.player1.toDebugString():null);
     obj['player2']	 = (this.player2 ? this.player2.toDebugString():null);
     obj['playingViewer'] = (this.playingViewer ? this.playingViewer.toDebugString():null);
-    obj['top']		 = this.top;
+    obj['top']		 = this.controller.top;
     //obj['board']	 = this.board.toDebugString();
     obj['board']	 = this.board.toString();
     obj['blackStand']	 = this.blackStand.toString();

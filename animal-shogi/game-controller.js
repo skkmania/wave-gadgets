@@ -342,7 +342,7 @@ GameController = Class.create({
 	 * playerInTurn()
 	 */
         // 現在の手番のplayer objectを返す
-  playerInTurn: function playerInTurn() { // Game
+  playerInTurn: function playerInTurn() { // GameController
     this.log.getInto('GameController#playerInTurn');
     if (this.getTurn())
       ret = this.blackplayers[0];
@@ -363,7 +363,7 @@ GameController = Class.create({
 	/**
 	 * receiveResult()
 	 */
-  receiveResult: function receiveResult() { // Game
+  receiveResult: function receiveResult() { // GameController
     this.log.getInto();
     if(this.checkFinish()){
       this.sendDelta();
@@ -448,9 +448,8 @@ GameController = Class.create({
 	/**
 	 * determineTop()
 	 */
-  determineTop: function determineTop() { // Game
-this.log.getInto();
-this.log.debug('entered Game#determineTop : ', {'indent':1});
+  determineTop: function determineTop() { // GameController
+this.log.getInto('GameController#determineTop');
      // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
      // はじめからtop が１になるのはplayer2がviewerのときだけ
      // あとはviewerが反転ボタンで指定したとき
@@ -460,8 +459,8 @@ this.log.debug('entered Game#determineTop : ', {'indent':1});
       this.top = 0;  // by default
       if (this.player2 && this.player2.isViewer) this.top = 1;
     }
-this.log.debug('leaving determineTop with game.top : ' + this.top, {'indent':-1});
-this.log.goOut();
+    this.log.debug('leaving determineTop with gameController.top : ' + this.top);
+    this.log.goOut();
   },
 	/**
 	 * joinButtonPressed(name)
