@@ -372,7 +372,7 @@ GameController = Class.create({
     return null;
   },
 	/**
-	 * receiveAction()
+	 * receiveAction(actionContents)
 	 */
   // ユーザのアクションがここに通知される
   //   (具体的には、gameのPieceがonDropの中でこの関数を呼び出す)
@@ -668,9 +668,13 @@ this.log.goOut();
 	/**
 	 * reportActEnds(player, movingPieceType,moveTo, capturedPieceType)
 	 */
-  reportActEnds: function reportActEnds(player, movingPieceType,moveTo, capturedPieceType) { // GameController
+  reportActEnds: function reportActEnds(player, movingPieceType, moveTo, capturedPieceType) { // GameController
     var winner = null;
     this.log.getInto('GameController#reportActEnds');
+    this.log.debug('player: ' + player.name);
+    this.log.debug('movingPieceType: ' + movingPieceType);
+    this.log.debug('moveTo: ' + moveTo.inspect());
+    this.log.debug('capturedPieceType: ' + capturedPieceType);
     if (winner = this.game.checkFinish(player, movingPieceType, moveTo, capturedPieceType))
       this.finish(winner);
     else

@@ -18,12 +18,12 @@ function addDraggable(piece, startMessage){
 
   return  new Draggable(piece.elm, {
         onStart: function onStart() {
-          window.gameController.game.log.getInto();
+          window.gameController.game.log.getInto('Draggable#onStart of ' + piece.toDebugString());
           window.gameController.game.log.warn('Drag started. : ' + startMessage, {3:{'color':'#33AA88'}});
           window.gameController.game.log.goOut();
         },
         onEnd: function onEnd() {
-          window.gameController.game.log.getInto();
+          window.gameController.game.log.getInto('Draggable#onEnd of ' + piece.toDebugString());
           this.elm.style.top = 0;
           this.elm.style.left = 0;
           window.gameController.game.log.goOut();
@@ -150,7 +150,7 @@ this.game.log.goOut();
 	 */
         // このコマが現在手番かどうかを返す
   isTurn: function isTurn(){ // Piece
-    if (this.controller.getTurn()) return this.isBlack();
+    if (this.game.controller.getTurn()) return this.isBlack();
     else return !this.isBlack();
   },
 	/**
@@ -164,6 +164,7 @@ this.game.log.goOut();
     var dx = x - this.cell.x;
     var dy = y - this.cell.y;
     if (!this.isBlack()) dy *= -1;
+    this.game.log.debug('dx, dy : ' + dx + ', ' + dy);
     this.game.log.debug('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
     this.game.log.goOut();
     return this.movableArea[dy + 1][dx + 1];
@@ -209,8 +210,8 @@ this.game.log.goOut();
 	 * sitOnto(cell)
 	 */
   sitOnto: function sitOnto(distination_cell) { // Piece
-this.game.log.getInto();
-window.gameController.game.log.debug('entered Piece#sitOnto : ' + distination_cell.toDebugString(), {'indent':1});
+this.game.log.getInto('Piece#sitOnto');
+window.gameController.game.log.debug('entered : ' + distination_cell.toDebugString(), {'indent':1});
     if(this.cell) this.cell.elm.removeChild(this.elm);
     distination_cell.piece = this;
     distination_cell.elm.appendChild(this.elm);
@@ -552,69 +553,6 @@ window.gameController.game.log.warn('in show of Cell, after process -> ' + this.
 window.gameController.game.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':-1});
   },
 	/**
-	 * mateCheck(moveTo)
-	 */
-        // 現在の盤面で指した直後の、つまり手番ではないほうの
-        // ライオンが詰んでいるかどうか判定する
-        // 入力値：ライオンの位置
-        // 返り値：詰んでいればtrue, いなければfalse
-  mateCheck: function mateCheck(moveTo){ // AnimalShogiGame
-    this.log.getInto('AnimalShogiGame#mateCheck');
-    var ret = null;
-    // 対象のライオンの位置
-    var x = moveTo[0];
-    var y = moveTo[1];
-    // 敵の駒(手番の駒) の利きにいるかどうか
-      // x,yの周囲のマスに敵のコマがいたら
-      // その駒の利きにx,yが含まれるか
-    for(var i = -1; i < 2; i++){
-      for(var j = -1; j < 2; j++){
-        if(p = this.board.cells(x+i,y+j).piece){
-          if(p.isTurn() && (ret = p.canMoveTo(x,y))){
-            break;
-          }
-        }
-      }
-      if(ret) break;
-    }
-    this.log.goOut();
-  },
-	/**
-	 * checkFinish()
-	 */
-        // 指し手についての情報をうけとり、それを指したplayerが勝ったかどうか判定する
-        // 返り値：どちらかが勝ちだったら勝ったplayerのオブジェクトを返す 
-        //         勝負がついていなければnullを返す
-  checkFinish: function checkFinish(player, movingPieceType, moveTo, capturedPieceType){ // AnimalShogiGame
-    this.log.getInto('AnimalShogiGame#checkFinish');
-    var opponent_player = (player == this.controller.player1)?this.controller.player2:this.controller.player1;
-    var ret = null;
-    // ライオンが詰んでいるかどうか
-    var mated = this.mateCheck(moveTo);
-    // 相手のライオンを捕獲したかどうか
-    var getLion = (capturedPieceType == 'lion');
-    // ライオンが動いたかどうか
-    var isLion = (movingPieceType == 'lion');
-    // 最奥に到達したかどうか
-    var reachEnd = (this.getTurn() && moveTo[1] == 1) || (!this.getTurn() && moveTo[1] == 4);
-    // 勝利判定
-    for(;;){
-      if (getLion){ ret = player; break; }
-      if (isLion && reachEnd){
-        if(mated){
-          ret = opponent_player;
-          break;
-        } else {
-          ret = player;
-          break;
-        } 
-      }
-    }
-    this.log.warn('checkFinish leaving with : ' + ret);
-    this.log.goOut();
-    return ret;
-  },
-	/**
 	 * isOpponentFirstLine(player)
 	 */
   isOpponentFirstLine: function isOpponentFirstLine(player) { // Cell
@@ -846,7 +784,20 @@ this.game.log.goOut();
 	/**
 	 * getCell(x,y)
 	 */
-  getCell: function getCell(x, y) {
+        // 座標を指定し、そのセルオブジェクトを返す
+        // セルが存在しない座標を指定したらnullを返す
+        // dummy cellは返さない。つまりx == 0 or y == 0ならnullを返す
+  getCell: function getCell(x, y) { // Board
+    if(x < 1 || y < 1) return null; 
+    if(x >= this.game.width || y >= this.game.height) return null;
+    if(!this.cells[y]){
+      this.game.log.fatal('Board#getCell: cells[' + y + '] not exist');
+      return null;
+    }
+    if(!this.cells[y][x]){
+      this.game.log.fatal('Board#getCell: cells[' + y + '][' + x + '] not exist');
+      return null;
+    }
     return this.cells[y][x];
   },
 	/**
@@ -1162,6 +1113,7 @@ this.game.log.goOut();
     this.pieces.push(piece);
     this.elm.appendChild(piece.elm);
     this.game.log.debug('leaving ' + this.id + ', Stand#put : ' + piece.toDebugString());
+    this.game.log.debug(this.id + ' : ' + this.toString());
 this.game.log.goOut();
   },
 	/**
@@ -1626,6 +1578,9 @@ this.log.goOut();
     var movingPieceType = piece.type;
     var moveTo = [toCell.x, toCell.y];
     this.log.getInto('AnimalShogiGame#doAction');
+    this.log.debug('piece : ' + piece.toDebugString());
+    this.log.debug('fromObj : ' + fromObj.toDebugString());
+    this.log.debug('toCell : ' + toCell.toDebugString());
     if (toCell.piece){
       this.log.warn('piece moving and capturing. : ');
       this.log.debug('draggable.obj is : ' + piece.toDebugString());
@@ -1633,7 +1588,7 @@ this.log.goOut();
       capturedPieceType = toCell.piece.type;
       toCell.piece.gotoOpponentsStand();
     } else {
-      this.gaem.log.warn('piece moving without capturing.');
+      this.log.warn('piece moving without capturing.');
     }
     if(fromObj.type == 'cell'){
       fromObj.piece.sitOnto(toCell);
@@ -1643,9 +1598,81 @@ this.log.goOut();
       piece.sitOnto(toCell);
     }
 
-    this.controller.reportActEnds(movingPieceType, moveTo, capturedPieceType);
+    this.controller.reportActEnds(this.controller.playerInTurn(), movingPieceType, moveTo, capturedPieceType);
     
     this.log.goOut();
+  },
+	/**
+	 * mateCheck(moveTo)
+	 */
+        // 現在の盤面で指した直後の、つまり手番ではないほうの
+        // ライオンが詰んでいるかどうか判定する
+        // 入力値：ライオンの位置
+        // 返り値：詰んでいればtrue, いなければfalse
+  mateCheck: function mateCheck(moveTo){ // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#mateCheck');
+    this.log.debug('lion at ' + moveTo.inspect() + ' is mated?');
+    var ret = false;
+    // 対象のライオンの位置
+    var x = parseInt(moveTo[0]);
+    var y = parseInt(moveTo[1]);
+    var cell, piece;
+    // 敵の駒(手番の駒) の利きにいるかどうか
+      // x,yの周囲のマスに敵のコマがいたら
+      // その駒の利きにx,yが含まれるか
+    for(var i = -1; i < 2; i++){
+      for(var j = -1; j < 2; j++){
+        cell = this.board.getCell(x+i,y+j);
+        if(cell){
+          piece = this.board.getCell(x+i,y+j).piece;
+          if(piece){
+            this.log.debug('i,j,piece : ' + i + ', ' + j + ', ' + piece.toDebugString());
+            if(piece.isTurn() && (ret = piece.canMoveTo(x,y))){
+              break;
+            }
+          }
+        }
+      }
+      if(ret) break;
+    }
+    this.log.debug('leaving with : ' + ret);
+    this.log.goOut();
+    return ret;
+  },
+	/**
+	 * checkFinish()
+	 */
+        // 指し手についての情報をうけとり、それを指したplayerが勝ったかどうか判定する
+        // 返り値：どちらかが勝ちだったら勝ったplayerのオブジェクトを返す 
+        //         勝負がついていなければnullを返す
+  checkFinish: function checkFinish(player, movingPieceType, moveTo, capturedPieceType){ // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#checkFinish');
+    var opponent_player = (player.name == this.controller.player1.name) ? this.controller.player2 : this.controller.player1;
+    this.log.debug('opponent_player : ' + opponent_player.toDebugString());
+    var ret = null;
+    // ライオンが詰んでいるかどうか
+    // var mated = (movingPieceType == 'lion') ? this.mateCheck(moveTo) : false;
+    // 相手のライオンを捕獲したかどうか
+    var getLion = (capturedPieceType == 'lion');
+    // ライオンが動いたかどうか
+    var isLion = (movingPieceType == 'lion');
+    // 最奥に到達したかどうか
+    var reachEnd = (this.getTurn() && (moveTo[1] == 1)) || (!this.getTurn() && i(moveTo[1] == 4));
+    // 勝利判定
+    if (getLion){
+      ret = player;
+    } else {
+      if (isLion && reachEnd){
+        if(this.mateCheck(moveTo)){
+          ret = opponent_player;
+        } else {
+          ret = player;
+        } 
+      }
+    }
+    this.log.warn('checkFinish leaving with : ' + ret);
+    this.log.goOut();
+    return ret;
   },
 	/**
 	 * debug_dump()
@@ -1703,10 +1730,15 @@ function moveValidate(actionContents){
   var fromCell = actionContents[1];
   var toCell = actionContents[2];
   var ret = 'normal';
-  window.gameController.log.debug('moveValidate entered: piece: ' + piece.toDebugString());
+  window.gameController.log.debug('piece : ' + piece.toDebugString());
+  window.gameController.log.debug('fromCell : ' + fromCell.toDebugString());
+  window.gameController.log.debug('toCell : ' + toCell.toDebugString());
   for(;;){
     if (toCell.piece) {
       if (piece.isBlack() == toCell.piece.isBlack()){
+        window.gameController.log.debug('piece.isBlack() : ' + piece.isBlack());
+        window.gameController.log.debug('toCell.piece : ' + toCell.piece.toDebugString());
+        window.gameController.log.debug('toCell.piece.isBlack() : ' + toCell.piece.isBlack());
         window.gameController.message(t('cannot_capture_yourown_piece')); ret = 'badAction';
         break;
       }

@@ -35,5 +35,6 @@
     // どのようなオプションで生成したのかを表示
     ret.debug('this log window is created under this options : ');
     ret.debug(Log.dumpObject(opt));
+
     return ret;
   }

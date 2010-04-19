@@ -64,8 +64,29 @@
     delete settings;
   } },
 
+  testMateCheck : function() {  with( this )  {
+    var logObj = makeLogObj('testMateCheck', window_link, {width:600, height:350, resizable:false});
+    logObj.debug('test mateCheck');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    gameObj.log.debug('test mateCheck');
+    var result = gameObj.game.mateCheck([2,1]);
+    assertEqual(false, result, '[2,1] is mated');
+    result = gameObj.game.mateCheck([2,2]);
+    assertEqual(false, result, '[2,2] is mated');
+    result = gameObj.game.mateCheck([1,4]);
+    assertEqual(true, result, '[1,4] is not mated');
+    result = gameObj.game.mateCheck([2,4]);
+    assertEqual(true, result, '[2,4] is not mated');
+    assertEqual( 'animal-shogi', gameObj.game.container.id );
+    } },
+
   testGetPlayer : function() {  with( this )  {
-    var logObj = makeLogObj('testgetPlayer', {width:600, height:350, resizable:false});
+    var logObj = makeLogObj('testgetPlayer', window_link, {width:600, height:350, resizable:false});
     logObj.debug('test confirmActionByUser');
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});

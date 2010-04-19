@@ -8,6 +8,8 @@
 div#container {
   background-color: #cc8;
   float: left;
+  width: 400px;
+  hight: 400px;
 }
 div#top-stand {
   background-color: #c80;
