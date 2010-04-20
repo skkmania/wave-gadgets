@@ -195,8 +195,9 @@ GameController = Class.create({
     if(wave) {
       var state = wave.getState();
       this.log.debug('state in string is: ' + arrange(state));
-      if (this.mode = state.get('mode')){
-        this.log.debug('mode read from state is : ' + this.mode);
+      this.mode = state.get('mode');
+      this.log.debug('mode read from state is : ' + this.mode);
+      if (this.mode){
         switch(this.mode){
           case 'noPlayers':
             this.controlPanel.update('noPlayers');
@@ -215,12 +216,13 @@ GameController = Class.create({
             this.playing(state);
             break;
           default:
-            this.log.debug('there is no mode in state');
-            this.mode = 'noPlayers';
-            this.log.debug('so, this.mode is set to "noPlayers"');
-            this.noPlayers();
             break;
        }
+     } else {
+        this.log.debug('there is no mode in state');
+        this.mode = 'noPlayers';
+        this.log.debug('so, this.mode is set to "noPlayers"');
+        this.noPlayers();
      }
    } else {
       this.log.fatal('wave not found');
