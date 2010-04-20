@@ -282,8 +282,8 @@ GameController = Class.create({
     if(!this.player1) this.getPlayersFromState(state);
     $('join-button').hide();
     if (!this.game.board.shown) this.game.board.show();
-    this.game.fromState(state);
-    this.fromState(state);
+    this.game.boardReadFromState(state);  // 盤面の読み込み
+    this.prepareFromState(state);
     this.log.goOut();
   }, 
 	/**
@@ -790,13 +790,13 @@ this.log.warn('leaving Game#processPlayer: viewer: ' + viewer);
 this.log.goOut();
   },
 	/**
-	 * fromState(state)
+	 * prepareFromState(state)
 	 */
-  fromState: function fromState(state) { // GameController
-    this.log.getInto('GameController#fromState');
+  prepareFromState: function prepareFromState(state) { // GameController
+    this.log.getInto('GameController#prepareFromState');
     this.controlPanel.update('playing');
     this.mainRoutine();
-    this.log.warn('leaving Game#fromState');
+    this.log.warn('leaving Game#prepareFromState');
     this.log.goOut();
   },
 	/**

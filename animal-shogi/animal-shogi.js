@@ -1100,7 +1100,7 @@ this.game.log.goOut();
 	 * clear()
 	 */
   clear: function clear(){ // Stand
-    // Standの内容はfromStateにより毎回更新されるので、その都度クリアする
+    // Standの内容はboardReadFromStateにより毎回更新されるので、その都度クリアする
     // この処理は本来いらないことであるべきでは？
     this.pieces.clear();
   },
@@ -1309,7 +1309,7 @@ this.log.goOut();
 	 */
   getTurn: function getTurn() {
     // turnは論理値。countが偶数ならtrueで先手番、奇数ならfalseで後手番。
-    return (this.count % 2 == 0);
+    return (this.controller.count % 2 == 0);
   },
 	/**
 	 * thisTurnPlayer()
@@ -1417,11 +1417,11 @@ this.log.goOut();
     return $A(this.board.cells.flatten().pluck('piece'), this.blackStand.pieces, this.whiteStand.pieces).flatten().compact();
   },
 	/**
-	 * fromState(state)
+	 * boardReadFromState(state)
 	 */
-  fromState: function fromState(state) { // AnimalShogiGame
-    this.log.getInto('Game#fromState: ');
-    this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
+  boardReadFromState: function boardReadFromState(state) { // AnimalShogiGame
+    this.log.getInto('Game#boardReadFromState: ');
+    this.log.warn('<span style="color:#00FFFF">entered boardReadFromState</span>');
     //this.processPlayer(state);
     //this.count = state.get('count');
     this.board.read(state.get('board', this.board.initialString));
