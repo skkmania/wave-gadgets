@@ -278,6 +278,7 @@ GameController = Class.create({
         // コンマ区切りで複数個並んでいる
   playing: function playing(state) {  // GameController
     this.log.getInto('GameController#playing');
+    this.count = state.get('count');
     if(!this.player1) this.getPlayersFromState(state);
     $('join-button').hide();
     if (!this.game.board.shown) this.game.board.show();
