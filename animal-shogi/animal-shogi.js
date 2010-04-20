@@ -675,14 +675,14 @@ Board = Class.create({
   initialize: function initialize(elm, game) {
 game.log.getInto('Board#initialize');
     this.game = game;
-    this.top = game.controller.top;
+    //this.top = game.controller.top;
     this.elm = elm || document.body;
     this.shown = false;
     this.cells = [];
     for (var r = 0; r < this.game.height; r++) {
       var row = [];
       for (var c = 0; c < this.game.width; c++) {
-        row.push(new Cell(this, c, r, this.top));
+        row.push(new Cell(this, c, r, this.game.controller.top));
       }
       this.cells.push(row);
     }
@@ -736,22 +736,20 @@ game.log.goOut();
   adjust: function adjust() { // Board
     if(!this.cells[1][1].elm) return;
     if(!this.game) return;
-this.game.log.getInto();
-this.game.log.warn('Board#adjust entered--top is ' + this.top);  
+    this.game.log.getInto('Board#adjust');
+    this.game.log.warn('top is ' + this.game.controller.top);  
     this.cells.flatten().invoke('getPosition');
     this.adjustBorder();
-this.game.log.warn('Board#adjust ended.');
-this.game.log.goOut();
+    this.game.log.goOut();
   },
 	/**
 	 * adjustBorder()
 	 */
   adjustBorder: function adjustBorder() { // Board
-this.game.log.getInto();
-this.game.log.warn('Board#adjustBoarder entered');
+    this.game.log.getInto('Board#adjustBoarder');
     if(!this.cells[1][1].elm) return;
     if(!this.game) return;
-    if(this.top === 0){
+    if(this.game.controller.top === 0){
       for (var r = 1; r < this.game.height; r++) {
         this.cells[r][1].elm.addClassName('rightCell');
         this.cells[r][this.game.width - 1].elm.removeClassName('rightCell');
@@ -770,8 +768,7 @@ this.game.log.warn('Board#adjustBoarder entered');
         this.cells[1][c].elm.removeClassName('topCell');
       }
     }
-this.game.log.warn('Board#adjustBoarder leaving'); 
-this.game.log.goOut();
+    this.game.log.goOut();
   },
 	/**
 	 * show()
@@ -970,7 +967,7 @@ this.game.log.goOut();
       if (c.piece) {
         log.warn('reverse class name called. piece is ' + c.piece.toDebugString());
         if (c.piece.isBlack()) {
-          if (this.top === 0){
+          if (this.game.controller.top === 0){
             c.piece.elm.removeClassName('top');
             c.piece.elm.addClassName('bottom');
           } else {
@@ -978,7 +975,7 @@ this.game.log.goOut();
             c.piece.elm.addClassName('top');
           }
         } else {
-          if (this.top === 0){
+          if (this.game.controller.top === 0){
             c.piece.elm.removeClassName('bottom');
             c.piece.elm.addClassName('top');
           } else {
@@ -988,7 +985,7 @@ this.game.log.goOut();
         }
         log.warn('reverse class name after process. ' + c.piece.toDebugString());
       }
-    });
+    }.bind(this));
     log.goOut();
   },
 	/**
@@ -1204,7 +1201,7 @@ window.gameController.game = this;
 //    this.controller.message(t('click_join_button'));
 //    this.count = 0;
        // 手数。このgameではcount手目を指した局面がthis.board, this.blackStand, this.whiteStandに反映されているものとする.
-    this.top_by_viewer = false;
+    //this.top_by_viewer = false;
       // viewerが反転ボタンでtopを決定したとき、その値を持つ。
       // それまではfalse. したがって、これがfalseのあいだはplayerとviewerの関係のみで
       // topを決めることができる。
@@ -1275,14 +1272,16 @@ this.log.warn('game.show');
     this.controller.log.getInto('AnimalShogiGame#reverse');
     var tmp = null;
     this.controller.top = (this.controller.top === 0 ? 1 : 0);
-    this.top_by_viewer = this.top;
+    this.controller.top_by_viewer = this.controller.top;
     this.controller.message('top became ' + this.controller.top);
     this.board.reverse();
     this.board.adjust();
     if($('top-stand') && $('bottom-stand')){
       tmp = $('top-stand').childElements();
-      $('top-stand').update($('bottom-stand').childElements());
-      $('bottom-stand').update(tmp);
+      $('bottom-stand').childElements().each(function(e){ $('top-stand').appendChild(e); });
+      tmp.each(function(e){ $('bottom-stand').appendChild(e); });
+      //$('top-stand').update($('bottom-stand').childElements());
+      //$('bottom-stand').update(tmp);
       tmp = $$('#top-stand img', '#bottom-stand img');
       if(tmp.size() > 0){
         tmp.invoke('toggleClassName', 'top');

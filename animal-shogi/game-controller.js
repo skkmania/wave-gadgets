@@ -289,6 +289,7 @@ GameController = Class.create({
     this.log.getInto('GameController#playing');
     this.count = state.get('count') || 0;
     if(!this.player1) this.getPlayersFromState(state);
+    this.determineTop();
     $('join-button').hide();
     if (!this.game.board.shown) this.game.board.show();
     this.game.boardReadFromState(state);  // 盤面の読み込み
@@ -482,7 +483,7 @@ GameController = Class.create({
 	 * determineTop()
 	 */
   determineTop: function determineTop() { // GameController
-this.log.getInto('GameController#determineTop');
+    this.log.getInto('GameController#determineTop');
      // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
      // はじめからtop が１になるのはplayer2がviewerのときだけ
      // あとはviewerが反転ボタンで指定したとき
@@ -490,7 +491,10 @@ this.log.getInto('GameController#determineTop');
        this.top = this.top_by_viewer;
     } else {
       this.top = 0;  // by default
-      if (this.player2 && this.player2.isViewer) this.top = 1;
+      if (this.player2 && this.player2.isViewer){
+        this.top = 1;
+        this.log.debug('top is set to 1 because ' + this.player2.name + 'is viewer');
+      }
     }
     this.log.debug('leaving determineTop with gameController.top : ' + this.top);
     this.log.goOut();
