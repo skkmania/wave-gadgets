@@ -311,7 +311,7 @@ GameController = Class.create({
     delta['board'] = this.game.board.toString();
     delta['bstand'] = this.game.blackStand.toString();
     delta['wstand'] = this.game.whiteStand.toString();
-    delta['count'] = this.game.count.toString();
+    delta['count'] = this.count.toString();
     switch(flag){
       case 'continue':
         break;

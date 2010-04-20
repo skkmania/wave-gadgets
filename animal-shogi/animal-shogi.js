@@ -1202,7 +1202,7 @@ window.gameController.game = this;
     this.mode = 'init';
     this.log.warn('04');
 //    this.controller.message(t('click_join_button'));
-    this.count = 0;
+//    this.count = 0;
        // 手数。このgameではcount手目を指した局面がthis.board, this.blackStand, this.whiteStandに反映されているものとする.
     this.top_by_viewer = false;
       // viewerが反転ボタンでtopを決定したとき、その値を持つ。
@@ -1302,19 +1302,6 @@ this.log.getInto();
     this.controlPanel.update();
     this.board.show();
     this.log.warn('leaving game.start.');
-this.log.goOut();
-  },
-	/**
-	 * nextTurn()
-	 */
-  nextTurn: function nextTurn() { // Game
-this.log.getInto();
-this.log.debug('entered Game#nextTurn', {'indent':1});
-    this.count++;
-    this.controlPanel.update();
-    this.clearMessage();
-    this.toggleDraggable();
-this.log.debug('leaving Game#nextTurn', {'indent':-1});
 this.log.goOut();
   },
 	/**
