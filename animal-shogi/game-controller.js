@@ -41,7 +41,7 @@ Player = Class.create({
 // mine は下線をひく
 // turn は背景色を黄色にする
     var classNames = this.isViewer ? 'mine' : '';
-    if (window.gameController.game.getTurn() == this) classNames += ' turn';
+    if (window.gameController.playerInTurn() == this) classNames += ' turn';
     return '<span class="' + classNames + '">' + this.shortName() + '</span>';
   },
 	/**
