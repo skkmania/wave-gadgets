@@ -700,6 +700,7 @@ this.log.goOut();
 	/**
 	 * isViewersTurn()
 	 */
+        // 現在、viewerのturnならtrueを返す
   isViewersTurn: function isViewersTurn() { // GameController
     return this.thisTurnPlayer().isViewer;
   },
@@ -856,7 +857,7 @@ this.log.goOut();
           this.log.debug('this.players : ' + this.players)
           if(!this.player1){
             this.setPlayersOrder();
-            if(this.viewersTurn()) this.game.initialDraggable(this.viewersTurn());
+            if(this.isViewersTurn()) this.game.initialDraggable(this.viewersTurn());
           }
         } else {
           this.log.fatal('players not found in state');
@@ -868,7 +869,7 @@ this.log.goOut();
           this.log.debug('blacks : ' + bs + '<br>' + 'whites : ' + ws);
           if(!this.player1){
             this.createPlayer(bs, ws);
-            if(this.viewersTurn()) this.game.initialDraggable(this.viewersTurn());
+            if(this.isViewersTurn()) this.game.initialDraggable(this.viewersTurn());
           }
         } else {
           this.log.fatal('blacks and whites are not found in state');
