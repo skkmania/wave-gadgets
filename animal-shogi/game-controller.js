@@ -280,7 +280,7 @@ GameController = Class.create({
         // コンマ区切りで複数個並んでいる
   playing: function playing(state) {  // GameController
     this.log.getInto('GameController#playing');
-    this.count = state.get('count');
+    this.count = state.get('count') || 0;
     if(!this.player1) this.getPlayersFromState(state);
     $('join-button').hide();
     if (!this.game.board.shown) this.game.board.show();
@@ -310,6 +310,7 @@ GameController = Class.create({
 	 */
   makeDelta: function makeDelta(flag){ // GameController
     this.log.getInto('GameController#makeDelta');
+    this.count++;
     var delta = {};
     delta['board'] = this.game.board.toString();
     delta['bstand'] = this.game.blackStand.toString();
@@ -484,7 +485,7 @@ this.log.getInto('GameController#determineTop');
         this.log.debug('first player added');
         this.players.push(name);
         this.message(t('waiting'));
-        deltakey = 'player_candidate';
+        deltakey = 'players';
         this.mode = 'onePlayer';
         delta[deltakey] = name;
         delta['mode'] = this.mode;
@@ -645,10 +646,10 @@ this.log.goOut();
 	 */
   nextTurn: function nextTurn() { // GameController
     this.log.getInto('GameController#nextTurn');
-    this.count++;
+    //this.count++;
     this.controlPanel.update();
     this.clearMessage();
-    this.game.toggleDraggable();
+    //this.game.toggleDraggable();
     this.log.debug('leaving Game#nextTurn', {'indent':-1});
     this.log.goOut();
   },
