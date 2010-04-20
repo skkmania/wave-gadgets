@@ -1644,7 +1644,7 @@ this.log.goOut();
     // ライオンが動いたかどうか
     var isLion = (movingPieceType == 'lion');
     // 最奥に到達したかどうか
-    var reachEnd = (this.getTurn() && (moveTo[1] == 1)) || (!this.getTurn() && i(moveTo[1] == 4));
+    var reachEnd = (this.getTurn() && (moveTo[1] == 1)) || (!this.getTurn() && (moveTo[1] == 4));
     // 勝利判定
     if (getLion){
       ret = player;

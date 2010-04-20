@@ -129,6 +129,9 @@ ControlPanel = Class.create({
           this.player2Elm.innerHTML = t('gote');
         this.controller.log.debug('player2 is written on panel');
         break;
+      case 'over':
+        this.controller.message(t('already_over') + '<br>' + wave.getState().get('winner') + t('win'));
+        break;
       default:
         this.player1Elm.innerHTML = t('sente');
         this.player2Elm.innerHTML = t('gote');
@@ -215,6 +218,10 @@ GameController = Class.create({
             this.controlPanel.update('playing');
             this.playing(state);
             break;
+          case 'over':
+            this.controlPanel.update('over');
+            this.over(state);
+            break;
           default:
             break;
        }
@@ -285,7 +292,24 @@ GameController = Class.create({
     $('join-button').hide();
     if (!this.game.board.shown) this.game.board.show();
     this.game.boardReadFromState(state);  // 盤面の読み込み
+    this.game.toggleDraggable();
     this.prepareFromState(state);
+    this.log.goOut();
+  },
+	/**
+	 * over(state)
+	 */
+        // 勝負がついた後のstateChangeへのコールバック
+        // これが呼ばれたときにはstateのmodeは'over'であり
+        // stateのwinnerには勝者の名の文字列がある
+  over: function over(state) {  // GameController
+    this.log.getInto('GameController#over');
+    this.count = state.get('count') || 0;
+    if(!this.player1) this.getPlayersFromState(state);
+    $('join-button').hide();
+    if (!this.game.board.shown) this.game.board.show();
+    this.game.boardReadFromState(state);  // 盤面の読み込み
+    //this.prepareFromState(state);
     this.log.goOut();
   }, 
 	/**
@@ -308,7 +332,7 @@ GameController = Class.create({
 	/**
 	 * makeDelta()
 	 */
-  makeDelta: function makeDelta(flag){ // GameController
+  makeDelta: function makeDelta(flag, winner){ // GameController
     this.log.getInto('GameController#makeDelta');
     this.count++;
     var delta = {};
@@ -320,6 +344,8 @@ GameController = Class.create({
       case 'continue':
         break;
       case 'finish':
+        delta['mode'] = 'over';
+        delta['winner'] = winner.name;
         break;
       default:
         break;
@@ -333,7 +359,7 @@ GameController = Class.create({
   sendDelta: function sendDelta(delta){ // GameController
     this.log.getInto('GameController#sendDelta');
     // 送信
-    this.log.warn('<div style="color:#FF0000">sending delta : </div>' + delta.toString());
+    this.log.warn('<div style="color:#FF0000">sending delta : </div>' + Log.dumpObject(delta));
     this.log.goOut();
     wave.getState().submitDelta(delta);
   },
@@ -647,7 +673,7 @@ this.log.goOut();
   nextTurn: function nextTurn() { // GameController
     this.log.getInto('GameController#nextTurn');
     //this.count++;
-    this.controlPanel.update();
+    this.controlPanel.update('playing');
     this.clearMessage();
     //this.game.toggleDraggable();
     this.log.debug('leaving Game#nextTurn', {'indent':-1});
@@ -694,7 +720,7 @@ this.log.goOut();
   finish: function finish(winner) { // GameController
     this.log.getInto('GameController#finish');
     this.message(winner.shortName() + t('win'));
-    this.sendDelta(this.makeDelta('finish'));
+    this.sendDelta(this.makeDelta('finish', winner));
     this.log.goOut();
   },
 	/**
