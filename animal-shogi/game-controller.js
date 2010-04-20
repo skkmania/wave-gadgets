@@ -279,7 +279,7 @@ GameController = Class.create({
   playing: function playing(state) {  // GameController
     this.log.getInto('GameController#playing');
     if(!this.player1) this.getPlayersFromState(state);
-    //$('join-button').hide();
+    $('join-button').hide();
     if (!this.game.board.shown) this.game.board.show();
     this.game.fromState(state);
     this.fromState(state);

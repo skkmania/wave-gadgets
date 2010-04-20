@@ -385,7 +385,10 @@ Cell.prototype = {
   say: function say(){ // Cell
     this.game.log.getInto('Cell#say');
     // このセルにいるpieceの状態を文字にして返す
-    if (!this.piece) return 'x';
+    if (!this.piece){
+      this.game.log.goOut();
+      return 'x';
+    }
     var retChar = Type2chr[this.piece.type];
     this.game.log.debug('retChar : ' + retChar);
     if(this.piece.isBlack()){
@@ -1430,18 +1433,16 @@ this.log.goOut();
 	 * fromState(state)
 	 */
   fromState: function fromState(state) { // AnimalShogiGame
-this.log.getInto();
-this.log.warn('entered Game#fromState: ');
+    this.log.getInto('Game#fromState: ');
     this.log.warn('<span style="color:#00FFFF">entered fromState</span>');
-    this.processPlayer(state);
-    this.count = state.get('count');
+    //this.processPlayer(state);
+    //this.count = state.get('count');
     this.board.read(state.get('board', this.board.initialString));
     this.blackStand.read(state.get('bstand', this.blackStand.initialString));
     this.whiteStand.read(state.get('wstand', this.whiteStand.initialString));
-    this.toggleDraggable();
-    this.controlPanel.update();
-this.log.warn('leaving Game#fromState');
-this.log.goOut();
+    //this.toggleDraggable();
+    //this.controlPanel.update();
+    this.log.goOut();
   },
 	/**
 	 * initialDraggable(turn)
