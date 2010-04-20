@@ -82,9 +82,9 @@ Piece = Class.create({
   toggleDraggable: function toggleDraggable(){ // Piece
     this.game.log.getInto('Piece#toggleDraggable');
     this.game.log.debug('entered Piece#toggleDraggable:'+this.toDebugString());
-    this.game.log.debug('count : '+this.game.count);
+    this.game.log.debug('count : '+this.game.controller.count);
     this.game.log.debug('isViewersP : '+this.isViewersP());
-    this.game.log.debug('isViewersTurn : '+this.game.isViewersTurn());
+    this.game.log.debug('isViewersTurn : '+this.game.controller.isViewersTurn());
     if (this.drag){
       if(!this.isViewersP()){
         this.game.log.debug('to destroy drag because this is not Vieweres piece. : '+ Draggables.drags.length);
@@ -92,13 +92,13 @@ Piece = Class.create({
         this.game.log.debug('length of drags became : '+ Draggables.drags.length);
         this.drag = null;
       }
-      if(this.isViewersP() && !this.game.isViewersTurn()){
+      if(this.isViewersP() && !this.game.controller.isViewersTurn()){
         this.game.log.debug('to destroy drag because this is not Vieweres turn. : '+ Draggables.drags.length);
         this.drag.destroy();
         this.game.log.debug('length of drags became : '+ Draggables.drags.length);
         this.drag = null;
       }
-    } else if(this.isViewersP() && this.game.isViewersTurn()){
+    } else if(this.isViewersP() && this.game.controller.isViewersTurn()){
       this.drag = addDraggable(this, 'toggled');
     }
     this.game.log.debug('leaving Piece#toggleDraggable');
@@ -493,42 +493,6 @@ this.game.log.warn('Droppables to add ' + this.elm.id);
         // send action to GameController
         this.game.controller.receiveAction(actionContents);
         this.game.log.goOut();
-
-/*
-          // Cell object or Stand object
-        this.game.log.warn('fromObj : <span style="color:#888800">' + fromObj.toDebugString() + '</span>');
-          // Cell object
-        this.game.log.warn('<span style="color:#888800">onDrop called.</span>');
-        if(fromObj) this.game.log.debug('from: ' + fromObj.toDebugString());
-        if(toCell) this.game.log.debug(', to: ' + toCell.toDebugString());
-          // Piece object
-        if (!moveValidate(piece, fromObj, toCell)){
-          this.gaem.log.goOut();
-          return;
-        }
-        this.gaem.log.warn('canMove passed.');
-        if (toCell.piece){
-          this.gaem.log.warn('piece moving and capturing. : ');
-          this.gaem.log.debug('draggable.obj is : ' + piece.toDebugString());
-          this.gaem.log.debug('toCell.piece is : ' + toCell.piece.toDebugString());
-          toCell.piece.gotoOpponentsStand();
-        } else {
-          this.gaem.log.warn('piece moving without capturing.');
-        }
-        if(fromObj.type == 'cell'){
-          fromObj.piece.sitOnto(toCell);
-          fromObj.piece = null;
-        } else if(fromObj.type == 'stand'){
-          fromObj.removeByObj(piece);
-          piece.sitOnto(toCell);
-        }
-
-        //if (checkFinish(piece, toCell))
-        //  window.gameController.game.finish(window.gameController.game.thisTurnPlayer());
-        //else 
-        window.gameController.game.nextTurn();
-        sendDelta();
-*/
 
       }.bind(this)
     });
@@ -1280,8 +1244,6 @@ this.log.warn('game.show');
       tmp = $('top-stand').childElements();
       $('bottom-stand').childElements().each(function(e){ $('top-stand').appendChild(e); });
       tmp.each(function(e){ $('bottom-stand').appendChild(e); });
-      //$('top-stand').update($('bottom-stand').childElements());
-      //$('bottom-stand').update(tmp);
       tmp = $$('#top-stand img', '#bottom-stand img');
       if(tmp.size() > 0){
         tmp.invoke('toggleClassName', 'top');
@@ -1302,25 +1264,6 @@ this.log.getInto();
     this.board.show();
     this.log.warn('leaving game.start.');
 this.log.goOut();
-  },
-	/**
-	 * getTurn()
-	 */
-  getTurn: function getTurn() {
-    // turnは論理値。countが偶数ならtrueで先手番、奇数ならfalseで後手番。
-    return (this.controller.count % 2 == 0);
-  },
-	/**
-	 * thisTurnPlayer()
-	 */
-  thisTurnPlayer: function thisTurnPlayer() { // AnimalShogiGame
-    return this.getTurn() ? this.controller.player1 : this.controller.player2;
-  },
-	/**
-	 * isViewersTurn()
-	 */
-  isViewersTurn: function isViewersTurn() { // AnimalShogiGame
-    return this.thisTurnPlayer().isViewer;
   },
 	/**
 	 * toString()

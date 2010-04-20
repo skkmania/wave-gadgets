@@ -24,7 +24,7 @@ Player = Class.create({
 	 * atTop()
 	 */
   atTop: function atTop(game){ // Player
-    return (this.id == 'player1') == (window.gameController.game.top == 1);
+    return (this.id == 'player1') == (window.gameController.top == 1);
   },
 	/**
 	 * shortName()
@@ -104,7 +104,7 @@ ControlPanel = Class.create({
     this.controller.log.debug('mode : ' + mode);
     this.counterElm.update(this.controller.count);
     if (!this.elm) this.elm = $('control-panel');                         
-    if (this.controller.game.top == 1){                                                
+    if (this.controller.top == 1){                                                
       this.player1Elm = $('top-panel');
       this.player2Elm = $('bottom-panel');
     } else {       
@@ -523,6 +523,7 @@ GameController = Class.create({
       case 'onePlayer':
         this.log.debug('second player added');
         this.players.push(name);
+        this.log.debug('players: ' + this.players.join(','));
         delta = this.setPlayersOrder();
         $('join-button').hide();
         this.mode = 'playing';
@@ -555,6 +556,7 @@ GameController = Class.create({
     }
     this.log.debug('player1 : ' + this.player1.toString());
     this.log.debug('player2 : ' + this.player2.toString());
+    delta['players'] = this.players.join(',');
     this.blackplayers.push(this.player1);
     delta['blacks'] = this.blackplayers.pluck('name').join(',');
     this.log.debug('blackplayers : ' + this.blackplayers.pluck('name').join('<br>'));
@@ -680,7 +682,6 @@ this.log.goOut();
     this.controlPanel.update('playing');
     this.clearMessage();
     //this.game.toggleDraggable();
-    this.log.debug('leaving Game#nextTurn', {'indent':-1});
     this.log.goOut();
   },
 	/**
