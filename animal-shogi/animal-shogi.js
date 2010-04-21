@@ -1565,7 +1565,7 @@ this.log.goOut();
 	/**
 	 * mateCheck(moveTo)
 	 */
-        // 現在の盤面で指した直後の、つまり手番ではないほうの
+        // 現在の盤面で指した直後の、つまり手番の
         // ライオンが詰んでいるかどうか判定する
         // 入力値：ライオンの位置
         // 返り値：詰んでいればtrue, いなければfalse
@@ -1577,7 +1577,7 @@ this.log.goOut();
     var x = parseInt(moveTo[0]);
     var y = parseInt(moveTo[1]);
     var cell, piece;
-    // 敵の駒(手番の駒) の利きにいるかどうか
+    // 敵の駒(手番でない駒) の利きにいるかどうか
       // x,yの周囲のマスに敵のコマがいたら
       // その駒の利きにx,yが含まれるか
     for(var i = -1; i < 2; i++){
@@ -1587,7 +1587,9 @@ this.log.goOut();
           piece = this.board.getCell(x+i,y+j).piece;
           if(piece){
             this.log.debug('i,j,piece : ' + i + ', ' + j + ', ' + piece.toDebugString());
-            if(piece.isTurn() && (ret = piece.canMoveTo(x,y))){
+            if((!piece.isTurn()) && (ret = piece.canMoveTo(x,y))){
+              this.log.debug('this piece can move to : ' + x + ', ' + y );
+              this.log.debug('so, the lion is mated');
               break;
             }
           }
