@@ -469,6 +469,7 @@ GameController = Class.create({
       break;
     }
     $('promoteOrNot').stopObserving();
+    $('promoteOrNot').hide();
     log.goOut();
   },
 	/**

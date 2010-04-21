@@ -38,7 +38,7 @@ Piece = Class.create({
 	/**
 	 * initialize(chr)
 	 */
-  initialize: function initialize(chr, game) {
+  initialize: function initialize(chr, game) { // Piece
     this.game = game || window.gameController.game;
     this.game.log.getInto('Piece#initialize');
     this.game.log.warn('Piece#initialize entered with : ' + chr, {'indent':1});
@@ -210,32 +210,36 @@ this.game.log.goOut();
 	 * sitOnto(cell)
 	 */
   sitOnto: function sitOnto(distination_cell) { // Piece
-this.game.log.getInto('Piece#sitOnto');
-window.gameController.game.log.debug('entered : ' + distination_cell.toDebugString(), {'indent':1});
+    this.game.log.getInto('Piece#sitOnto');
+    this.game.log.debug('entered : ' + distination_cell.toDebugString(), {'indent':1});
     if(this.cell) this.cell.elm.removeChild(this.elm);
     distination_cell.piece = this;
     distination_cell.elm.appendChild(this.elm);
     this.cell = distination_cell;
-window.gameController.game.log.debug('leaving Piece#sitOnto as ' + this.toDebugString(), {'indent':-1});
-this.game.log.goOut();
+    this.game.log.debug('leaving Piece#sitOnto as ' + this.toDebugString(), {'indent':-1});
+    this.game.log.goOut();
   },
 	/**
 	 * gotoOpponentsStand()
 	 */
   gotoOpponentsStand: function gotoOpponentsStand() { // Piece
-this.game.log.getInto();
-window.gameController.game.log.debug('entered Piece#gotoOpponentsStand : ' + this.toDebugString(), {'indent':1});
-    if(this.isBlack()){
-window.gameController.game.log.debug('001');
-      this.game.whiteStand.put(this);
-window.gameController.game.log.debug('002');
-    } else {
-window.gameController.game.log.debug('101');
-      this.game.blackStand.put(this);
-window.gameController.game.log.debug('102');
+    this.game.log.getInto('Piece#gotoOpponentsStand');
+    this.game.log.debug('piece: ' + this.toDebugString(), {'indent':1});
+    if(this.unpromote_type){
+      this.unpromote();
+      this.game.log.debug('unpromoted : ' + this.toDebugString());
     }
-window.gameController.game.log.debug('leaving Piece#gotoOpponentsStand : ', {'indent':-1});
-this.game.log.goOut();
+    if(this.isBlack()){
+      this.game.log.debug('001');
+      this.game.whiteStand.put(this);
+      this.game.log.debug('002');
+    } else {
+      this.game.log.debug('101');
+      this.game.blackStand.put(this);
+      this.game.log.debug('102');
+    }
+      this.game.log.debug('leaving Piece#gotoOpponentsStand : ', {'indent':-1});
+      this.game.log.goOut();
   },
 	/**
 	 * isViewersP()
@@ -275,6 +279,26 @@ this.game.log.goOut();
       this.game.log.debug('promoted : ' + this.toDebugString());
     } else {
       this.game.log.fatal('this piece cannot promote.');
+    }
+    this.game.log.goOut();
+  },
+  	/**
+	 * unpromote(actionContents)
+	 */
+  unpromote: function unpromote(actionContents) {  // Piece
+    this.game.log.getInto('Piece#unpromote');
+    if(this.unpromote_type){
+      this.imageUrl = PieceTypeObjects[this.unpromote_type].imageUrl;
+      this.elm.src = this.imageUrl;
+      this.type = PieceTypeObjects[this.unpromote_type].type;
+      if(this.isBlack())
+        this.chr = Type2chr[this.type].toUpperCase();
+      else
+        this.chr = Type2chr[this.type];
+      this.movableArea = PieceTypeObjects[this.unpromote_type].movableArea;
+      this.game.log.debug('unpromoted : ' + this.toDebugString());
+    } else {
+      this.game.log.fatal('this piece cannot unpromote.');
     }
     this.game.log.goOut();
   },
@@ -353,7 +377,8 @@ var PieceTypeObjects = {
       [ true,  true,  true],
       [ true, false,  true],
       [false,  true, false]
-    ]
+    ],
+  unpromote_type: 'chick'
   }
 };
 
