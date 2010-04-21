@@ -48,9 +48,10 @@ if(wave)
   <div id="counter"><span class="t">count</span><span id="counterNum"><span></div>
   <div id="top-stand"></div>
   <div id="animal-shogi"></div>
-  <div id="promoteOrNot"></div>
-  <div id="yesElement"></div>
-  <div id="noElement"></div>
+  <div id="promoteOrNot" class="confirmAction" style="display:none">
+    <div id="yesElement">yes</div>
+    <div id="noElement">no</div>
+  </div>
   <div id="bottom-stand"></div>
   <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
 </div>

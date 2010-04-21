@@ -75,15 +75,14 @@ div.rowNum {
 div#cornerDummy {
   background-color: #008;
 }
-div#yesElement {
-  content: 'yes';
-  color: red;
+div#promoteOrNot {
   background-color: yellow;
 }
+div#yesElement {
+  color: red;
+}
 div#noElement {
-  content: 'no';
   color: blue;
-  background-color: yellow;
 }
 img.piece {
   -moz-border-radius: 10px;
