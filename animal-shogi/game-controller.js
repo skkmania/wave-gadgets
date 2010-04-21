@@ -129,6 +129,10 @@ ControlPanel = Class.create({
         break;
       case 'over':
         this.controller.message(t('already_over') + '<br>' + wave.getState().get('winner') + t('win'));
+        if(this.controller.player1)
+          this.player1Elm.innerHTML = t('sente') + this.controller.player1.statusHtml();
+        if(this.controller.player2)
+          this.player2Elm.innerHTML = t('gote') + this.controller.player2.statusHtml();
         break;
       default:
         this.player1Elm.innerHTML = t('sente');
@@ -310,6 +314,9 @@ GameController = Class.create({
     $('join-button').hide();
     if (!this.game.board.shown) this.game.board.show();
     this.game.boardReadFromState(state);  // 盤面の読み込み
+    this.controlPanel.update('over');
+      // draggableは消してしまい、ゲームを継続できなくする
+    this.game.allPieces().pluck('drag').compact().invoke('destroy');
     //this.prepareFromState(state);
     this.log.goOut();
   }, 
@@ -865,6 +872,7 @@ this.log.goOut();
         }
             break;
       case 'playing':
+      case 'over':
         bs = state.get('blacks');  ws = state.get('whites');
         if (bs && ws){
           this.log.debug('blacks : ' + bs + '<br>' + 'whites : ' + ws);
