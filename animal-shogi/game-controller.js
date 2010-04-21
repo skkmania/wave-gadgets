@@ -290,6 +290,8 @@ GameController = Class.create({
     this.count = state.get('count') || 0;
     if(!this.player1) this.getPlayersFromState(state);
     this.determineTop();
+    // topが決まったので持ち駒の位置も決められる。
+    this.game.setStandPosition();
     $('join-button').hide();
     if (!this.game.board.shown) this.game.board.show();
     this.game.boardReadFromState(state);  // 盤面の読み込み

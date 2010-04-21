@@ -1202,7 +1202,7 @@ window.gameController.game = this;
       //  Boardのinitializeにおいてはtop=0を前提にstyle.top, style.leftを決めている
       //  ので、topが決まったこの時点で必要なら修正しておく必要がある
     this.board.adjust();
-      //  持ち駒の位置も決めておく
+      //  持ち駒の位置も決めておく(といってもこの時点ではデフォルトにしか決まらない。)
     this.setStandPosition();
     this.makeConfirmActionElement();
     this.log.warn('leaving AnimalShogiGame#initialize',{'indent':-1, 'date':true,3:{'color':'green'}});
@@ -1232,20 +1232,24 @@ window.gameController.game = this;
 	/**
 	 * setStandPosition()
 	 */ 
-  setStandPosition: function setStandPosition() { // Game
+  setStandPosition: function setStandPosition() { // AnimalShogiGame
+    this.log.getInto('AnimalShogiGame#setStandPosition');
     $('container').style.width = 180 + (this.width)*30 + 'px';
-    if(this.top !== 1){
+    if(this.controller.top !== 1){
       $('bottom-stand').appendChild(this.blackStand.elm);
       $('top-stand').appendChild(this.whiteStand.elm);
+      this.log.debug('blackStand is set to bottom beacuse top is ' + this.controller.top);
     } else {
       $('bottom-stand').appendChild(this.whiteStand.elm);
       $('top-stand').appendChild(this.blackStand.elm);
+      this.log.debug('blackStand is set to top beacuse top is ' + this.controller.top);
     }
     $('bottom-stand').style.height = (this.height - 1)*30 + 'px';
     $('bottom-stand').style.margin = (this.height - 3)*30 + 'px 10px 0px 0px';
     $('top-stand').style.height = (this.height - 1)*30 + 'px';
     $('animal-shogi').style.height = 30 + (this.height)*30 + 'px';
     $('animal-shogi').style.width = 80 + (this.width)*30 + 'px';
+    this.log.goOut();
   },
 	/**
 	 * show()
