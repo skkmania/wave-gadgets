@@ -77,6 +77,20 @@
     assertEqual( 'animal-shogi', gameObj.container.id );
   } },
 
+  testGetTurn : function() {  with( this )  {
+    var logObj = makeLogObj('testGetTurn', {width:600, height:450, resizable:false});
+    logObj.debug('test GetTurn');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'animal-shogi'};
+    var gameObj = new GameController(settings, logObj);
+    gameObj.log.debug('test GetTurn');
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    var ret = gameObj.getTurn();
+    assertEqual( 'boolean', typeof ret, 'typeof getTurn()');
+  } },
+
   testsetPlayersOrder : function() {  with( this )  {
     var logObj = makeLogObj('testsetPlayersOrder', {width:600, height:450, resizable:false});
     logObj.debug('test setPlayersOrder');
@@ -188,6 +202,7 @@
   </p>
 <div id="container">
   <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
+  <div id="counter"><span class="t">count</span><span id="counterNum"><span></div>
   <div id="top-stand"></div>
   <div id="animal-shogi"></div>
   <div id="bottom-stand"></div>

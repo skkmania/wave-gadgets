@@ -118,7 +118,7 @@ wave.State.prototype = {
     this.state = {};
   },
   get: function(key, optDefault) {
-    return this.state[key];
+    return this.state[key] || optDefault;
   },
   put: function(key, value) {
     this.state[key] = value;

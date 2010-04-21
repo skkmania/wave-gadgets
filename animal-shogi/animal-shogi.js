@@ -865,8 +865,8 @@ this.game.log.goOut();
 	 * read(strFromState)
 	 */
   read: function read(strFromState){ // Board
-this.game.log.getInto();
-    this.game.log.debug('entered Board#read with : ' + strFromState);
+    this.game.log.getInto('Board#read');
+    this.game.log.debug('entered with : ' + strFromState);
     // stateから読んだ文字列を元に駒を盤上に置く
     // 現在の状態との差分を埋める
     var oldBoard = $A(this.toString());
@@ -878,7 +878,7 @@ this.game.log.getInto();
            else this.replaceByRead(tuple, idx);
         }
       }.bind(this));
-this.game.log.goOut();
+    this.game.log.goOut();
   },
 	/**
 	/**
