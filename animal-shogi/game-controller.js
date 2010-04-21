@@ -464,12 +464,12 @@ GameController = Class.create({
         f.call(actionContents[0]);
         log.debug('function called.');
 */
-        window.gameController.game.doAction(actionContents);
       break;
       case 'noElement':
         log.debug('noElement was clicked.');
       break;
     }
+    window.gameController.game.doAction(actionContents);
     $('promoteOrNot').stopObserving();
     $('promoteOrNot').hide();
     log.goOut();
