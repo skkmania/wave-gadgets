@@ -1332,57 +1332,6 @@ this.log.goOut();
     this.log.goOut();
     return ret;
   },
-	/**
-	 * processPlayer(state)
-	 */
-  processPlayer: function processPlayer(state){ // Game
-    this.log.getInto();
-    var viewer = wave.getViewer().getId();
-this.log.debug('entered Game#processPlayer: viewer: ' + viewer);
-    var pl1 = state.get('player1');
-    var pl2 = state.get('player2');
-    if(!pl1 && !pl2){
-this.log.debug('leaving processPlayer because state has no player.');
-this.log.goOut();
-      return;
-    }
-    if (!this.player1 && pl1) {  // 各normalスナップに1回通る
-this.log.getInto();
-this.log.debug('processPlayer: processing Player1: ');
-      var pl1IsViewer = (pl1 == viewer);
-      this.player1 = new Player('player1', pl1, pl1IsViewer );
-      this.controlPanel.update();
-this.log.info('leaving processing Player1: ');
-this.log.goOut();
-    }
-    if (!this.player2 && pl2) {  // 各normalスナップに1回通る
-this.log.getInto();
-this.log.warn('processPlayer: processing Player2: ');
-      var pl2IsViewer = (pl2 == viewer);
-      this.player2 = new Player('player2', pl2, pl2IsViewer );
-this.debug_dump();
-      this.controlPanel.update();
-this.log.warn('backed into processPlayer: processing Player2: ');
-      this.start();
-this.log.warn('leaving processPlayer: processing Player2: ');
-this.log.goOut();
-    }
-
-    if (this.player1 && this.player1.isViewer) {
-      this.playingViewer = this.player1;
-    }
-    else if (this.player2 && this.player2.isViewer) {
-      this.playingViewer = this.player2;
-    }
-    this.controller.determineTop();
-if(this.playingViewer) this.log.debug('playingViewer is defined : ' + this.playingViewer);
-    if (this.player1 && this.player2) {
-      this.controller.message('');
-      $('join-button').hide();
-    }
-this.log.warn('leaving Game#processPlayer: viewer: ' + viewer);
-this.log.goOut();
-  },
         /**
          * allPieces()
          */
@@ -1394,14 +1343,9 @@ this.log.goOut();
 	 */
   boardReadFromState: function boardReadFromState(state) { // AnimalShogiGame
     this.log.getInto('Game#boardReadFromState: ');
-    this.log.warn('<span style="color:#00FFFF">entered boardReadFromState</span>');
-    //this.processPlayer(state);
-    //this.count = state.get('count');
     this.board.read(state.get('board', this.board.initialString));
     this.blackStand.read(state.get('bstand', this.blackStand.initialString));
     this.whiteStand.read(state.get('wstand', this.whiteStand.initialString));
-    //this.toggleDraggable();
-    //this.controlPanel.update();
     this.log.goOut();
   },
 	/**

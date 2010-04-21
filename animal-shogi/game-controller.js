@@ -317,16 +317,8 @@ GameController = Class.create({
     this.controlPanel.update('over');
       // draggableは消してしまい、ゲームを継続できなくする
     this.game.allPieces().pluck('drag').compact().invoke('destroy');
-    //this.prepareFromState(state);
     this.log.goOut();
   }, 
-	/**
-	 * playerSetup()
-	 */
-  playerSetup: function playerSetup() { // GameController
-    this.log.getInto();
-    this.log.goOut();
-  },
 	/**
 	 * mainRoutine()
 	 */
@@ -608,41 +600,6 @@ GameController = Class.create({
     this.log.goOut();
     return delta;
   },
-/*
-    if (!this.player1) {
-/*
-    if (!this.player1) {
-      this.log.getInto('setting player1');
-      this.player1 = new Player('player1', name, !opponent);
-      if (!opponent) this.playingViewer = this.player1;
-      this.controlPanel.update();
-      this.message(t('waiting'));
-      wave.getState().submitDelta({
-        player1:name
-      });
-      this.log.goOut();
-    }
-    else if (!this.player2) {
-      if (name != this.player1.name){
-        this.log.getInto('setting player2');
-        this.player2 = new Player('player2', name, !opponent);
-        if (!opponent) this.playingViewer = this.player2;
-        this.determineTop();
-        this.controlPanel.update();
-        this.message('');
-        this.start();
-        wave.getState().submitDelta({
-          player2:name
-        });
-        this.log.goOut();
-      } else
-        this.message(t('cannot_play_with_same_person'));
-    }
-      // TODO
-      //throw 'Invalid Player Data';
-    this.log.goOut();
-  },
-*/
 	/**
 	 * message(message)
 	 */
@@ -660,14 +617,6 @@ GameController = Class.create({
 	 */
   clearMessage: function clearMessage() {
     this.message('');
-this.log.goOut();
-  },
-	/**
-	 * show()
-	 */
-  show: function show() { // game
-    //this.log.warn('game.show');
-    //this.board.show();
   },
 	/**
 	 * start()
@@ -782,55 +731,6 @@ this.log.goOut();
 
     this.log.debug('viewer: ' + this.viewer);
     this.log.goOut();
-  },
-	/**
-	 * processPlayer(state)
-	 */
-  processPlayer: function processPlayer(state){ // Game
-    this.log.getInto('GameController#processPlayer');
-    var pl1 = state.get('player1');
-    var pl2 = state.get('player2');
-    if(!pl1 && !pl2){
-    this.log.debug('leaving processPlayer because state has no player.');
-    this.log.goOut();
-      return;
-    }
-    if (!this.player1 && pl1) {  // 各normalスナップに1回通る
-this.log.getInto();
-this.log.debug('processPlayer: processing Player1: ');
-      var pl1IsViewer = (pl1 == this.viewer);
-      this.player1 = new Player('player1', pl1, pl1IsViewer );
-      this.controlPanel.update();
-this.log.info('leaving processing Player1: ');
-this.log.goOut();
-    }
-    if (!this.player2 && pl2) {  // 各normalスナップに1回通る
-this.log.getInto();
-this.log.warn('processPlayer: processing Player2: ');
-      var pl2IsViewer = (pl2 == this.viewer);
-      this.player2 = new Player('player2', pl2, pl2IsViewer );
-//this.debug_dump();
-      this.controlPanel.update();
-this.log.warn('backed into processPlayer: processing Player2: ');
-      this.start();
-this.log.warn('leaving processPlayer: processing Player2: ');
-this.log.goOut();
-    }
-
-    if (this.player1 && this.player1.isViewer) {
-      this.playingViewer = this.player1;
-    }
-    else if (this.player2 && this.player2.isViewer) {
-      this.playingViewer = this.player2;
-    }
-    this.determineTop();
-if(this.playingViewer) this.log.debug('playingViewer is defined : ' + this.playingViewer);
-    if (this.player1 && this.player2) {
-      this.message('');
-      $('join-button').hide();
-    }
-this.log.warn('leaving Game#processPlayer: viewer: ' + viewer);
-this.log.goOut();
   },
 	/**
 	 * prepareFromState(state)
