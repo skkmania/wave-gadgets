@@ -76,8 +76,7 @@ ControlPanel = Class.create({
 	 */
   reverse: function reverse() { // ControlPanel              
      this.controller.log.getInto('ControlPanel#reverse');
-     this.controller.log.debug('start reverse cp'); 
-      if (this.controller.game.top == 1){                                                
+      if (this.controller.top == 1){                                                
         this.player1Elm = $('top-panel');
         this.player2Elm = $('bottom-panel');
       } else {       
@@ -86,7 +85,6 @@ ControlPanel = Class.create({
       }                    
     this.player1Elm.update(t('sente') + (this.controller.player1 ? this.controller.player1.statusHtml() : t('waiting')));
     this.player2Elm.update(t('gote') +  (this.controller.player2 ? this.controller.player2.statusHtml() : t('waiting')));
-    this.controller.log.debug('ControlPanel#reverse end'); 
     this.controller.log.goOut();
   }, 
 	/**
