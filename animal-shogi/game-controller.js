@@ -788,7 +788,6 @@ this.log.goOut();
           this.log.debug('blacks : ' + bs + ',  ' + 'whites : ' + ws);
           if(!this.player1){
             this.createPlayer(bs, ws);
-            if(this.isViewersTurn()) this.game.initialDraggable(this.viewersTurn());
           }
         } else {
           this.log.fatal('blacks and whites are not found in state');
