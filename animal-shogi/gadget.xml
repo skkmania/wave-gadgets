@@ -33,7 +33,7 @@ if(wave)
     if (wave && wave.isInWaveContainer()) {
       wave.setStateCallback(window.gameController.acceptState.bind(window.gameController));
     }
-    window.gameController.show();
+    // window.gameController.show();
   }
   gadgets.util.registerOnLoadHandler(init);
 </script>

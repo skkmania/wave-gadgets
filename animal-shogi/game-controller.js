@@ -635,10 +635,8 @@ this.log.goOut();
 	 */
   nextTurn: function nextTurn() { // GameController
     this.log.getInto('GameController#nextTurn');
-    //this.count++;
     this.controlPanel.update('playing');
     this.clearMessage();
-    //this.game.toggleDraggable();
     this.log.goOut();
   },
 	/**
@@ -646,20 +644,32 @@ this.log.goOut();
 	 */
   getTurn: function getTurn() { // GameController
     // turnは論理値。countが偶数ならtrueで先手番、奇数ならfalseで後手番。
-    return (this.count % 2 == 0);
+    this.log.getInto('GameController#getTurn');
+    var ret = (this.count % 2 == 0);
+    this.log.debug('count is ' + this.count + ', so returning with : ' + ret);
+    this.log.goOut();
+    return ret;
   },
 	/**
 	 * thisTurnPlayer()
 	 */
   thisTurnPlayer: function thisTurnPlayer() { // GameController
-    return this.getTurn() ? this.player1 : this.player2;
+    this.log.getInto('GameController#thisTurnPlayer');
+    var ret = this.getTurn() ? this.player1 : this.player2;
+    this.log.debug('returning with : ' + ret);
+    this.log.goOut();
+    return ret;
   },
 	/**
 	 * isViewersTurn()
 	 */
         // 現在、viewerのturnならtrueを返す
   isViewersTurn: function isViewersTurn() { // GameController
-    return this.thisTurnPlayer().isViewer;
+    this.log.getInto('GameController#isViewersTurn');
+    var ret = this.thisTurnPlayer().isViewer;
+    this.log.debug('returning with : ' + ret);
+    this.log.goOut();
+    return ret;
   },
 	/**
 	 * reportActEnds(player, movingPieceType,moveTo, capturedPieceType)
@@ -775,7 +785,7 @@ this.log.goOut();
       case 'over':
         bs = state.get('blacks');  ws = state.get('whites');
         if (bs && ws){
-          this.log.debug('blacks : ' + bs + '<br>' + 'whites : ' + ws);
+          this.log.debug('blacks : ' + bs + ',  ' + 'whites : ' + ws);
           if(!this.player1){
             this.createPlayer(bs, ws);
             if(this.isViewersTurn()) this.game.initialDraggable(this.viewersTurn());
@@ -809,6 +819,7 @@ this.log.goOut();
         ret = false;
         break;
      } 
+    this.log.debug('returning : ' + ret);
     this.log.goOut();
     return ret;
   },

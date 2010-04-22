@@ -9,28 +9,6 @@ window.gameController.game.log.getInto();
 window.gameController.game.log.goOut();
   return p;
 }
-
-function addDraggable(piece, startMessage){
-  window.gameController.log.getInto('addDraggable');
-  window.gameController.log.debug('piece:' + piece.toDebugString());
-  window.gameController.log.debug('msg:' + startMessage,{3:{'color':'#aa8844'}});
-  window.gameController.log.goOut();
-
-  return  new Draggable(piece.elm, {
-        onStart: function onStart() {
-          window.gameController.game.log.getInto('Draggable#onStart of ' + piece.toDebugString());
-          window.gameController.game.log.warn('Drag started. : ' + startMessage, {3:{'color':'#33AA88'}});
-          window.gameController.game.log.goOut();
-        },
-        onEnd: function onEnd() {
-          window.gameController.game.log.getInto('Draggable#onEnd of ' + piece.toDebugString());
-          this.elm.style.top = 0;
-          this.elm.style.left = 0;
-          window.gameController.game.log.goOut();
-        }.bind(piece)
-      });
-}
-
 /**
  * Piece Class
  */
@@ -47,6 +25,7 @@ Piece = Class.create({
     Object.extend(this, PieceTypeObjects[this.type]);
     this.game.log.warn('Piece#initialize imageUrl is : ' + this.imageUrl);
     this.cell = null;
+    this.drag = null;
     this.chr = chr;
     this.createElm();
     this.game.log.debug(this.toDebugString()); 
@@ -77,31 +56,67 @@ Piece = Class.create({
     this.game.log.goOut();
   },
 	/**
+	 * addDraggable(startMessage)
+	 */
+  addDraggable: function addDraggable(startMessage){ // Piece
+    this.game.log.getInto('Piece#addDraggable');
+    this.game.log.debug('piece:' + this.toDebugString());
+    this.game.log.debug('msg:' + startMessage);
+  
+    this.drag = new Draggable(this.elm, {
+          onStart: function onStart() {
+            this.game.log.getInto('Draggable#onStart of ' + this.toDebugString());
+            this.game.log.warn('Drag started. : ' + startMessage, {3:{'color':'#33AA88'}});
+            this.game.log.goOut();
+          }.bind(this),
+          onEnd: function onEnd() {
+            this.game.log.getInto('Draggable#onEnd of ' + this.toDebugString());
+            this.elm.style.top = 0;
+            this.elm.style.left = 0;
+            this.game.log.goOut();
+          }.bind(this)
+        });
+  
+    this.game.log.debug('drags #: ' + Draggables.drags.length);
+    this.game.log.debug('added obj is : ' + this.drag.toString());
+    this.game.log.goOut();
+  },
+	/**
 	 * toggleDraggable()
 	 */
   toggleDraggable: function toggleDraggable(){ // Piece
     this.game.log.getInto('Piece#toggleDraggable');
     this.game.log.debug('entered Piece#toggleDraggable:'+this.toDebugString());
+    if(this.drag){
+      this.game.log.debug('this.drag : '+ this.drag.toString());
+    } else {
+      this.game.log.debug('this piece has no drag');
+    }
     this.game.log.debug('count : '+this.game.controller.count);
-    this.game.log.debug('isViewersP : '+this.isViewersP());
-    this.game.log.debug('isViewersTurn : '+this.game.controller.isViewersTurn());
-    if (this.drag){
-      if(!this.isViewersP()){
+    var thisPieceIsViewers = this.isViewersP();
+    this.game.log.debug('isViewersP : '+ thisPieceIsViewers);
+    var thisTurnIsViewers = this.game.controller.isViewersTurn();
+    this.game.log.debug('isViewersTurn : '+thisTurnIsViewers);
+    if (!this.drag){
+        if(thisPieceIsViewers && thisTurnIsViewers){
+          this.addDraggable('toggled');
+        }
+    } else {
+      if(thisPieceIsViewers){
+        if(!thisTurnIsViewers){
+          this.game.log.debug('to destroy drag because this is not Vieweres turn. : '+ Draggables.drags.length);
+          this.drag.destroy();
+          this.game.log.debug('length of drags became : '+ Draggables.drags.length);
+          this.drag = null;
+        }
+      } else {
         this.game.log.debug('to destroy drag because this is not Vieweres piece. : '+ Draggables.drags.length);
         this.drag.destroy();
         this.game.log.debug('length of drags became : '+ Draggables.drags.length);
         this.drag = null;
       }
-      if(this.isViewersP() && !this.game.controller.isViewersTurn()){
-        this.game.log.debug('to destroy drag because this is not Vieweres turn. : '+ Draggables.drags.length);
-        this.drag.destroy();
-        this.game.log.debug('length of drags became : '+ Draggables.drags.length);
-        this.drag = null;
-      }
-    } else if(this.isViewersP() && this.game.controller.isViewersTurn()){
-      this.drag = addDraggable(this, 'toggled');
     }
-    this.game.log.debug('leaving Piece#toggleDraggable');
+    this.game.log.debug(this.drag?'drag remains':'no drag');
     this.game.log.goOut();
   },
 	/**
@@ -246,15 +261,17 @@ this.game.log.goOut();
 	 */
   isViewersP: function isViewersP(game) { // Piece
     this.game.log.getInto('Piece#isViewersP');
+    var ret;
     if (this.isBlack()){
       this.game.log.debug('owner name : ' + this.game.controller.player1.name);
-      this.game.log.goOut();
-      return this.game.controller.player1.isViewer;
+      ret = this.game.controller.player1.isViewer;
     } else {
       this.game.log.debug('owner name : ' + this.game.controller.player2.name);
-      this.game.log.goOut();
-      return this.game.controller.player2.isViewer;
+      ret = this.game.controller.player2.isViewer;
     }
+    this.game.log.debug('returning with : ' + ret);
+    this.game.log.goOut();
+    return ret;
   },
 	/**
 	 * isGoal(cell)
@@ -396,6 +413,7 @@ Cell.prototype = {
     this.board = board;
     this.type = 'cell';
     this.game = this.board.game;
+    this.log = this.game.log;
     this.x = x;
     this.y = y;
     this.top = top;
@@ -408,19 +426,19 @@ Cell.prototype = {
 	 * say()
 	 */
   say: function say(){ // Cell
-    this.game.log.getInto('Cell#say');
+    this.log.getInto('Cell#say');
     // このセルにいるpieceの状態を文字にして返す
     if (!this.piece){
-      this.game.log.goOut();
+      this.log.goOut();
       return 'x';
     }
     var retChar = Type2chr[this.piece.type];
-    this.game.log.debug('retChar : ' + retChar);
+    this.log.debug('retChar : ' + retChar);
     if(this.piece.isBlack()){
-      this.game.log.goOut();
+      this.log.goOut();
       return retChar.toUpperCase();
     } else {
-      this.game.log.goOut();
+      this.log.goOut();
       return retChar; 
     }
   },
@@ -428,11 +446,12 @@ Cell.prototype = {
 	 * put(piece)
 	 */
   put: function put(piece) { // Cell
-this.game.log.warn('Cell#put entered');
+    this.log.getInto('Cell#put');
     this.piece = piece;
     this.piece.cell = this;
     if(this.elm) this.elm.appendChild(piece.elm);
-this.game.log.warn('Cell#put leaving with piece : ' + this.piece.toDebugString());
+    this.log.debug('leaving with piece : ' + this.piece.toDebugString());
+    this.log.goOut();
   },
 	/**
 	 * move(toY, toX)
@@ -493,7 +512,7 @@ if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cel
     this.elm.addClassName('cell');
     this.getPosition();
     this.board.elm.appendChild(this.elm);
-this.game.log.warn('Droppables to add ' + this.elm.id);
+    this.log.warn('Droppables to add ' + this.elm.id);
     Droppables.add(this.elm, {
       toDebugString: function toDebugString(){
         return 'Droppable : ' + this.toDebugString();
@@ -503,21 +522,21 @@ this.game.log.warn('Droppables to add ' + this.elm.id);
 	 * onDrop(draggable)
 	 */
       onDrop: function onDrop(draggable) {
-        this.game.log.getInto('Droppable#onDrop',{ "background":"#aaccff" });
+        this.log.getInto('Droppable#onDrop',{ "background":"#aaccff" });
 
         // make action contents
         var fromObj = draggable.parentNode.obj;
         var toCell = this;
         var piece = draggable.obj;
         var actionContents = [piece, fromObj, toCell];
-        this.game.log.debug('actionContents:');
-        this.game.log.debug('piece :' + piece.toDebugString());
-        this.game.log.debug('fromObj :' + fromObj.toDebugString());
-        this.game.log.debug('toCell :' + toCell.toDebugString());
+        this.log.debug('actionContents:');
+        this.log.debug('piece :' + piece.toDebugString());
+        this.log.debug('fromObj :' + fromObj.toDebugString());
+        this.log.debug('toCell :' + toCell.toDebugString());
 
         // send action to GameController
         this.game.controller.receiveAction(actionContents);
-        this.game.log.goOut();
+        this.log.goOut();
 
       }.bind(this)
     });
@@ -526,12 +545,12 @@ this.game.log.warn('Droppables to add ' + this.elm.id);
 	 * show()
 	 */
   show: function show() { // Cell
-window.gameController.game.log.warn('entered show of Cell: ' + this.toDebugString(), {'indent':1});
+this.log.warn('entered show of Cell: ' + this.toDebugString(), {'indent':1});
     if (!this.elm) {
       (this.x === 0 || this.y === 0) ? this.createDummyElm() : this.createElm();
     }
     if (this.piece) {
-window.gameController.game.log.warn('in show of Cell, processing -> ' + this.piece.toDebugString());
+this.log.warn('in show of Cell, processing -> ' + this.piece.toDebugString());
       this.elm.appendChild(this.piece.elm);
       if(this.piece.isBlack() == (window.gameController.top === 0)){
         this.piece.elm.addClassName('bottom');
@@ -540,9 +559,9 @@ window.gameController.game.log.warn('in show of Cell, processing -> ' + this.pie
         this.piece.elm.addClassName('top');
         this.piece.elm.removeClassName('bottom');
       }
-window.gameController.game.log.warn('in show of Cell, after process -> ' + this.piece.toDebugString());
+this.log.warn('in show of Cell, after process -> ' + this.piece.toDebugString());
     }
-window.gameController.game.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':-1});
+this.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':-1});
   },
 	/**
 	 * isOpponentFirstLine(player)
@@ -562,31 +581,34 @@ window.gameController.game.log.warn('leaving show of Cell: ' + this.toDebugStrin
 	 * deleteOwnPiece()
 	 */
   deleteOwnPiece: function deleteOwnPiece(){  // Cell
-window.gameController.game.log.getInto();
-window.gameController.game.log.debug('entered Cell#deleteOwnPiece');
-if(this.piece)window.gameController.game.log.warn('this cell.piece to be deleted: ' + this.piece.toDebugString());
+    this.log.getInto('Cell#deleteOwnPiece');
+    if(this.piece){
+      this.log.warn('this cell.piece to be deleted: ' + this.piece.toDebugString());
+    }
     if(this.piece){
       this.piece.cell = null;
 // これができないときは？
       this.elm.removeChild(this.piece.elm);
-// このpieceにDraggableがついていたらdestroyしないといけないはず？:w
-      if(this.drag){
-        this.drag.destroy();
-        this.drag = null;
+// このpieceにDraggableがついていたらdestroyしないといけないはず？
+      if(this.piece.drag){
+        this.piece.drag.destroy();
+        this.piece.drag = null;
+        this.log.debug('piece.drag was destroid  : ' + this.piece.drag);
       }
       delete this.piece;
       this.piece = null;
     }
-window.gameController.game.log.warn('leaving Cell#deleteOwnPiece as :' + this.toDebugString());
-window.gameController.game.log.goOut();
+    this.log.goOut();
     return;
   }, 
 	/**
 	 * removeOwnPiece()
 	 */
   removeOwnPiece: function removeOwnPiece(){  // Cell
-window.gameController.game.log.debug('entered Cell#removeOwnPiece');
-if(this.piece)window.gameController.game.log.warn('this cell.piece to be removed: ' + this.piece.toDebugString());
+    this.log.getInto('Cell#removeOwnPiece');
+    if(this.piece) {
+      this.log.debug('this cell.piece to be removed: ' + this.piece.toDebugString());
+    }
     var ret = null;
     if(this.piece){
       ret = this.piece;
@@ -594,7 +616,8 @@ if(this.piece)window.gameController.game.log.warn('this cell.piece to be removed
       this.elm.removeChild(this.piece.elm);
       this.piece = null;
     }
-window.gameController.game.log.warn('leaving Cell#removeOwnPiece as :' + this.toDebugString());
+    this.log.debug('leaving as :' + this.toDebugString());
+    this.log.goOut();
     return ret;
   },
 	/**
@@ -604,8 +627,8 @@ window.gameController.game.log.warn('leaving Cell#removeOwnPiece as :' + this.to
     // 敵駒のあるセルに自駒を動かすとき、敵駒の敵stand(つまり自分のスタンド）
     // に駒を動かしてから自駒をこのセルに置く
     // この処理は駒を動かすとき、つまりmoveから呼ばれなければならない
-window.gameController.game.log.getInto();
-window.gameController.game.log.debug('entered Cell#replaceOwnPieceWith newPiece : ' + newPiece.toDebugString(), {'indent':1});
+    this.log.getInto('Cell#replaceOwnPieceWith');
+    this.log.debug('newPiece : ' + newPiece.toDebugString());
     var tmp = null;
     if(this.piece){
       tmp = this.piece;
@@ -614,15 +637,15 @@ window.gameController.game.log.debug('entered Cell#replaceOwnPieceWith newPiece 
     }
     this.piece = newPiece;
     this.put(newPiece);
-if (tmp){
-  window.gameController.game.log.debug('leaving Cell#replaceOwnPieceWith with : ' + tmp.toDebugString(), {'indent':-1});
-  window.gameController.game.goOut();
-    return tmp;
-} else {
-  window.gameController.game.log.debug('leaving Cell#replaceOwnPieceWith nothing', {'indent':-1});
-  window.gameController.game.goOut();
-    return;
-}
+    if (tmp){
+      this.log.debug('leaving Cell#replaceOwnPieceWith with : ' + tmp.toDebugString());
+      this.log.goOut();
+        return tmp;
+    } else {
+      this.log.debug('leaving Cell#replaceOwnPieceWith nothing');
+      this.log.goOut();
+        return;
+    }
   },
 	/**
 	 * toArray()
@@ -1369,7 +1392,10 @@ this.log.goOut();
       viewersPiece = this.allPieces().findAll(function(e){ return e.chr == e.chr.toLowerCase(); });
     }
     this.log.debug('viewersPiece # : ' + viewersPiece.length);
-    viewersPiece.each(function(e){ addDraggable(e, 'initially added draggable'); });
+    viewersPiece.invoke('addDraggable','initially added draggable');
+    viewersPiece.each(function(e, index){
+      this.log.debug(index + ' : drag -> ' + e.drag.toString());
+    }.bind(this));
     this.log.goOut();
   },
 	/**
@@ -1377,26 +1403,27 @@ this.log.goOut();
 	 */
   toggleDraggable: function toggleDraggable(){ // AnimalShogiGame
     this.log.getInto('AnimalShogiGame#toggleDraggable');
-    this.log.debug('processing pieces of Draggables.drags');
     this.log.debug('Draggables.drags #: ' + Draggables.drags.length);
+       // dragsの中身をログに書き出してみる
     if(Draggables.drags.length > 0){
       this.log.debug('contents of Draggables.drags :');
       Draggables.drags.each(function(e){
-        var str = e.element && e.element.obj ? e.element.obj.chr : e.toString();
+        var str = e.element && e.element.obj ? e.element.obj.toDebugString() : e.toString();
         this.log.debug(str);
       }.bind(this));
     }
-      Draggables.drags.each(function(e){
-        if(e.element && e.element.obj && e.element.obj.toggleDraggable){
-           e.element.obj.toggleDraggable();
-        } else {
-          this.log.debug('not piece object in drags');
-        }
-      }.bind(this));
+    this.log.debug(' -- contents of Draggables.drags ends -- ');
 /*
-    for(var i=1,length=Draggables.drags.length; i<length; i++){
-      Draggables.drags[i].element.obj.toggleDraggable();
-    }
+      // dragsの個々の要素のうち、toggleDraggbleを持っているものは、それを実行する
+    this.log.debug('processing pieces of Draggables.drags');
+    Draggables.drags.each(function(e, index){
+      if(e.element && e.element.obj && e.element.obj.toggleDraggable){
+         e.element.obj.toggleDraggable();
+      } else {
+        // toggleDraggableを持っていないものはそうログに記述する
+        this.log.debug('drags[' + index + '] : seems not to be a piece object');
+      }
+    }.bind(this));
 */
     this.log.warn('processing pieces of board.cells');
     this.board.cells.flatten().pluck('piece').compact().invoke('toggleDraggable');
@@ -1404,6 +1431,16 @@ this.log.goOut();
     this.blackStand.pieces.invoke('toggleDraggable');
     this.log.warn('processing whiteStand');
     this.whiteStand.pieces.invoke('toggleDraggable');
+
+       // 確認のため再度dragsの中身をログに書き出してみる
+    if(Draggables.drags.length > 0){
+      this.log.debug('again, contents of Draggables.drags :');
+      this.log.debug('Draggables.drags #: ' + Draggables.drags.length);
+      Draggables.drags.each(function(e){
+        var str = e.element && e.element.obj ? e.element.obj.chr : e.toString();
+        this.log.debug(str);
+      }.bind(this));
+    }
     this.log.goOut();
   },
 	/**
