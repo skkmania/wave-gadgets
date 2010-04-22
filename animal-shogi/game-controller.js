@@ -487,8 +487,9 @@ GameController = Class.create({
      // 先手(player1)がbottomのとき0, top = 1 なら先手がtop
      // はじめからtop が１になるのはplayer2がviewerのときだけ
      // あとはviewerが反転ボタンで指定したとき
-    if (this.top_by_viewer){
+    if (this.top_by_viewer === 0 || this.top_by_viewer === 1){
        this.top = this.top_by_viewer;
+       this.log.debug('top is set to ' + this.top + ' because top_by_viewer is ' + this.top_by_viewer);
     } else {
       this.top = 0;  // by default
       if (this.player2 && this.player2.isViewer){

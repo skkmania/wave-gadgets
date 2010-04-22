@@ -416,7 +416,7 @@ Cell.prototype = {
     this.log = this.game.log;
     this.x = x;
     this.y = y;
-    this.top = top;
+    //this.top = top;
     this.marginTop = 0;
     this.marginLeft = 0;
     this.width = 40;
@@ -466,12 +466,12 @@ Cell.prototype = {
   getPosition: function getPosition(){ // Cell
     // top値により、各セルの画面上の座標が決まる
 if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cell#getPosition -----------');
-    if (window.gameController.top == 1){
-      var bh = window.gameController.game.height;
+    if (this.game.controller.top == 1){
+      var bh = this.game.height;
       this.elm.style.left = (this.marginLeft + this.width * this.x) + 'px';
       this.elm.style.top = (this.marginTop + this.hight * (bh - 1 - this.y)) + 'px';
     } else {
-      var bw = window.gameController.game.width;
+      var bw = this.game.width;
       this.elm.style.left = (this.marginLeft + this.width * (bw - 1 - this.x)) + 'px';
       this.elm.style.top = (this.marginTop + this.hight * this.y) + 'px';
     }
@@ -545,23 +545,25 @@ if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cel
 	 * show()
 	 */
   show: function show() { // Cell
-this.log.warn('entered show of Cell: ' + this.toDebugString(), {'indent':1});
+    this.log.getInto('Cell#show');
+    this.log.debug(this.toDebugString());
     if (!this.elm) {
       (this.x === 0 || this.y === 0) ? this.createDummyElm() : this.createElm();
     }
     if (this.piece) {
-this.log.warn('in show of Cell, processing -> ' + this.piece.toDebugString());
+      this.log.debug('in show of Cell, processing -> ' + this.piece.toDebugString());
       this.elm.appendChild(this.piece.elm);
-      if(this.piece.isBlack() == (window.gameController.top === 0)){
+      if(this.piece.isBlack() == (this.game.controller.top === 0)){
         this.piece.elm.addClassName('bottom');
         this.piece.elm.removeClassName('top');
       } else {
         this.piece.elm.addClassName('top');
         this.piece.elm.removeClassName('bottom');
       }
-this.log.warn('in show of Cell, after process -> ' + this.piece.toDebugString());
+      this.log.debug('in show of Cell, after process -> ' + this.piece.toDebugString());
     }
-this.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':-1});
+    this.log.debug('leaving show of Cell: ' + this.toDebugString());
+    this.log.goOut();
   },
 	/**
 	 * isOpponentFirstLine(player)
@@ -670,7 +672,6 @@ this.log.warn('leaving show of Cell: ' + this.toDebugString(), {'indent':-1});
   toDebugString: function toDebugString(){  // Cell
     var ret = '';
     ret += '[' + this.x + ',' + this.y + ']';
-    if(this.top) ret += ', top: ' + this.top;
     if(this.elm) ret += ', elm: ' + this.elm.id;
     if(this.piece) ret += ', piece: ' + this.piece.toDebugString();
     return ret;
@@ -786,12 +787,11 @@ game.log.goOut();
 	 * show()
 	 */
   show: function show() {  // Board
-this.game.log.getInto('Board#show');
+    this.game.log.getInto('Board#show');
     this.cells.flatten().invoke('show');
     this.adjustBorder();
     this.shown = true;
-this.game.log.warn('Board#show leaving');
-this.game.log.goOut();
+    this.game.log.goOut();
   },
 	/**
 	 * getCell(x,y)
@@ -1038,7 +1038,7 @@ Stand = Class.create({
     this.initialString = '';
     this.pieces = $A([]);
     this.createElm();
-game.log.goOut();
+    game.log.goOut();
   },
 	/**
 	 * createElm()
@@ -1215,7 +1215,6 @@ window.gameController.game = this;
 //    this.controller.message(t('click_join_button'));
 //    this.count = 0;
        // 手数。このgameではcount手目を指した局面がthis.board, this.blackStand, this.whiteStandに反映されているものとする.
-    //this.top_by_viewer = false;
       // viewerが反転ボタンでtopを決定したとき、その値を持つ。
       // それまではfalse. したがって、これがfalseのあいだはplayerとviewerの関係のみで
       // topを決めることができる。
@@ -1280,7 +1279,7 @@ window.gameController.game = this;
 	 * show()
 	 */
   show: function show() { // AnimalShogiGame
-this.log.warn('game.show');
+    this.log.warn('game.show');
     //this.board.show();
   },
 	/**
@@ -1295,6 +1294,17 @@ this.log.warn('game.show');
     this.board.reverse();
     this.board.adjust();
     if($('top-stand') && $('bottom-stand')){
+/*
+      if(this.controller.top == 0){
+        tmp = $('black-stand');
+        $('bottom-stand').update($('black-stand'));
+        $('top-stand').update(tmp);
+      } else {
+        tmp = $('white-stand');
+        $('bottom-stand').update($('white-stand'));
+        $('top-stand').update(tmp);
+      }
+*/
       tmp = $('top-stand').childElements();
       $('bottom-stand').childElements().each(function(e){ $('top-stand').appendChild(e); });
       tmp.each(function(e){ $('bottom-stand').appendChild(e); });
@@ -1311,13 +1321,13 @@ this.log.warn('game.show');
 	 * start()
 	 */
   start: function start() { // AnimalShogiGame
-this.log.getInto();
+    this.log.getInto();
     this.log.warn('game.start was called.');
     this.controller.determineTop();
     this.controlPanel.update();
     this.board.show();
     this.log.warn('leaving game.start.');
-this.log.goOut();
+    this.log.goOut();
   },
 	/**
 	 * toString()
@@ -1621,8 +1631,8 @@ this.log.goOut();
 	 * debug_dump()
 	 */
   debug_dump: function debug_dump(){ //AnimalShogiGame
-    this.log.getInto({ "background":"#ff88aa","font-size":"12px" });
-    this.log.warn('debug_dump enterd', {'indent':2});
+    this.log.getInto('AnimalShogiGame#debug_dump', { "background":"#ff88aa","font-size":"12px" });
+    this.log.setLevel(ERROR);
     try{
       var state = wave.getState();
     } catch(e){
@@ -1643,15 +1653,16 @@ this.log.goOut();
     obj['blackStand']	 = this.blackStand.toString();
     obj['whiteStand']	 = this.whiteStand.toString();
     //obj['Cell']	 = Cell.all.invoke('toDebugString').join('<br>');
-    obj['PieceOnBoard']	 = '<br>' + this.board.cells.flatten().findAll(function(c){ return c.piece != null; }).invoke('toDebugString').join('<br>');
-    obj['PieceOnBlackStand']	 = '<br>' + this.blackStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
-    obj['PieceOnWhiteStand']	 = '<br>' + this.whiteStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
-    obj['Droppables']	= Droppables.toDebugString();
-    obj['Draggables']	= Draggables.toDebugString();
+    //obj['PieceOnBoard']	 = '<br>' + this.board.cells.flatten().findAll(function(c){ return c.piece != null; }).pluck('piece').invoke('toDebugString').join('<br>');
+    //obj['PieceOnBlackStand']	 = '<br>' + this.blackStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
+    //obj['PieceOnWhiteStand']	 = '<br>' + this.whiteStand.elm.childElements().pluck('obj').invoke('toDebugString').join('<br>');
+    //obj['Droppables']	= Droppables.toDebugString();
+    //obj['Draggables']	= Draggables.toDebugString();
     for(var p in obj){
-      this.log.warn(p + ' : ' + obj[p]);
+      this.log.error(p + ' : ' + obj[p]);
     }
-    this.log.warn('leaving debug_dump', {'indent':-2});
+    this.log.setLevel(DEBUG);
+    this.log.debug('leaving debug_dump');
     this.log.goOut();
   }
 });

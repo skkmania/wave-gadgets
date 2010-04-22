@@ -65,6 +65,20 @@
     delete settings;
   } },
 
+  testDebugDump : function() {  with( this )  {
+    var logObj = makeLogObj('testDebugDump', window_link, {width:600, height:350, resizable:false});
+    logObj.debug('test debug_dump');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    gameObj.log.debug('test debug_dump');
+    gameObj.game.debug_dump();
+    assertEqual( 'animal-shogi', gameObj.game.container.id );
+    } },
+
   testMateCheck : function() {  with( this )  {
     var logObj = makeLogObj('testMateCheck', window_link, {width:600, height:350, resizable:false});
     logObj.debug('test mateCheck');
