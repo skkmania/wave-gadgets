@@ -1,4 +1,4 @@
-HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
+HOST = 'http://skkmania.sakura.ne.jp/animalshogi/';
 
 /**
  * Player

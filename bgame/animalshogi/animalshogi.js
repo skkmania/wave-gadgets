@@ -339,7 +339,7 @@ var PieceTypeObjects = {
 	 * Lion
 	 */
   'lion': {
-  imageUrl: HOST + 'img/lion.png',
+  imageUrl: HOST + 'img/animalshogi/lion.png',
   type: 'lion',
   movableArea: [
     [ true,  true,  true],
@@ -351,7 +351,7 @@ var PieceTypeObjects = {
 	 * Elephant
 	 */
   'elephant': {
-  imageUrl: HOST + 'img/elephant.png',
+  imageUrl: HOST + 'img/animalshogi/elephant.png',
   type: 'elephant',
   movableArea: [
     [ true, false,  true],
@@ -363,7 +363,7 @@ var PieceTypeObjects = {
 	 * Giraffe
 	 */
   'giraffe': {
-  imageUrl: HOST + 'img/giraffe.png',
+  imageUrl: HOST + 'img/animalshogi/giraffe.png',
   type: 'giraffe',
   movableArea: [
     [false,  true, false],
@@ -375,7 +375,7 @@ var PieceTypeObjects = {
 	 * Chick
 	 */
   'chick': {
-  imageUrl: HOST + 'img/chick.png',
+  imageUrl: HOST + 'img/animalshogi/chick.png',
   type: 'chick',
   movableArea: [
     [false,  true, false],
@@ -388,7 +388,7 @@ var PieceTypeObjects = {
 	 * Chicken
 	 */
   'chicken': {
-  imageUrl : HOST + 'img/chicken.png',
+  imageUrl : HOST + 'img/animalshogi/chicken.png',
   type : 'chicken',
   movableArea : [
       [ true,  true,  true],
