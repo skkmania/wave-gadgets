@@ -1192,6 +1192,7 @@ AnimalShogiGame = Class.create({
 // for test only
 window.gameController = gameController;
 window.gameController.game = this;
+
     this.controller = gameController;
     this.log = gameController.log;
     this.log.getInto('AnimalShogiGame#initialize');
@@ -1199,35 +1200,13 @@ window.gameController.game = this;
     this.width = 4;  // 0 is dummy
     this.height = 5;
     this.settings = settings;
-    this.playingViewer = null;
-    this.log.warn('01');
     this.container = $(settings.containerId);
     this.container.style.width = this.width * 35 + 'px';
-    this.log.warn('02');
     this.board = new Board(this.container, this);
     this.log.warn('Board created.');
     this.blackStand = new Stand('black-stand', this);
-    this.log.warn('03');
     this.whiteStand = new Stand('white-stand', this);
     this.log.warn('Stands created.');
-    this.mode = 'init';
-    this.log.warn('04');
-//    this.controller.message(t('click_join_button'));
-//    this.count = 0;
-       // 手数。このgameではcount手目を指した局面がthis.board, this.blackStand, this.whiteStandに反映されているものとする.
-      // viewerが反転ボタンでtopを決定したとき、その値を持つ。
-      // それまではfalse. したがって、これがfalseのあいだはplayerとviewerの関係のみで
-      // topを決めることができる。
-      // すなわち、
-      //  viewer == player1 のとき、top = 0 (player1がbottomなので)
-      //  viewer == player2 のとき、top = 1 (player2がbottomなので)
-      //  viewer がplayerでないとき、top = 0 （先手がbottomがデフォルトであるので)
-    this.controller.determineTop();
-      //  Boardのinitializeにおいてはtop=0を前提にstyle.top, style.leftを決めている
-      //  ので、topが決まったこの時点で必要なら修正しておく必要がある
-    this.board.adjust();
-      //  持ち駒の位置も決めておく(といってもこの時点ではデフォルトにしか決まらない。)
-    this.setStandPosition();
     this.makeConfirmActionElement();
     this.log.warn('leaving AnimalShogiGame#initialize',{'indent':-1, 'date':true,3:{'color':'green'}});
     this.log.goOut();
@@ -1646,7 +1625,6 @@ window.gameController.game = this;
     obj['all pieces']    = this.allPieces().length;
     obj['player1']	 = (this.player1 ? this.player1.toDebugString():null);
     obj['player2']	 = (this.player2 ? this.player2.toDebugString():null);
-    obj['playingViewer'] = (this.playingViewer ? this.playingViewer.toDebugString():null);
     obj['top']		 = this.controller.top;
     //obj['board']	 = this.board.toDebugString();
     obj['board']	 = this.board.toString();

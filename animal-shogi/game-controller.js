@@ -162,12 +162,9 @@ GameController = Class.create({
     }
 
     this.game = new AnimalShogiGame(settings, this);
-    // this.game.open();
     this.players = $A([]);
     this.blackplayers = $A([]);
     this.whiteplayers = $A([]);
-    this.playingViewer = null;
-    //this.getViewer();
     this.container = $(this.settings['containerId']);
     this.controlPanel = new ControlPanel(this);
     this.log.warn('CP created.');
@@ -183,7 +180,6 @@ GameController = Class.create({
       //  viewer == player1 のとき、top = 0 (player1がbottomなので)
       //  viewer == player2 のとき、top = 1 (player2がbottomなので)
       //  viewer がplayerでないとき、top = 0 （先手がbottomがデフォルトであるので)
-    this.determineTop();
       //  Boardのinitializeにおいてはtop=0を前提にstyle.top, style.leftを決めている
       //  ので、topが決まったこの時点で必要なら修正しておく必要がある
     this.log.warn('leaving GameController#initialize',{3:{'color':'green'}});
@@ -843,7 +839,7 @@ this.log.goOut();
     //obj['all pieces']    = this.allPieces().length;
     obj['player1']	 = (this.player1 ? this.player1.toDebugString():null);
     obj['player2']	 = (this.player2 ? this.player2.toDebugString():null);
-    obj['playingViewer'] = (this.playingViewer ? this.playingViewer.toDebugString():null);
+//    obj['playingViewer'] = (this.playingViewer ? this.playingViewer.toDebugString():null);
     obj['top']		 = this.top;
     //obj['board']	 = this.board.toDebugString();
     //obj['board']	 = this.board.toString();
