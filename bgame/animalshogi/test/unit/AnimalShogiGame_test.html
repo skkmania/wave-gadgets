@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+  <title>AnimalShogiGame Unit test file</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/prototype.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/scriptaculous.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/builder.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/effects.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/controls.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/slider.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/dragdrop.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/resizable.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/livepipe/livepipe.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/livepipe/window.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/unittest.js"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/m17n.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/log4pipe.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/test/unit/log4pipe_test_common_functions.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/common-utils.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/pseudo-wave.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
+<script src="http://skkmania.sakura.ne.jp/animal-shogi/game-controller.js" charset="UTF-8"></script>
+<script src="../../unittest.js" type="text/javascript"></script>
+<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/animal-shogi.css" type="text/css" />
+<link rel="stylesheet" href="./../test.css" type="text/css" />
+<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/log4pipe.css" type="text/css" />
+  <style type="text/css" media="screen">
+  /* <![CDATA[ */
+    #div_absolute_test { position: absolute }
+    #links_pool a { margin-left: 10px }
+  /* ]]> */
+  </style>
+</head>
+<body>
+<h1>AnimalShogiGame test</h1>
+<p>
+  Test of methods of class AnimalShogiGame in animal-shogi.js
+</p>
+
+<!-- Log output -->
+<div id="testlog"> </div>
+
+<!-- Tests follow -->
+<script type="text/javascript" language="javascript" charset="utf-8">
+// <![CDATA[
+  var title;
+  var window_link; 
+  var resizable_id;
+  var animalShogiGameObj;
+  var settings = {containerId:'animal-shogi'};
+
+  new Test.Unit.Runner({
+    
+  setup: function() { with( this ) {
+    title = 'popup' + TestCounter;
+    window_link = "logger"  + TestCounter;
+    resizable_id = "handle" + TestCounter;
+    HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
+  } },
+
+  teardown: function() { with( this ) {
+    TestCounter++;
+    delete settings;
+  } },
+
+  testDebugDump : function() {  with( this )  {
+    var logObj = makeLogObj('testDebugDump', window_link, {width:600, height:350, resizable:false});
+    logObj.debug('test debug_dump');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    gameObj.log.debug('test debug_dump');
+    gameObj.game.debug_dump();
+    assertEqual( 'animal-shogi', gameObj.game.container.id );
+    } },
+
+  testMateCheck : function() {  with( this )  {
+    var logObj = makeLogObj('testMateCheck', window_link, {width:600, height:350, resizable:false});
+    logObj.debug('test mateCheck');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    gameObj.log.debug('test mateCheck');
+    var result = gameObj.game.mateCheck([2,1]);
+    assertEqual(false, result, '[2,1] is mated');
+    result = gameObj.game.mateCheck([2,2]);
+    assertEqual(false, result, '[2,2] is mated');
+    result = gameObj.game.mateCheck([1,4]);
+    assertEqual(true, result, '[1,4] is not mated');
+    result = gameObj.game.mateCheck([2,4]);
+    assertEqual(true, result, '[2,4] is not mated');
+    assertEqual( 'animal-shogi', gameObj.game.container.id );
+    } },
+
+  testCheckFinish : function() {  with( this )  {
+    var logObj = makeLogObj('testCheckFinish', window_link, {width:600, height:350, resizable:false});
+    logObj.debug('test checkFinish');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    gameObj.log.debug('test checkFinish');
+
+    var result = gameObj.game.checkFinish(gameObj.player1, 'chick',[2,1], 'chick');
+    assertEqual(null, result, 'not finish');
+    result = gameObj.game.checkFinish(gameObj.player1, 'chick',[2,2], 'chick');
+    assertEqual(false, result, '[2,2] is mated');
+    result = gameObj.game.checkFinish(gameObj.player1, 'chick',[2,3], 'chick');
+    assertEqual(true, result, '[1,4] is not mated');
+    result = gameObj.game.checkFinish(gameObj.player1, 'chick',[2,4], 'chick');
+    assertEqual(true, result, '[2,4] is not mated');
+    assertEqual( 'animal-shogi', gameObj.game.container.id );
+    } },
+
+  testGetPlayer : function() {  with( this )  {
+    var logObj = makeLogObj('testgetPlayer', window_link, {width:600, height:350, resizable:false});
+    logObj.debug('test confirmActionByUser');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    gameObj.log.debug('test getPlayer');
+    gameObj.game.getPlayer(gameObj.player1);
+    assertEqual(logObj, gameObj.log);
+    assertEqual( 'animal-shogi', gameObj.game.container.id );
+    } },
+
+  testConfirmActionByUser : function() {  with( this )  {
+    var logObj = makeLogObj('testConfirmActionByUser', {width:600, height:350, resizable:false});
+    logObj.debug('test confirmActionByUser');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    gameObj.log.debug('board show');
+    assertEqual(logObj, gameObj.log);
+    gameObj.game.board.show();
+    var toCell = gameObj.game.board.getCell(2,1);
+    var fromCell = gameObj.game.board.getCell(2,2);
+    var piece = gameObj.game.board.getCell(2,2).piece;
+    gameObj.game.confirmActionByUser([piece, fromCell, toCell]);
+    gameObj.game.yesElement.fire('click');
+    //gameObj.game.confirmActionElement.yesElement.fire('click');
+    assertEqual(logObj, gameObj.log);
+    assertEqual( 'animal-shogi', gameObj.game.container.id );
+    logObj.debug('logObj still alive 5');
+    } },
+
+  testToString : function() {  with( this )  {
+    var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
+    logObj.debug('test toString');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    var gameObj = new GameController(settings, logObj);
+    animalShogiGameObj = gameObj.game;
+    animalShogiGameObj.log = logObj;
+    animalShogiGameObj.log.debug('logObj is set to animalShogiGameObj.log');
+
+    assertEqual( 'AnimalShogiGame', animalShogiGameObj.toString() );
+  } }
+  }, "testlog");
+// ]]>
+</script>
+  <p id="links_pool"> </p>
+  <hr>
+  <p id="window_pool">
+    <div id="logger0"></div>
+    <div id="logger1"></div>
+    <div id="logger2"></div>
+    <div id="logger3"></div>
+    <div id="logger4"></div>
+    <div id="logger5"></div>
+    <div id="logger6"></div>
+    <div id="logger7"></div>
+    <div id="logger8"></div>
+<div id="container">
+  <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
+  <div id="counter"><span class="t">count</span><span id="counterNum"><span></div>
+  <div id="top-stand"></div>
+  <div id="animal-shogi"></div>
+  <div id="promoteOrNot" class="confirmAction" style="display:none">
+    <div class="t">promote</div>
+    <div id="yesElement">yes</div>
+    <div id="noElement">no</div>
+  </div>
+  <div id="bottom-stand"></div>
+  <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
+</div>
+<div id="sidebar">
+  <div id="control-panel">
+    <div id="message">
+      <div class="t">message</div>
+      <div id="message-body"></div>
+    </div>
+  </div>
+</div>
+<div id="rev-b">
+  <button id="reverse-button" class="reverse t" onclick="window.animalShogiGameObj.reverse();">reverse</button>
+  <button id="dump-button" class="dump t" onclick="window.animalShogiGameObj.debug_dump();">dump</button>
+</div>
+
+<button id="join-button" class="join t" onclick="window.gameController.joinButtonPressed(wave.getViewer().getId()); this.hide();">join</button>
+
+</body>
+</html>
