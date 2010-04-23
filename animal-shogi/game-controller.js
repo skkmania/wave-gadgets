@@ -199,30 +199,7 @@ GameController = Class.create({
       this.mode = state.get('mode');
       this.log.debug('mode read from state is : ' + this.mode);
       if (this.mode){
-        switch(this.mode){
-          case 'noPlayers':
-            this.controlPanel.update('noPlayers');
-            this.noPlayers();
-            break;
-          case 'onePlayer':
-            this.controlPanel.update('onePlayer');
-            this.onePlayer(state);
-            break;
-          case 'preparePlayers':
-            this.controlPanel.update('preparePlayers');
-            this.preparePlayers(state);
-            break;
-          case 'playing':
-            this.controlPanel.update('playing');
-            this.playing(state);
-            break;
-          case 'over':
-            this.controlPanel.update('over');
-            this.over(state);
-            break;
-          default:
-            break;
-       }
+        this[this.mode](state);
      } else {
         this.log.debug('there is no mode in state');
         this.mode = 'noPlayers';
