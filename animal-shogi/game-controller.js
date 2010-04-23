@@ -271,7 +271,8 @@ GameController = Class.create({
     if (!this.game.board.shown) this.game.board.show();
     this.game.boardReadFromState(state);  // 盤面の読み込み
     this.game.toggleDraggable();
-    this.prepareFromState(state);
+    this.controlPanel.update('playing');
+    //this.prepareFromState(state);
     this.log.goOut();
   },
 	/**
@@ -499,6 +500,7 @@ GameController = Class.create({
         this.players.push(name);
         this.log.debug('players: ' + this.players.join(','));
         delta = this.setPlayersOrder();
+        this.log.debug('returned delta : ' + Log.dumpObject(delta));
         $('join-button').hide();
         this.mode = 'playing';
         break;
@@ -538,6 +540,7 @@ GameController = Class.create({
     delta['whites'] = this.whiteplayers.pluck('name').join(',');
     this.log.debug('whiteplayers : ' + this.whiteplayers.pluck('name').join('<br>'));
     delta['mode'] = 'playing';
+    this.log.debug('leaving with : ' + Log.dumpObject(delta));
     this.log.goOut();
     return delta;
   },
@@ -591,18 +594,6 @@ GameController = Class.create({
 	 */
   clearMessage: function clearMessage() {
     this.message('');
-  },
-	/**
-	 * start()
-	 */
-  start: function start() { // Game
-this.log.getInto();
-    this.log.warn('game.start was called.');
-    this.determineTop();
-    this.controlPanel.update();
-    this.game.board.show();
-    this.log.warn('leaving game.start.');
-this.log.goOut();
   },
 	/**
 	 * nextTurn()

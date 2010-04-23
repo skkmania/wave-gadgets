@@ -1297,18 +1297,6 @@ window.gameController.game = this;
     this.controller.log.goOut();
   },
 	/**
-	 * start()
-	 */
-  start: function start() { // AnimalShogiGame
-    this.log.getInto();
-    this.log.warn('game.start was called.');
-    this.controller.determineTop();
-    this.controlPanel.update();
-    this.board.show();
-    this.log.warn('leaving game.start.');
-    this.log.goOut();
-  },
-	/**
 	 * toString()
 	 */
   toString: function toString() { // AnimalShogiGame
