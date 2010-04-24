@@ -4,28 +4,23 @@
 <head>
   <title>AnimalShogiGame Unit test file</title>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/prototype.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/scriptaculous.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/builder.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/effects.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/controls.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/slider.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/dragdrop.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/resizable.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/livepipe/livepipe.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/livepipe/window.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/scriptaculous/unittest.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/m17n.js" charset="UTF-8"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/lib/log4pipe.js" charset="UTF-8"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/test/unit/log4pipe_test_common_functions.js" charset="UTF-8"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/common-utils.js" charset="UTF-8"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/pseudo-wave.js" charset="UTF-8"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/animal-shogi.js" charset="UTF-8"></script>
-<script src="http://skkmania.sakura.ne.jp/animal-shogi/game-controller.js" charset="UTF-8"></script>
-<script src="../../unittest.js" type="text/javascript"></script>
-<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/animal-shogi.css" type="text/css" />
-<link rel="stylesheet" href="./../test.css" type="text/css" />
-<link rel="stylesheet" href="http://skkmania.sakura.ne.jp/animal-shogi/css/log4pipe.css" type="text/css" />
+<script src="../../lib/prototype.js"></script>
+<script src="../../lib/scriptaculous/scriptaculous.js"></script>
+<script src="../../lib/scriptaculous/resizable.js"></script>
+<script src="../../lib/livepipe/livepipe.js"></script>
+<script src="../../lib/livepipe/window.js"></script>
+<script src="../../lib/scriptaculous/unittest.js"></script>
+<script src="../../lib/m17n.js" charset="UTF-8"></script>
+<script src="../../lib/log4pipe.js" charset="UTF-8"></script>
+<script src="../../test/unit/log4pipe_test_common_functions.js" charset="UTF-8"></script>
+<script src="../../lib/common-utils.js" charset="UTF-8"></script>
+<script src="../../lib/pseudo-wave.js" charset="UTF-8"></script>
+<script src="../../controller/controller.js" charset="UTF-8"></script>
+<script src="../../animalshogi.js" charset="UTF-8"></script>
+<script src="../../lib/unittest.js" type="text/javascript"></script>
+<link rel="stylesheet" href="../../css/animal-shogi.css" type="text/css" />
+<link rel="stylesheet" href="../test.css" type="text/css" />
+<link rel="stylesheet" href="../../css/log4pipe.css" type="text/css" />
   <style type="text/css" media="screen">
   /* <![CDATA[ */
     #div_absolute_test { position: absolute }
@@ -57,7 +52,7 @@
     title = 'popup' + TestCounter;
     window_link = "logger"  + TestCounter;
     resizable_id = "handle" + TestCounter;
-    HOST = 'http://skkmania.sakura.ne.jp/animal-shogi/';
+    HOST = '../../';
   } },
 
   teardown: function() { with( this ) {
