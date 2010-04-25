@@ -54,13 +54,22 @@ var Scriptaculous = {
         Scriptaculous.REQUIRED_PROTOTYPE);
 
     var js = /scriptaculous\.js(\?.*)?$/;
-    $$('head script[src]').findAll(function(s) {
+    var scriptElements = $$('head script[src]').findAll(function(s) {
       return s.src.match(js);
-    }).each(function(s) {
+    });
+    //alert('scriptElements length : ' + scriptElements.length);
+    if(scriptElements.length == 0)
+      scriptElements = $$('body script[src]').findAll(function(s) {
+        return s.src.match(js);
+      });
+      scriptElements.each(function(s) {
+      //alert(s.src);
       var path = s.src.replace(js, ''),
       includes = s.src.match(/\?.*load=([a-z,]*)/);
       (includes ? includes[1] : 'builder,effects,dragdrop,controls,slider,sound').split(',').each(
-       function(include) { Scriptaculous.require(path+include+'.js') });
+       function(include) {
+         //alert(path+include+'.js');
+         Scriptaculous.require(path+include+'.js') });
     });
   }
 };

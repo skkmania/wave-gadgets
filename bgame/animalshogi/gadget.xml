@@ -8,11 +8,6 @@
 <![CDATA[ 
 <script src="http://skkmania.sakura.ne.jp/animalshogi/lib/prototype.js"></script>
 <script src="http://skkmania.sakura.ne.jp/animalshogi/lib/scriptaculous/scriptaculous.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animalshogi/lib/scriptaculous/builder.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animalshogi/lib/scriptaculous/effects.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animalshogi/lib/scriptaculous/controls.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animalshogi/lib/scriptaculous/slider.js"></script>
-<script src="http://skkmania.sakura.ne.jp/animalshogi/lib/scriptaculous/dragdrop.js"></script>
 <script src="http://skkmania.sakura.ne.jp/animalshogi/lib/scriptaculous/resizable.js"></script>
 <script src="http://skkmania.sakura.ne.jp/animalshogi/lib/livepipe/livepipe.js"></script>
 <script src="http://skkmania.sakura.ne.jp/animalshogi/lib/livepipe/window.js"></script>
