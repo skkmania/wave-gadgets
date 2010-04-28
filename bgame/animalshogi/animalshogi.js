@@ -116,25 +116,6 @@ window.gameController.game = this;
     this.board.reverse();
     this.board.adjust();
     if($('top-stand') && $('bottom-stand')){
-/*
-      if(this.controller.top == 0){
-        tmp = $('black-stand');
-        $('bottom-stand').update($('black-stand'));
-        $('top-stand').update(tmp);
-      } else {
-        tmp = $('white-stand');
-        $('bottom-stand').update($('white-stand'));
-        $('top-stand').update(tmp);
-      }
-*/
-// 上の書き方は動かない
-// 次の書き方は動くが冗長
-/*
-      tmp = $('top-stand').childElements();
-      $('bottom-stand').childElements().each(function(e){ $('top-stand').appendChild(e); });
-      tmp.each(function(e){ $('bottom-stand').appendChild(e); });
-*/
-// 上の書き方を書き直してみる
       if(this.controller.top == 0){
         tmp = $('top-stand').removeChild($('white-stand'));
         tmp = $('bottom-stand').replaceChild($('black-stand'),tmp);
