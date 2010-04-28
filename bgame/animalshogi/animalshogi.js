@@ -1,24 +1,28 @@
 /**
  * load classes
  */
+/* 以下の処理はfirefoxでは動いたが,chromeで動かず。
     var js = /animalshogi\.js(\?.*)?$/;
     var scriptElements = $$('head script[src]').findAll(function(s) {
       return s.src.match(js);
     });
+alert('1 : ' + scriptElements.length);
     if(scriptElements.length == 0)
       scriptElements = $$('body script[src]').findAll(function(s) {
         return s.src.match(js);
       });
+alert('2 : ' + scriptElements.length);
     scriptElements.each(function(s) {
-        //alert(s.src); 
+        alert(s.src); 
         $A(['piece.js','cell.js','board.js','stand.js']).each(function(f){
           var path = s.src.replace(js, '');
           var scriptElm = document.createElement('script');
           scriptElm.type = 'text/javascript';
           scriptElm.src = path + f;
-          document.getElementsByTagName('head')[0].appendChild(scriptElm);
+          document.getElementsByTagName('body')[0].appendChild(scriptElm);
         });
       });
+*/
 /**
  * AnimalShogiGame
  */
@@ -108,6 +112,7 @@ window.gameController.game = this;
     this.controller.top = (this.controller.top === 0 ? 1 : 0);
     this.controller.top_by_viewer = this.controller.top;
     this.controller.message('top became ' + this.controller.top);
+    this.controller.controlPanel.reverse();
     this.board.reverse();
     this.board.adjust();
     if($('top-stand') && $('bottom-stand')){
@@ -122,16 +127,30 @@ window.gameController.game = this;
         $('top-stand').update(tmp);
       }
 */
+// 上の書き方は動かない
+// 次の書き方は動くが冗長
+/*
       tmp = $('top-stand').childElements();
       $('bottom-stand').childElements().each(function(e){ $('top-stand').appendChild(e); });
       tmp.each(function(e){ $('bottom-stand').appendChild(e); });
+*/
+// 上の書き方を書き直してみる
+      if(this.controller.top == 0){
+        tmp = $('top-stand').removeChild($('white-stand'));
+        tmp = $('bottom-stand').replaceChild($('black-stand'),tmp);
+        $('top-stand').appendChild(tmp);
+      } else {
+        tmp = $('top-stand').removeChild($('black-stand'));
+        tmp = $('bottom-stand').replaceChild($('white-stand'),tmp);
+        $('top-stand').appendChild(tmp);
+      }
+
       tmp = $$('#top-stand img', '#bottom-stand img');
       if(tmp.size() > 0){
         tmp.invoke('toggleClassName', 'top');
         tmp.invoke('toggleClassName', 'bottom');
       }
     }
-    this.controller.controlPanel.reverse();
     this.controller.log.goOut();
   },
 	/**
