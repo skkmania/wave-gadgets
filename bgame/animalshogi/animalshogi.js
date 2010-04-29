@@ -1,3 +1,4 @@
+HOST = 'http://skkmania.sakura.ne.jp/animalshogi/';
 /**
  * load classes
  */
