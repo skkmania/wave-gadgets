@@ -29,7 +29,7 @@ Cell.prototype = {
     // このセルにいるpieceの状態を文字にして返す
     if (!this.piece){
       this.log.goOut();
-      return 'x';
+      return '_';
     }
     var retChar = Type2chr[this.piece.type];
     this.log.debug('retChar : ' + retChar);
@@ -172,7 +172,7 @@ if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cel
       return this.y === 1;
     }
     else if (window.gameController.player2.id == player.id) {
-      return this.y === 4;
+      return this.y === 9;
     }
     else {
       throw 'not reach: ' + player.id;

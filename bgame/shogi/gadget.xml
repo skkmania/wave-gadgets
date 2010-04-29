@@ -28,7 +28,7 @@
     $('logger0').insert(new Element('img',{id:'handle0',src:"http://skkmania.sakura.ne.jp/shogi/img/lib/window_close.gif"}));
     new Resizable('logger0',{handle:'handle0'});
 if(wave) 
-    window.gameController = new GameController({containerId:'shogi'}, logObj);
+    window.gameController = new GameController({containerId:'shogi','gameConstructor':'shogi'}, logObj);
     if (wave && wave.isInWaveContainer()) {
       wave.setStateCallback(window.gameController.acceptState.bind(window.gameController));
     }

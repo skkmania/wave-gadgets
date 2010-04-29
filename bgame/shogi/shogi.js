@@ -4,7 +4,7 @@ HOST = 'http://skkmania.sakura.ne.jp/shogi/';
  * load classes
  */
 /* 以下の処理はfirefoxでは動いたが,chromeで動かず。
-    var js = /animalshogi\.js(\?.*)?$/;
+    var js = /shogi\.js(\?.*)?$/;
     var scriptElements = $$('head script[src]').findAll(function(s) {
       return s.src.match(js);
     });
@@ -94,8 +94,8 @@ window.gameController.game = this;
     $('bottom-stand').style.height = (this.height - 1)*30 + 'px';
     $('bottom-stand').style.margin = (this.height - 3)*30 + 'px 10px 0px 0px';
     $('top-stand').style.height = (this.height - 1)*30 + 'px';
-    $('animal-shogi').style.height = 30 + (this.height)*30 + 'px';
-    $('animal-shogi').style.width = 80 + (this.width)*30 + 'px';
+    $('shogi').style.height = 30 + (this.height)*30 + 'px';
+    $('shogi').style.width = 80 + (this.width)*30 + 'px';
     this.log.goOut();
   },
 	/**
@@ -417,7 +417,7 @@ window.gameController.game = this;
     // ライオンが動いたかどうか
     var isLion = (movingPieceType == 'lion');
     // 最奥に到達したかどうか
-    var reachEnd = (this.controller.getTurn() && (moveTo[1] == 1)) || (!this.controller.getTurn() && (moveTo[1] == 4));
+    var reachEnd = (this.controller.getTurn() && (moveTo[1] == 1)) || (!this.controller.getTurn() && (moveTo[1] == 9));
     // 勝利判定
     if (getLion){
       ret = player;

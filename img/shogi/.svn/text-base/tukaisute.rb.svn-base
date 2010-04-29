@@ -1,3 +1,0 @@
-"abcdefghijklmno".each_byte{|i|
-  print "cp  #{i.chr}.png " + (i-64).to_s + ".png\n"
-}

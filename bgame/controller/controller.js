@@ -1,3 +1,4 @@
+//GameConstructor = { 'shogi':ShogiGame, 'animalshogi':AnimalShogiGame };
 
 /**
  * Player
@@ -160,7 +161,8 @@ GameController = Class.create({
       this.log.debug(this.settings);
     }
 
-    this.game = new AnimalShogiGame(settings, this);
+    this.game = new ShogiGame(settings, this);
+    //this.game = new GameConstructor[settings['gameConstructor']](settings, this);
     this.players = $A([]);
     this.blackplayers = $A([]);
     this.whiteplayers = $A([]);

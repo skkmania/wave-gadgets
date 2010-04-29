@@ -19,12 +19,12 @@ game.log.getInto('Board#initialize');
       }
       this.cells.push(row);
     }
-    this.initialString = 'bxxCdaADcxxB';
+    this.initialString = 'l_p___P_Lnbp___PRNs_p___P_Sg_p___P_Gk_p___P_Kg_p___P_Gs_p___P_Snrp___PBNl_p___P_L';
     game.log.warn('Board#initialize going to process initialString.');
     $A(this.initialString).each(function(chr, idx){
 game.log.getInto('reading initialString');
       game.log.warn('idx: ' + idx);
-      if(chr == 'x'){ game.log.goOut(); return; }
+      if(chr == '_'){ game.log.goOut(); return; }
       var xy = this.idx2xy(idx);
       var x = xy[0];
       var y = xy[1];
@@ -241,8 +241,8 @@ game.log.goOut();
     var newBoard = $A(strFromState);
     newBoard.zip(oldBoard).each(function(tuple, idx){
         if(tuple[0] != tuple[1]){
-           if(tuple[1] == 'x') this.put(tuple[0], idx);
-           else if(tuple[0] == 'x') this.deleteCellsPieceByIdx(idx);
+           if(tuple[1] == '_') this.put(tuple[0], idx);
+           else if(tuple[0] == '_') this.deleteCellsPieceByIdx(idx);
            else this.replaceByRead(tuple, idx);
         }
       }.bind(this));

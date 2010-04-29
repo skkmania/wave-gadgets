@@ -1,5 +1,13 @@
-var Type2chr = { 'chick' : 'a', 'elephant' : 'b', 'giraffe' : 'c', 'lion' : 'd', 'chicken' : 'e' };
-var Chr2Type = { 'a' : 'chick', 'b' : 'elephant', 'c' : 'giraffe', 'd' : 'lion', 'e' : 'chicken' };
+HOST = 'http://skkmania.sakura.ne.jp/shogi/';
+var Type2chr = { 'Pawn' : 'p', 'Lance' : 'l', 'kNight' : 'n', 'Silver' : 's',
+                 'Gold' : 'g', 'Bishop': 'b', 'Rook'   : 'r', 'King'   : 'k',
+                 'Qpawn': 'q', 'Mlance': 'm', 'Oknight': 'o', 'Tsilver': 't',
+                 'Horse': 'h', 'Dragon': 'd' };
+
+var Chr2Type = { 'p': 'Pawn', 'l': 'Lance', 'n': 'kNight', 's': 'Silver',
+                 'g': 'Gold', 'b': 'Bishop','r': 'Rook',   'k': 'King',
+                 'q': 'Qpawn','m': 'Mlance','o': 'Oknight','t': 'Tsilver',
+                 'h': 'Horse','d': 'Dragon'}; 
 
 function create_piece(chr){
 window.gameController.game.log.getInto();
@@ -277,7 +285,7 @@ this.game.log.goOut();
 	 * isGoal(cell)
 	 */
   isGoal: function isGoal(cell) { // Piece
-    return ( this.isBlack() ? (cell.y === 1) : (cell.y === 4) );
+    return ( this.isBlack() ? (cell.y === 1) : (cell.y === 9) );
   },
 	/**
 	 * promote(actionContents)
@@ -336,11 +344,11 @@ this.game.log.goOut();
  */
 var PieceTypeObjects = {
 	/**
-	 * Lion
+	 * King
 	 */
-  'lion': {
-  imageUrl: HOST + 'img/animalshogi/lion.png',
-  type: 'lion',
+  'King': {
+  imageUrl: HOST + 'img/King.png',
+  type: 'King',
   movableArea: [
     [ true,  true,  true],
     [ true, false,  true],
@@ -348,54 +356,172 @@ var PieceTypeObjects = {
   ]
   },
 	/**
-	 * Elephant
+	 * Bishop
 	 */
-  'elephant': {
-  imageUrl: HOST + 'img/animalshogi/elephant.png',
-  type: 'elephant',
+  'Bishop': {
+  imageUrl: HOST + 'img/Bishop.png',
+  type: 'Bishop',
   movableArea: [
     [ true, false,  true],
     [false, false, false],
     [ true, false,  true]
-  ]
+  ],
+  promote_type: 'Horse'
   },
 	/**
-	 * Giraffe
+	 * Horse
 	 */
-  'giraffe': {
-  imageUrl: HOST + 'img/animalshogi/giraffe.png',
-  type: 'giraffe',
+  'Horse': {
+  imageUrl: HOST + 'img/Horse.png',
+  type: 'Horse',
+  movableArea: [
+    [ true, false,  true],
+    [false, false, false],
+    [ true, false,  true]
+  ],
+  unpromote_type: 'Bishop'
+  },
+	/**
+	 * Rook
+	 */
+  'Rook': {
+  imageUrl: HOST + 'img/Rook.png',
+  type: 'Rook',
   movableArea: [
     [false,  true, false],
     [ true, false,  true],
     [false,  true, false]
-  ]
-  },
-	/**
-	 * Chick
-	 */
-  'chick': {
-  imageUrl: HOST + 'img/animalshogi/chick.png',
-  type: 'chick',
-  movableArea: [
-    [false,  true, false],
-    [false, false, false],
-    [false, false, false]
   ],
-  promote_type: 'chicken'
+  promote_type: 'Dragon'
   },
 	/**
-	 * Chicken
+	 * Dragon
 	 */
-  'chicken': {
-  imageUrl : HOST + 'img/animalshogi/chicken.png',
-  type : 'chicken',
+  'Dragon': {
+  imageUrl : HOST + 'img/Dragon.png',
+  type : 'Dragon',
   movableArea : [
       [ true,  true,  true],
       [ true, false,  true],
       [false,  true, false]
     ],
-  unpromote_type: 'chick'
+  unpromote_type: 'Rook'
+  },
+	/**
+	 * Gold
+	 */
+  'Gold': {
+  imageUrl: HOST + 'img/Gold.png',
+  type: 'Gold',
+  movableArea: [
+    [false,  true, false],
+    [false, false, false],
+    [false, false, false]
+  ]
+  },
+	/**
+	 * Silver
+	 */
+  'Silver': {
+  imageUrl: HOST + 'img/Silver.png',
+  type: 'Silver',
+  movableArea: [
+    [false,  true, false],
+    [false, false, false],
+    [false, false, false]
+  ],
+  promote_type: 'Tsilver'
+  },
+	/**
+	 * Tsilver
+	 */
+  'Tsilver': {
+  imageUrl: HOST + 'img/Tsilver.png',
+  type: 'Tsilver',
+  movableArea: [
+    [false,  true, false],
+    [false, false, false],
+    [false, false, false]
+  ],
+  unpromote_type: 'Silver'
+  },
+	/**
+	 * kNight
+	 */
+  'kNight': {
+  imageUrl: HOST + 'img/kNight.png',
+  type: 'kNight',
+  movableArea: [
+    [false,  true, false],
+    [false, false, false],
+    [false, false, false]
+  ],
+  promote_type: 'Oknight'
+  },
+	/**
+	 * Oknight
+	 */
+  'Oknight': {
+  imageUrl: HOST + 'img/Oknight.png',
+  type: 'Oknight',
+  movableArea: [
+    [false,  true, false],
+    [false, false, false],
+    [false, false, false]
+  ],
+  unpromote_type: 'kNight'
+  },
+	/**
+	 * Lance
+	 */
+  'Lance': {
+  imageUrl: HOST + 'img/Lance.png',
+  type: 'Lance',
+  movableArea: [
+    [false,  true, false],
+    [false, false, false],
+    [false, false, false]
+  ],
+  promote_type: 'Mlance'
+  },
+	/**
+	 * Mlance
+	 */
+  'Mlance': {
+  imageUrl: HOST + 'img/Mlance.png',
+  type: 'Mlance',
+  movableArea: [
+    [false,  true, false],
+    [false, false, false],
+    [false, false, false]
+  ],
+  unpromote_type: 'Lance'
+  },
+	/**
+	 * Pawn
+	 */
+  'Pawn': {
+  imageUrl: HOST + 'img/Pawn.png',
+  type: 'Pawn',
+  movableArea: [
+    [false,  true, false],
+    [false, false, false],
+    [false, false, false]
+  ],
+  promote_type: 'Qpawn'
+  },
+	/**
+	 * Qpawn
+	 */
+  'Qpawn': {
+  imageUrl: HOST + 'img/Qpawn.png',
+  type: 'Qpawn',
+  movableArea: [
+    [false,  true, false],
+    [false, false, false],
+    [false, false, false]
+  ],
+  unpromote_type: 'Pawn'
   }
 }
 
