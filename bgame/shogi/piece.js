@@ -181,38 +181,51 @@ this.game.log.goOut();
 	 */
         // このコマが座標x,yに動けるかどうか返す
         // このコマがセル上にいるとき限定の関数
-        // しかも隣り合うセル間の移動に限定の関数
   canMoveTo: function canMoveTo(x, y) { // Piece
+    var ret;
     this.game.log.getInto('Piece#canMoveTo');
     var dx = x - this.cell.x;
     var dy = y - this.cell.y;
     if (!this.isBlack()) dy *= -1;
     this.game.log.debug('dx, dy : ' + dx + ', ' + dy);
-    this.game.log.debug('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
+    if(this.movableArea){
+      // 隣り合うセル間の移動
+      ret = this.movableArea[dy + 1][dx + 1];
+    } else {
+      // 離れたセルへの移動
+      ret = this.movableCheck(dx, dy);
+    }
+    this.game.log.debug('leaving with: ' + ret);
     this.game.log.goOut();
-    return this.movableArea[dy + 1][dx + 1];
+    return ret;
   },
 	/**
 	 * canMove(fromObj, toCell)
 	 */
   canMove: function canMove(fromObj, toCell) { // Piece
-this.game.log.getInto('Piece#canMove');
+    var ret;
+    this.game.log.getInto('Piece#canMove');
     if (fromObj.type == 'stand'){
        this.game.log.goOut();
        return true; // 打ち駒はどこでもOK
     }
     var dx = toCell.x - fromObj.x;
     var dy = toCell.y - fromObj.y;
-window.gameController.game.log.debug('from: ' + fromObj.toDebugString() + ', to: ' + toCell.toDebugString());
-window.gameController.game.log.debug('dx: ' + dx + ', dy: ' + dy);
+    this.game.log.debug('from: ' + fromObj.toDebugString() + ', to: ' + toCell.toDebugString());
+    this.game.log.debug('dx: ' + dx + ', dy: ' + dy);
     if (1 < Math.abs(dx) || 1 < Math.abs(dy)){
-       this.game.log.goOut();
-       return false;
+      if (this.movableCheck){
+       ret = this.canMoveTo(toCell.x, toCell.y);
+      } else {
+       ret = false;
+      }
+    } else {
+      if (!this.isBlack()) dy *= -1;
+      ret = this.movableArea[dy + 1][dx + 1];
     }
-    if (!this.isBlack()) dy *= -1;
-this.game.log.debug('leaving with: ' + this.movableArea[dy + 1][dx + 1]);
-this.game.log.goOut();
-    return this.movableArea[dy + 1][dx + 1];
+    this.game.log.debug('leaving with: ' + ret);
+    this.game.log.goOut();
+    return ret;
   },
 	/**
 	 * move(fromCell, toCell, notCapture, dropOrState)
@@ -361,11 +374,9 @@ var PieceTypeObjects = {
   'Bishop': {
   imageUrl: HOST + 'img/Bishop.png',
   type: 'Bishop',
-  movableArea: [
-    [ true, false,  true],
-    [false, false, false],
-    [ true, false,  true]
-  ],
+  movableCheck: function movableCheck(dx,dy){
+    return (dx == dy || dx == (-1)*dy);
+  },
   promote_type: 'Horse'
   },
 	/**
@@ -374,11 +385,14 @@ var PieceTypeObjects = {
   'Horse': {
   imageUrl: HOST + 'img/Horse.png',
   type: 'Horse',
-  movableArea: [
-    [ true, false,  true],
-    [false, false, false],
-    [ true, false,  true]
-  ],
+  movableCheck: function movableCheck(dx,dy){
+    return (dx == dy || dx == (-1)*dy) ||
+           [
+            [ true,  true,  true],
+            [ true, false,  true],
+            [ true,  true,  true]
+           ][dx + 1][dy + 1];
+  },
   unpromote_type: 'Bishop'
   },
 	/**
@@ -387,11 +401,9 @@ var PieceTypeObjects = {
   'Rook': {
   imageUrl: HOST + 'img/Rook.png',
   type: 'Rook',
-  movableArea: [
-    [false,  true, false],
-    [ true, false,  true],
-    [false,  true, false]
-  ],
+  movableCheck: function movableCheck(dx,dy){
+    return (dx == 0 || dy == 0);
+  },
   promote_type: 'Dragon'
   },
 	/**
@@ -400,11 +412,14 @@ var PieceTypeObjects = {
   'Dragon': {
   imageUrl : HOST + 'img/Dragon.png',
   type : 'Dragon',
-  movableArea : [
-      [ true,  true,  true],
-      [ true, false,  true],
-      [false,  true, false]
-    ],
+  movableCheck: function movableCheck(dx,dy){
+    return dx == 0 || dy == 0 ||
+           [
+            [ true,  true,  true],
+            [ true, false,  true],
+            [ true,  true,  true]
+           ][dx + 1][dy + 1];
+  },
   unpromote_type: 'Rook'
   },
 	/**
@@ -414,9 +429,9 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/Gold.png',
   type: 'Gold',
   movableArea: [
-    [false,  true, false],
-    [false, false, false],
-    [false, false, false]
+    [true,  true,  true],
+    [true,  false, true],
+    [false, true,  false]
   ]
   },
 	/**
@@ -426,9 +441,9 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/Silver.png',
   type: 'Silver',
   movableArea: [
-    [false,  true, false],
+    [true,  true,  true],
     [false, false, false],
-    [false, false, false]
+    [true,  false, true]
   ],
   promote_type: 'Tsilver'
   },
@@ -439,9 +454,9 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/Tsilver.png',
   type: 'Tsilver',
   movableArea: [
-    [false,  true, false],
-    [false, false, false],
-    [false, false, false]
+    [true,  true,  true],
+    [true,  false, true],
+    [false, true,  false]
   ],
   unpromote_type: 'Silver'
   },
@@ -451,11 +466,10 @@ var PieceTypeObjects = {
   'kNight': {
   imageUrl: HOST + 'img/kNight.png',
   type: 'kNight',
-  movableArea: [
-    [false,  true, false],
-    [false, false, false],
-    [false, false, false]
-  ],
+  movableCheck: function movableCheck(dx,dy){
+    return (dx ==  1 && dy == 2) ||
+           (dx == -1 && dy == 2);
+  },
   promote_type: 'Oknight'
   },
 	/**
@@ -465,9 +479,9 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/Oknight.png',
   type: 'Oknight',
   movableArea: [
-    [false,  true, false],
-    [false, false, false],
-    [false, false, false]
+    [true,  true,  true],
+    [true,  false, true],
+    [false, true,  false]
   ],
   unpromote_type: 'kNight'
   },
@@ -477,11 +491,9 @@ var PieceTypeObjects = {
   'Lance': {
   imageUrl: HOST + 'img/Lance.png',
   type: 'Lance',
-  movableArea: [
-    [false,  true, false],
-    [false, false, false],
-    [false, false, false]
-  ],
+  movableCheck: function movableCheck(dx,dy){
+    return (dx == 0 && dy > 0);
+  },
   promote_type: 'Mlance'
   },
 	/**
@@ -491,9 +503,9 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/Mlance.png',
   type: 'Mlance',
   movableArea: [
-    [false,  true, false],
-    [false, false, false],
-    [false, false, false]
+    [true,  true,  true],
+    [true,  false, true],
+    [false, true,  false]
   ],
   unpromote_type: 'Lance'
   },
@@ -517,9 +529,9 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/Qpawn.png',
   type: 'Qpawn',
   movableArea: [
-    [false,  true, false],
-    [false, false, false],
-    [false, false, false]
+    [true,  true,  true],
+    [true,  false, true],
+    [false, true,  false]
   ],
   unpromote_type: 'Pawn'
   }
