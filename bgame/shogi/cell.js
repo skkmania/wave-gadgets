@@ -165,14 +165,20 @@ if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cel
     this.log.goOut();
   },
 	/**
-	 * isOpponentArea(player)
+	 * isOpponentArea(playerArg, lineArg)
 	 */
-  isOpponentArea: function isOpponentArea(player) { // Cell
+        // playerArg : playerオブジェクト。defaultは現在手番のplayer
+        // line : 数値。nはn段め以内にあるかどうか、を返すよう指定する
+        //    3なら敵陣全体だし、1なら下段にあるかどうかの意味
+        //    default は3
+  isOpponentArea: function isOpponentArea(playerArg, lineArg) { // Cell
+    var player = playerArg || window.gameController.playerInTurn();
+    var line = lineArg || 3;
     if (window.gameController.player1.id == player.id) {
-      return (this.y >== 1) && (this.y <==3);
+      return (this.y >= 1) && (this.y <= line);
     }
     else if (window.gameController.player2.id == player.id) {
-      return (this.y >== 7) && (this.y <==9);
+      return (this.y >= (10-line)) && (this.y <= 9);
     }
     else {
       throw 'not reach: ' + player.id;
@@ -181,7 +187,8 @@ if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cel
 	/**
 	 * isOpponentFirstLine(player)
 	 */
-  isOpponentFirstLine: function isOpponentFirstLine(player) { // Cell
+  isOpponentFirstLine: function isOpponentFirstLine(playerArg) { // Cell
+    var player = playerArg || window.gameController.playerInTurn();
     if (window.gameController.player1.id == player.id) {
       return this.y === 1;
     }

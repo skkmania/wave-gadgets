@@ -44,6 +44,114 @@ game.log.goOut();
     game.log.warn('leaving Board#initialize');
   },
 	/**
+	 * pawnExistsBetween(y, chr))
+	 */
+        // 列yにchrを持つ駒が存在したらtrueを返す
+  pawnExists: function pawnExists(y, chr){ // Board
+    this.game.log.getInto('Board#pawnExists');
+    var ret = false;
+    var p;
+    for(var i = 1; i < 10; i++){
+      if (p = this.getCell(i, y).piece && p.chr == chr){
+        ret = true;
+        break;
+      }
+    }
+    this.game.log.debug('leaving with : ' + ret);
+    this.game.log.goOut();
+  },
+	/**
+	 * pieceExistsBetween(fromCell, toCell))
+	 */
+        // fromCell, toCellの間に駒が存在したらtrueを返す
+  pieceExistsBetween: function pieceExistsBetween(fromCell, toCell){ // Board
+    this.game.log.getInto('Board#pieceExistsBetween');
+    var ret = false;
+    var maxX = Math.max(fromCell.x, toCell.x);
+    var maxY = Math.max(fromCell.y, toCell.y);
+    var minX = Math.min(fromCell.x, toCell.x);
+    var minY = Math.min(fromCell.y, toCell.y);
+
+    // fromとtoが隣接している場合はfalseを返す
+    if (maxX - minX < 2 && maxY - minY < 2){
+      ret = false;
+      this.game.log.debug('leaving with : ' + ret);
+      this.game.log.goOut();
+      return ret;
+    }
+
+    // fromとtoが同じ列のとき
+    if (fromCell.x == toCell.x){
+      if ((maxY - minY) > 1){
+        for(var i = minY+1; i < maxY; i++){
+          if (this.getCell(fromCell.x, i).piece){
+            ret = true;
+            break;
+          }
+        }
+      } else {
+        // fromとtoが隣接している場合はfalseを返す
+        ret = false;
+      }
+      this.game.log.debug('leaving with : ' + ret);
+      this.game.log.goOut();
+      return ret;
+    }
+
+    // fromとtoが同じ行のとき
+    if (fromCell.y == toCell.y){
+      if ((maxX - minX) > 1){
+        for(var i = minX+1; i < maxX; i++){
+          if (this.getCell(i, fromCell.y).piece){
+            ret = true;
+            break;
+          }
+        }
+      } else {
+        // fromとtoが隣接している場合はfalseを返す
+        ret = false;
+      }
+      this.game.log.debug('leaving with : ' + ret);
+      this.game.log.goOut();
+      return ret;
+    }
+
+    // fromとtoが45度斜めに位置しているとき
+    if (Math.abs(fromCell.x - toCell.x) == Math.abs(fromCell.y - toCell.y)){
+      if ((maxY - minY) > 1){
+        if (fromCell.x > toCell.x && fromCell.y > toCell.y){
+          // fromとtoが右上がりに配置しているとき
+          for(var i = 1; i < maxY-minY; i++){
+            if (this.getCell(minX+i, minY+i).piece){
+              ret = true;
+              break;
+            }
+          }
+        } else {
+          // fromとtoが右下がりに配置しているとき
+          for(var i = 1; i < maxY-minY; i++){
+            if (this.getCell(minX+i, maxY-i).piece){
+              ret = true;
+              break;
+            }
+          }
+        }
+      } else {
+        // fromとtoが隣接している場合はfalseを返す
+        ret = false;
+      }
+      this.game.log.debug('leaving with : ' + ret);
+      this.game.log.goOut();
+      return ret;
+    }
+
+    // 上のどの条件にも当てはまらない時はfalseを返す
+    ret = false;
+    this.game.log.debug('leaving with : ' + ret);
+    this.game.log.goOut();
+    return ret;
+  },
+	/**
 	 * idx2xy(idx)
 	 */
   idx2xy: function idx2xy(idx) { // Board

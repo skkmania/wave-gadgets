@@ -551,11 +551,10 @@ function moveValidate(actionContents){
     }
     window.gameController.game.log.debug('put piece on filled cell check passed.');
 
-    // 二歩を打とうとしていないかCheck
-
-    // 駒を飛び越えて鎖そうとしていないかCheck
-
-    // 駒の動きがルールに沿っているかCheck
+    // Piece#canMoveのなかで処理しているのは、
+      // 二歩を打とうとしていないか
+      // 駒を飛び越えて指そうとしていないか
+      // 駒の動きがルールに沿っているか
     if (!piece.canMove(fromCell, toCell)) {
       window.gameController.message(t('not_allowed')); ret = 'badAction';
       break;
@@ -563,7 +562,7 @@ function moveValidate(actionContents){
     window.gameController.log.debug('illegal move check passed.');
 
     // 成ろうとしているかCheck
-    if (promoteCheck(actionContents)){
+    if (fromCell.type == 'cell' && promoteCheck(actionContents)){
       ret = 'needConfirm';
       break;
     }

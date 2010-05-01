@@ -186,9 +186,35 @@ this.game.log.goOut();
     this.game.log.getInto('Piece#canMoveTo');
     var dx = x - this.cell.x;
     var dy = y - this.cell.y;
-    if (!this.isBlack()) dy *= -1;
+    if (this.isBlack()) dy *= -1;
     this.game.log.debug('dx, dy : ' + dx + ', ' + dy);
     ret = this.movableCheck(dx, dy);
+    this.game.log.debug('leaving with: ' + ret);
+    this.game.log.goOut();
+    return ret;
+  },
+	/**
+	 * canMoveFromStand(toCell)
+	 */
+  canMoveFromStand: function canMoveFromStand(toCell) { // Piece
+    var ret = true;
+    this.game.log.getInto('Piece#canMoveFromStand');
+    // 二歩のチェック
+    switch (this.type){
+      case 'Pawn':
+        if (this.game.board.pawnExists(toCell.y, this.chr)){
+          ret = false;
+        } else {
+          ret = !toCell.isOpponentArea(null, 1);
+        }
+        break;
+      case 'Lance':
+        ret = !toCell.isOpponentArea(null, 1);
+        break;
+      case 'kNight':
+        ret = !toCell.isOpponentArea(null, 2);
+        break;
+    }
     this.game.log.debug('leaving with: ' + ret);
     this.game.log.goOut();
     return ret;
@@ -199,23 +225,17 @@ this.game.log.goOut();
   canMove: function canMove(fromObj, toCell) { // Piece
     var ret;
     this.game.log.getInto('Piece#canMove');
-    if (fromObj.type == 'stand'){
-       this.game.log.goOut();
-       return true; // 打ち駒はどこでもOK
-    }
-    var dx = toCell.x - fromObj.x;
-    var dy = toCell.y - fromObj.y;
     this.game.log.debug('from: ' + fromObj.toDebugString() + ', to: ' + toCell.toDebugString());
-    this.game.log.debug('dx: ' + dx + ', dy: ' + dy);
-    if (1 < Math.abs(dx) || 1 < Math.abs(dy)){
-      if (this.movableCheck){
-       ret = this.canMoveTo(toCell.x, toCell.y);
-      } else {
-       ret = false;
-      }
+    if (fromObj.type == 'stand'){
+      ret = this.canMoveFromStand(toCell);
     } else {
-      if (!this.isBlack()) dy *= -1;
-      ret = this.movableArea[dy + 1][dx + 1];
+      // 香、飛、角、龍、馬のときは駒を飛び越えないかチェックが必要
+      if('LRBDH'.include(this.chr.toUpperCase()) &&
+          this.game.board.pieceExistsBetween(fromObj, toCell)){
+        ret = false;
+      } else {
+        ret = this.canMoveTo(toCell.x, toCell.y);
+      }
     }
     this.game.log.debug('leaving with: ' + ret);
     this.game.log.goOut();
@@ -347,13 +367,25 @@ this.game.log.goOut();
 });
 
 /**
+ * GoldMovableCheck(dx,dy) 
+ */
+function GoldMovableCheck(dx,dy){
+  if(Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
+  return  [
+            [true,  true,  true],
+            [true,  false, true],
+            [false, true,  false]
+          ][dx + 1][dy + 1];
+}
+ 
+/**
  * PieceTypeObjects 
  */
 var PieceTypeObjects = {
 	/**
 	 * King
 	 */
-  'King': {
+  King: {
   imageUrl: HOST + 'img/King.png',
   type: 'King',
   movableCheck: function movableCheck(dx,dy){
@@ -368,7 +400,7 @@ var PieceTypeObjects = {
 	/**
 	 * Bishop
 	 */
-  'Bishop': {
+  Bishop: {
   imageUrl: HOST + 'img/Bishop.png',
   type: 'Bishop',
   movableCheck: function movableCheck(dx,dy){
@@ -379,7 +411,7 @@ var PieceTypeObjects = {
 	/**
 	 * Horse
 	 */
-  'Horse': {
+  Horse: {
   imageUrl: HOST + 'img/Horse.png',
   type: 'Horse',
   movableCheck: function movableCheck(dx,dy){
@@ -396,7 +428,7 @@ var PieceTypeObjects = {
 	/**
 	 * Rook
 	 */
-  'Rook': {
+  Rook: {
   imageUrl: HOST + 'img/Rook.png',
   type: 'Rook',
   movableCheck: function movableCheck(dx,dy){
@@ -407,7 +439,7 @@ var PieceTypeObjects = {
 	/**
 	 * Dragon
 	 */
-  'Dragon': {
+  Dragon: {
   imageUrl : HOST + 'img/Dragon.png',
   type : 'Dragon',
   movableCheck: function movableCheck(dx,dy){
@@ -424,7 +456,7 @@ var PieceTypeObjects = {
 	/**
 	 * Gold
 	 */
-  'Gold': {
+  Gold: {
   imageUrl: HOST + 'img/Gold.png',
   type: 'Gold',
   movableCheck: function movableCheck(dx,dy){
@@ -439,7 +471,7 @@ var PieceTypeObjects = {
 	/**
 	 * Silver
 	 */
-  'Silver': {
+  Silver: {
   imageUrl: HOST + 'img/Silver.png',
   type: 'Silver',
   movableCheck: function movableCheck(dx,dy){
@@ -455,16 +487,16 @@ var PieceTypeObjects = {
 	/**
 	 * Tsilver
 	 */
-  'Tsilver': {
+  Tsilver: {
   imageUrl: HOST + 'img/Tsilver.png',
   type: 'Tsilver',
-  movableCheck: this['Gold'].movableCheck,
+  movableCheck: GoldMovableCheck,
   unpromote_type: 'Silver'
   },
 	/**
 	 * kNight
 	 */
-  'kNight': {
+  kNight: {
   imageUrl: HOST + 'img/kNight.png',
   type: 'kNight',
   movableCheck: function movableCheck(dx,dy){
@@ -476,16 +508,16 @@ var PieceTypeObjects = {
 	/**
 	 * Oknight
 	 */
-  'Oknight': {
+  Oknight: {
   imageUrl: HOST + 'img/Oknight.png',
   type: 'Oknight',
-  movableCheck: this['Gold'].movableCheck,
+  movableCheck: GoldMovableCheck,
   unpromote_type: 'kNight'
   },
 	/**
 	 * Lance
 	 */
-  'Lance': {
+  Lance: {
   imageUrl: HOST + 'img/Lance.png',
   type: 'Lance',
   movableCheck: function movableCheck(dx,dy){
@@ -496,16 +528,16 @@ var PieceTypeObjects = {
 	/**
 	 * Mlance
 	 */
-  'Mlance': {
+  Mlance: {
   imageUrl: HOST + 'img/Mlance.png',
   type: 'Mlance',
-  movableCheck: this['Gold'].movableCheck,
+  movableCheck: GoldMovableCheck,
   unpromote_type: 'Lance'
   },
 	/**
 	 * Pawn
 	 */
-  'Pawn': {
+  Pawn: {
   imageUrl: HOST + 'img/Pawn.png',
   type: 'Pawn',
   movableCheck: function movableCheck(dx,dy){
@@ -516,10 +548,10 @@ var PieceTypeObjects = {
 	/**
 	 * Qpawn
 	 */
-  'Qpawn': {
+  Qpawn: {
   imageUrl: HOST + 'img/Qpawn.png',
   type: 'Qpawn',
-  movableCheck: this['Gold'].movableCheck,
+  movableCheck: GoldMovableCheck,
   unpromote_type: 'Pawn'
   }
 }
