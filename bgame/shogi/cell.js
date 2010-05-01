@@ -165,6 +165,20 @@ if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cel
     this.log.goOut();
   },
 	/**
+	 * isOpponentArea(player)
+	 */
+  isOpponentArea: function isOpponentArea(player) { // Cell
+    if (window.gameController.player1.id == player.id) {
+      return (this.y >== 1) && (this.y <==3);
+    }
+    else if (window.gameController.player2.id == player.id) {
+      return (this.y >== 7) && (this.y <==9);
+    }
+    else {
+      throw 'not reach: ' + player.id;
+    }
+  },
+	/**
 	 * isOpponentFirstLine(player)
 	 */
   isOpponentFirstLine: function isOpponentFirstLine(player) { // Cell

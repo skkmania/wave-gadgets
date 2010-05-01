@@ -391,6 +391,10 @@ GameController = Class.create({
       case 'needConfirm':
         this.confirmActionByUser(actionContents);
         break;
+      case 'mustPromote':
+        actionContents[0].promote();
+        this.game.doAction(actionContents);
+        break;
       case 'badAction':
         this.noticeBadActionToUser();
         break;

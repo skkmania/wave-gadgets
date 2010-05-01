@@ -188,13 +188,7 @@ this.game.log.goOut();
     var dy = y - this.cell.y;
     if (!this.isBlack()) dy *= -1;
     this.game.log.debug('dx, dy : ' + dx + ', ' + dy);
-    if(this.movableArea){
-      // 隣り合うセル間の移動
-      ret = this.movableArea[dy + 1][dx + 1];
-    } else {
-      // 離れたセルへの移動
-      ret = this.movableCheck(dx, dy);
-    }
+    ret = this.movableCheck(dx, dy);
     this.game.log.debug('leaving with: ' + ret);
     this.game.log.goOut();
     return ret;
@@ -313,7 +307,7 @@ this.game.log.goOut();
         this.chr = Type2chr[this.type].toUpperCase();
       else
         this.chr = Type2chr[this.type];
-      this.movableArea = PieceTypeObjects[this.promote_type].movableArea;
+      this.movableCheck = PieceTypeObjects[this.promote_type].movableCheck;
       this.game.log.debug('promoted : ' + this.toDebugString());
     } else {
       this.game.log.fatal('this piece cannot promote.');
@@ -333,7 +327,7 @@ this.game.log.goOut();
         this.chr = Type2chr[this.type].toUpperCase();
       else
         this.chr = Type2chr[this.type];
-      this.movableArea = PieceTypeObjects[this.unpromote_type].movableArea;
+      this.movableCheck = PieceTypeObjects[this.unpromote_type].movableCheck;
       this.game.log.debug('unpromoted : ' + this.toDebugString());
     } else {
       this.game.log.fatal('this piece cannot unpromote.');
@@ -362,11 +356,14 @@ var PieceTypeObjects = {
   'King': {
   imageUrl: HOST + 'img/King.png',
   type: 'King',
-  movableArea: [
-    [ true,  true,  true],
-    [ true, false,  true],
-    [ true,  true,  true]
-  ]
+  movableCheck: function movableCheck(dx,dy){
+    if(Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
+    return  [
+         [ true,  true,  true],
+         [ true, false,  true],
+         [ true,  true,  true]
+            ][dx + 1][dy + 1];
+    }
   },
 	/**
 	 * Bishop
@@ -386,8 +383,9 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/Horse.png',
   type: 'Horse',
   movableCheck: function movableCheck(dx,dy){
-    return (dx == dy || dx == (-1)*dy) ||
-           [
+    if (dx == dy || dx == (-1)*dy) return true;
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
+    return [
             [ true,  true,  true],
             [ true, false,  true],
             [ true,  true,  true]
@@ -413,8 +411,9 @@ var PieceTypeObjects = {
   imageUrl : HOST + 'img/Dragon.png',
   type : 'Dragon',
   movableCheck: function movableCheck(dx,dy){
-    return dx == 0 || dy == 0 ||
-           [
+    if (dx == 0 || dy == 0) return true;
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
+    return [
             [ true,  true,  true],
             [ true, false,  true],
             [ true,  true,  true]
@@ -428,11 +427,14 @@ var PieceTypeObjects = {
   'Gold': {
   imageUrl: HOST + 'img/Gold.png',
   type: 'Gold',
-  movableArea: [
-    [true,  true,  true],
-    [true,  false, true],
-    [false, true,  false]
-  ]
+  movableCheck: function movableCheck(dx,dy){
+    if(Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
+    return  [
+              [true,  true,  true],
+              [true,  false, true],
+              [false, true,  false]
+            ][dx + 1][dy + 1];
+  }
   },
 	/**
 	 * Silver
@@ -440,11 +442,14 @@ var PieceTypeObjects = {
   'Silver': {
   imageUrl: HOST + 'img/Silver.png',
   type: 'Silver',
-  movableArea: [
-    [true,  true,  true],
-    [false, false, false],
-    [true,  false, true]
-  ],
+  movableCheck: function movableCheck(dx,dy){
+    if(Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
+    return  [
+              [true,  true,  true],
+              [false, false, false],
+              [true,  false, true]
+            ][dx + 1][dy + 1];
+    },
   promote_type: 'Tsilver'
   },
 	/**
@@ -453,11 +458,7 @@ var PieceTypeObjects = {
   'Tsilver': {
   imageUrl: HOST + 'img/Tsilver.png',
   type: 'Tsilver',
-  movableArea: [
-    [true,  true,  true],
-    [true,  false, true],
-    [false, true,  false]
-  ],
+  movableCheck: this['Gold'].movableCheck,
   unpromote_type: 'Silver'
   },
 	/**
@@ -478,11 +479,7 @@ var PieceTypeObjects = {
   'Oknight': {
   imageUrl: HOST + 'img/Oknight.png',
   type: 'Oknight',
-  movableArea: [
-    [true,  true,  true],
-    [true,  false, true],
-    [false, true,  false]
-  ],
+  movableCheck: this['Gold'].movableCheck,
   unpromote_type: 'kNight'
   },
 	/**
@@ -502,11 +499,7 @@ var PieceTypeObjects = {
   'Mlance': {
   imageUrl: HOST + 'img/Mlance.png',
   type: 'Mlance',
-  movableArea: [
-    [true,  true,  true],
-    [true,  false, true],
-    [false, true,  false]
-  ],
+  movableCheck: this['Gold'].movableCheck,
   unpromote_type: 'Lance'
   },
 	/**
@@ -515,11 +508,9 @@ var PieceTypeObjects = {
   'Pawn': {
   imageUrl: HOST + 'img/Pawn.png',
   type: 'Pawn',
-  movableArea: [
-    [false,  true, false],
-    [false, false, false],
-    [false, false, false]
-  ],
+  movableCheck: function movableCheck(dx,dy){
+      return (dx === 0 && dy === 1);
+    },
   promote_type: 'Qpawn'
   },
 	/**
@@ -528,11 +519,7 @@ var PieceTypeObjects = {
   'Qpawn': {
   imageUrl: HOST + 'img/Qpawn.png',
   type: 'Qpawn',
-  movableArea: [
-    [true,  true,  true],
-    [true,  false, true],
-    [false, true,  false]
-  ],
+  movableCheck: this['Gold'].movableCheck,
   unpromote_type: 'Pawn'
   }
 }

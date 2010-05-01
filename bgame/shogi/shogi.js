@@ -361,6 +361,41 @@ window.gameController.game = this;
     this.log.goOut();
   },
 	/**
+	 * doActionWithPromote(actionContents)
+	 */
+  doActionWithPromote: function doActionWithPromote(actionContents) { // ShogiGame
+    var piece = actionContents[0];
+    var fromObj = actionContents[1];
+    var toCell = actionContents[2];
+    var capturedPieceType = null;
+    var movingPieceType = piece.type;
+    var moveTo = [toCell.x, toCell.y];
+    this.log.getInto('ShogiGame#doActionWithPromote');
+    this.log.debug('piece : ' + piece.toDebugString());
+    this.log.debug('fromObj : ' + fromObj.toDebugString());
+    this.log.debug('toCell : ' + toCell.toDebugString());
+    if (toCell.piece){
+      this.log.warn('piece moving and capturing. : ');
+      this.log.debug('draggable.obj is : ' + piece.toDebugString());
+      this.log.debug('toCell.piece is : ' + toCell.piece.toDebugString());
+      capturedPieceType = toCell.piece.type;
+      toCell.piece.gotoOpponentsStand();
+    } else {
+      this.log.warn('piece moving without capturing.');
+    }
+    if(fromObj.type == 'cell'){
+      fromObj.piece.sitOnto(toCell);
+      fromObj.piece = null;
+    } else if(fromObj.type == 'stand'){
+      fromObj.removeByObj(piece);
+      piece.sitOnto(toCell);
+    }
+
+    this.controller.reportActEnds(this.controller.playerInTurn(), movingPieceType, moveTo, capturedPieceType);
+    
+    this.log.goOut();
+  },
+	/**
 	 * mateCheck(moveTo)
 	 */
         // 現在の盤面で指した直後の、つまり手番の
@@ -482,10 +517,11 @@ window.gameController.game = this;
         // actionの正当性を判断して返す
         // actionContents : [piece, fromObj, toCell]
         // 返り値 :'needConfirm' ユーザconfirmを求める手だという意味 
+        // 返り値 :'mustPromote' ルール上、成らなければいけない手だという意味 
         // 返り値 :'badAction' ルールにそわない手だという意味 
         // 返り値 :'normal' ルールにそい、そのまま進めてよい手だという意味 
 function moveValidate(actionContents){
-  window.gameController.log.getInto('moveValidate');
+  window.gameController.log.getInto('ShogiGame#moveValidate');
   var piece = actionContents[0];
   var fromCell = actionContents[1];
   var toCell = actionContents[2];
@@ -493,7 +529,10 @@ function moveValidate(actionContents){
   window.gameController.log.debug('piece : ' + piece.toDebugString());
   window.gameController.log.debug('fromCell : ' + fromCell.toDebugString());
   window.gameController.log.debug('toCell : ' + toCell.toDebugString());
+
   for(;;){
+
+    // 自分の手番の駒の上に進もうとしていないかCheck
     if (toCell.piece) {
       if (piece.isBlack() == toCell.piece.isBlack()){
         window.gameController.log.debug('piece.isBlack() : ' + piece.isBlack());
@@ -504,16 +543,26 @@ function moveValidate(actionContents){
       }
     }
     window.gameController.game.log.debug('own capturing check passed.');
+
+    // 持ち駒を駒の上に打とうとしていないかCheck
     if(!fromCell && toCell.piece) {
       window.gameController.message(t('already_occupied')); ret = 'badAction';
       break;
     }
     window.gameController.game.log.debug('put piece on filled cell check passed.');
+
+    // 二歩を打とうとしていないかCheck
+
+    // 駒を飛び越えて鎖そうとしていないかCheck
+
+    // 駒の動きがルールに沿っているかCheck
     if (!piece.canMove(fromCell, toCell)) {
       window.gameController.message(t('not_allowed')); ret = 'badAction';
       break;
     }
     window.gameController.log.debug('illegal move check passed.');
+
+    // 成ろうとしているかCheck
     if (promoteCheck(actionContents)){
       ret = 'needConfirm';
       break;
@@ -539,11 +588,18 @@ function promoteCheck(actionContents){
   var fromCell = actionContents[1];
   var toCell = actionContents[2];
   for(;;){
-    if (piece.type != 'chick'){
+    // 王様ならpromoteできないのでfalse
+    if (piece.type == 'King'){
       ret = false;
       break;
     }
-    if (toCell.isOpponentFirstLine(player)){
+    // すでにpromoteしている駒ならpromoteできないのでfalse
+    if (piece.unpromote_type){
+      ret = false;
+      break;
+    }
+    // 敵陣へ動くか、敵陣から動く場合は成ることができる
+    if (toCell.isOpponentArea(player) || fromCell.isOpponentArea(player)){
       ret = true;
       break;
     }
