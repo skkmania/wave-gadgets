@@ -562,11 +562,12 @@ function moveValidate(actionContents){
     window.gameController.log.debug('illegal move check passed.');
 
     // 成ろうとしているかCheck
-    if (fromCell.type == 'cell' && promoteCheck(actionContents)){
-      ret = 'needConfirm';
-      break;
+    if (fromCell.type == 'cell'){
+      ret = promoteCheck(actionContents);
+      if (ret) break;
+      else ret = 'normal';
     }
-    window.gameController.log.debug('this move not require promotion.');
+    window.gameController.log.debug('this move does not require promotion.');
     break;
   }
   window.gameController.log.debug('returning with : ' + ret);
@@ -577,7 +578,9 @@ function moveValidate(actionContents){
 	/**
 	 * promoteCheck(actionContents)
 	 */
-        // 成ることができるコマの動き方ならtrueを返し
+        // 成ることができるコマの動き方なら
+        // 返り値 :'needConfirm' ユーザconfirmを求める手だという意味 
+        // 返り値 :'mustPromote' ルール上、成らなければいけない手だという意味 
         // そうでないならfalseを返す
 function promoteCheck(actionContents){
   window.gameController.log.getInto('promoteCheck');
@@ -586,9 +589,10 @@ function promoteCheck(actionContents){
   var player = piece.isBlack() ? window.gameController.player1 : window.gameController.player2;
   var fromCell = actionContents[1];
   var toCell = actionContents[2];
+  window.gameController.log.debug('piece type : ' + piece.type);
   for(;;){
-    // 王様ならpromoteできないのでfalse
-    if (piece.type == 'King'){
+    // 王様or金ならpromoteできないのでfalse
+    if (piece.type == 'King' || piece.type == 'Gold'){
       ret = false;
       break;
     }
@@ -597,13 +601,29 @@ function promoteCheck(actionContents){
       ret = false;
       break;
     }
+    // 歩ならば１段目へ進むときは必ず成る
+    if (piece.type == 'Pawn' && toCell.isOpponentArea(player, 1)){
+      ret = 'mustPromote';
+      break;
+    }
+    // 香ならば１段目へ進むときは必ず成る
+    if (piece.type == 'Lance' && toCell.isOpponentArea(player, 1)){
+      ret = 'mustPromote';
+      break;
+    }
+    // 桂ならば2 or 1段目へ進むときは必ず成る
+    if (piece.type == 'kNight' && toCell.isOpponentArea(player, 2)){
+      ret = 'mustPromote';
+      break;
+    }
     // 敵陣へ動くか、敵陣から動く場合は成ることができる
     if (toCell.isOpponentArea(player) || fromCell.isOpponentArea(player)){
-      ret = true;
+      ret = 'needConfirm';
       break;
     }
     break;
   } 
+  window.gameController.log.debug('returning with : ' + ret);
   window.gameController.log.goOut();
   return ret;
 }

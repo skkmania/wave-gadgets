@@ -44,15 +44,16 @@ game.log.goOut();
     game.log.warn('leaving Board#initialize');
   },
 	/**
-	 * pawnExists(y, chr))
+	 * pawnExists(x, chr))
 	 */
-        // 列yにchrを持つ駒が存在したらtrueを返す
-  pawnExists: function pawnExists(y, chr){ // Board
+        // 列xにchrを持つ駒が存在したらtrueを返す
+  pawnExists: function pawnExists(x, chr){ // Board
     this.game.log.getInto('Board#pawnExists');
     var ret = false;
     var p;
     for(var i = 1; i < 10; i++){
-      if (p = this.getCell(i, y).piece && p.chr == chr){
+      p = this.getCell(x, i).piece;
+      if (p && p.chr == chr){
         ret = true;
         break;
       }

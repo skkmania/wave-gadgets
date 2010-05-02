@@ -174,11 +174,11 @@ if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cel
   isOpponentArea: function isOpponentArea(playerArg, lineArg) { // Cell
     var player = playerArg || window.gameController.playerInTurn();
     var line = lineArg || 3;
-    if (window.gameController.player1.id == player.id) {
-      return (this.y >= 1) && (this.y <= line);
+    if (player.id == 'player1') {
+      return (this.y > 0) && (this.y < line+1);
     }
-    else if (window.gameController.player2.id == player.id) {
-      return (this.y >= (10-line)) && (this.y <= 9);
+    else if (player.id == 'player2') {
+      return (this.y > (9-line)) && (this.y < 10);
     }
     else {
       throw 'not reach: ' + player.id;
