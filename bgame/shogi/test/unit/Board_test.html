@@ -75,6 +75,50 @@
     assertEqual( 'shogi', window.gameController.container.id );
     } },
 
+  testGetCell : function() {  with( this )  {
+    var logObj = makeLogObj('testGetCell', {width:600, height:350, resizable:false});
+    logObj.debug('test Board getCell');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'shogi'};
+    window.gameController = new GameController(settings, logObj);
+    window.gameController.log.debug('test board getCell');
+    var c = window.gameController.game.board.getCell(1,1);
+    assertEqual( 'cell', c.type );
+    } },
+
+  testPieceExistsBetween : function() {  with( this )  {
+    var logObj = makeLogObj('testPieceExistsBetween', {width:600, height:350, resizable:false});
+    logObj.debug('test Board pieceExistsBetween');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'shogi'};
+    window.gameController = new GameController(settings, logObj);
+    window.gameController.log.debug('test board pieceExistsBetween');
+    var fromCell = window.gameController.game.board.getCell(1,1);
+    var toCell = window.gameController.game.board.getCell(1,9);
+    var res = window.gameController.game.board.pieceExistsBetween(fromCell, toCell);
+    assertEqual( true, res );
+    var fromCell = window.gameController.game.board.getCell(1,1);
+    var toCell = window.gameController.game.board.getCell(2,2);
+    var res = window.gameController.game.board.pieceExistsBetween(fromCell, toCell);
+    assertEqual( false, res );
+    var fromCell = window.gameController.game.board.getCell(9,1);
+    var toCell = window.gameController.game.board.getCell(1,1);
+    var res = window.gameController.game.board.pieceExistsBetween(fromCell, toCell);
+    assertEqual( true, res );
+    var fromCell = window.gameController.game.board.getCell(5,4);
+    var toCell = window.gameController.game.board.getCell(5,6);
+    var res = window.gameController.game.board.pieceExistsBetween(fromCell, toCell);
+    assertEqual( false, res );
+    var fromCell = window.gameController.game.board.getCell(2,2);
+    var toCell = window.gameController.game.board.getCell(8,8);
+    var res = window.gameController.game.board.pieceExistsBetween(fromCell, toCell);
+    assertEqual( true, res );
+    } },
+
   testToString : function() {  with( this )  {
     var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
     logObj.debug('test toString');

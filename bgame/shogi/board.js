@@ -44,7 +44,7 @@ game.log.goOut();
     game.log.warn('leaving Board#initialize');
   },
 	/**
-	 * pawnExistsBetween(y, chr))
+	 * pawnExists(y, chr))
 	 */
         // 列yにchrを持つ駒が存在したらtrueを返す
   pawnExists: function pawnExists(y, chr){ // Board
@@ -119,18 +119,23 @@ game.log.goOut();
     // fromとtoが45度斜めに位置しているとき
     if (Math.abs(fromCell.x - toCell.x) == Math.abs(fromCell.y - toCell.y)){
       if ((maxY - minY) > 1){
-        if (fromCell.x > toCell.x && fromCell.y > toCell.y){
+        if (((fromCell.x > toCell.x) && (fromCell.y > toCell.y)) ||
+            ((fromCell.x < toCell.x) && (fromCell.y < toCell.y))){
           // fromとtoが右上がりに配置しているとき
+          this.game.log.debug('右上がり:');
           for(var i = 1; i < maxY-minY; i++){
             if (this.getCell(minX+i, minY+i).piece){
+              this.game.log.debug('i : ' + i);
               ret = true;
               break;
             }
           }
         } else {
           // fromとtoが右下がりに配置しているとき
+          this.game.log.debug('右下がり: ');
           for(var i = 1; i < maxY-minY; i++){
             if (this.getCell(minX+i, maxY-i).piece){
+              this.game.log.debug('i : ' + i);
               ret = true;
               break;
             }
