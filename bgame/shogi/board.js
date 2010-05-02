@@ -71,11 +71,11 @@ game.log.goOut();
     var maxY = Math.max(fromCell.y, toCell.y);
     var minX = Math.min(fromCell.x, toCell.x);
     var minY = Math.min(fromCell.y, toCell.y);
-
+    this.game.log.debug('min: ' + minX + ', ' + minY + ',  max: ' + maxX + ', ' + maxY);
     // fromとtoが隣接している場合はfalseを返す
     if (maxX - minX < 2 && maxY - minY < 2){
       ret = false;
-      this.game.log.debug('leaving with : ' + ret);
+      this.game.log.debug('隣接: leaving with : ' + ret);
       this.game.log.goOut();
       return ret;
     }
@@ -93,7 +93,7 @@ game.log.goOut();
         // fromとtoが隣接している場合はfalseを返す
         ret = false;
       }
-      this.game.log.debug('leaving with : ' + ret);
+      this.game.log.debug('同列:leaving with : ' + ret);
       this.game.log.goOut();
       return ret;
     }
@@ -111,7 +111,7 @@ game.log.goOut();
         // fromとtoが隣接している場合はfalseを返す
         ret = false;
       }
-      this.game.log.debug('leaving with : ' + ret);
+      this.game.log.debug('同行:leaving with : ' + ret);
       this.game.log.goOut();
       return ret;
     }
@@ -140,14 +140,14 @@ game.log.goOut();
         // fromとtoが隣接している場合はfalseを返す
         ret = false;
       }
-      this.game.log.debug('leaving with : ' + ret);
+      this.game.log.debug('斜め:leaving with : ' + ret);
       this.game.log.goOut();
       return ret;
     }
 
     // 上のどの条件にも当てはまらない時はfalseを返す
     ret = false;
-    this.game.log.debug('leaving with : ' + ret);
+    this.game.log.debug('不適:leaving with : ' + ret);
     this.game.log.goOut();
     return ret;
   },
