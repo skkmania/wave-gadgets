@@ -67,7 +67,7 @@
   testDebugDump : function() {  with( this )  {
     var logObj = makeLogObj('testDebugDump', window_link, {width:600, height:350, resizable:false});
     logObj.debug('test debug_dump');
-    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     var gameObj = new GameController(settings, logObj);
@@ -81,7 +81,7 @@
   testMateCheck : function() {  with( this )  {
     var logObj = makeLogObj('testMateCheck', window_link, {width:600, height:350, resizable:false});
     logObj.debug('test mateCheck');
-    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     var gameObj = new GameController(settings, logObj);
@@ -102,7 +102,7 @@
   testCheckFinish : function() {  with( this )  {
     var logObj = makeLogObj('testCheckFinish', window_link, {width:600, height:350, resizable:false});
     logObj.debug('test checkFinish');
-    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     var gameObj = new GameController(settings, logObj);
@@ -124,7 +124,7 @@
   testGetPlayer : function() {  with( this )  {
     var logObj = makeLogObj('testgetPlayer', window_link, {width:600, height:350, resizable:false});
     logObj.debug('test confirmActionByUser');
-    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     var gameObj = new GameController(settings, logObj);
@@ -139,12 +139,13 @@
   testConfirmActionByUser : function() {  with( this )  {
     var logObj = makeLogObj('testConfirmActionByUser', {width:600, height:350, resizable:false});
     logObj.debug('test confirmActionByUser');
-    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     var gameObj = new GameController(settings, logObj);
     gameObj.log.debug('board show');
     assertEqual(logObj, gameObj.log);
+    gameObj.game.board.top = 0;
     gameObj.game.board.show();
     var toCell = gameObj.game.board.getCell(2,1);
     var fromCell = gameObj.game.board.getCell(2,2);
@@ -157,10 +158,39 @@
     logObj.debug('logObj still alive 5');
     } },
 
+  testMoveValidate : function() {  with( this )  {
+    var logObj = makeLogObj('testMoveValidate', {width:500, height:150, resizable:false});
+    logObj.debug('test moveValidate');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'shogi'};
+    var gameObj = new GameController(settings, logObj);
+    gameObj.log.debug('test moveValidate');
+
+    // 局面の準備
+    gameObj.top = 0;
+    gameObj.game.board.show();
+    str = 'l__p__P_Ln_p___PRNs_p___P_S__p___P_Gk_p___P_Kg_p___P_G__p___P_Sn_p___PBNl_p___P_L';
+    gameObj.game.board.read(str);
+    var str = 'gsbr';
+    gameObj.game.whiteStand.read(str);
+
+    // testの準備
+    var piece = gameObj.game.whiteStand.pieces[0];
+    var fromObj = gameObj.game.whiteStand;
+    var toCell = gameObj.game.board.getCell(5,7);
+    var res = moveValidate([piece, fromObj, toCell]);
+
+    // assert
+    assertEqual( 'badAction', res, 'moveValidate put piece from stand to another piece test');
+    
+  } },
+
   testToString : function() {  with( this )  {
     var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
     logObj.debug('test toString');
-    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     var gameObj = new GameController(settings, logObj);

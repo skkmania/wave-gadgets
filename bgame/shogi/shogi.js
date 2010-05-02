@@ -474,7 +474,7 @@ window.gameController.game = this;
 	 */
   debug_dump: function debug_dump(){ //ShogiGame
     this.log.getInto('ShogiGame#debug_dump', { "background":"#ff88aa","font-size":"12px" });
-    this.log.setLevel(ERROR);
+    this.log.setLevel(Log.ERROR);
     try{
       var state = wave.getState();
     } catch(e){
@@ -502,7 +502,7 @@ window.gameController.game = this;
     for(var p in obj){
       this.log.error(p + ' : ' + obj[p]);
     }
-    this.log.setLevel(DEBUG);
+    this.log.setLevel(Log.DEBUG);
     this.log.debug('leaving debug_dump');
     this.log.goOut();
   }
@@ -545,7 +545,7 @@ function moveValidate(actionContents){
     window.gameController.game.log.debug('own capturing check passed.');
 
     // 持ち駒を駒の上に打とうとしていないかCheck
-    if(!fromCell && toCell.piece) {
+    if((fromCell.type == 'stand') && toCell.piece) {
       window.gameController.message(t('already_occupied')); ret = 'badAction';
       break;
     }

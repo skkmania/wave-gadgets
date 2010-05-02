@@ -77,6 +77,23 @@
     assertEqual( 'stand', gameObj.game.whiteStand.type );
     } },
     
+  testStandRead : function() {  with( this )  {
+    var logObj = makeLogObj('testStandRead', {width:600, height:350, resizable:false});
+    logObj.debug('test Stand show');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'shogi'};
+    var gameObj = new GameController(settings, logObj);
+    gameObj.log.debug('test stand read');
+    var str = 'PPL';
+    gameObj.game.blackStand.read(str);
+    assertEqual( str, gameObj.game.blackStand.toString() );
+    var str = 'gsbr';
+    gameObj.game.whiteStand.read(str);
+    assertEqual( str, gameObj.game.whiteStand.toString() );
+    } },
+    
   testStandShow : function() {  with( this )  {
     var logObj = makeLogObj('testStandShow', {width:600, height:350, resizable:false});
     logObj.debug('test Stand show');

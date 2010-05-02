@@ -62,6 +62,24 @@
     delete settings;
   } },
 
+  testBoardRead : function() {  with( this )  {
+    var logObj = makeLogObj('testBoardRead', {width:600, height:350, resizable:false});
+    logObj.debug('test Board read');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'shogi'};
+    window.gameController = new GameController(settings, logObj);
+    window.gameController.log.debug('test board read');
+    window.gameController.top = 0;
+    window.gameController.top_by_viewer = 0;
+    window.gameController.game.board.show();
+    str = 'l__p__P_Lnbp___PRNs_p___P_Sg_p___P_Gk_p___P_Kg_p___P_Gs_p___P_Snrp___PBNl_p___P_L';
+    window.gameController.game.board.read(str);
+    window.gameController.game.board.show();
+    assertEqual( 'shogi', window.gameController.container.id );
+    } },
+
   testBoardShow : function() {  with( this )  {
     var logObj = makeLogObj('testBoardShow', {width:600, height:350, resizable:false});
     logObj.debug('test Board show');
@@ -71,6 +89,7 @@
     settings = {'containerId':'shogi'};
     window.gameController = new GameController(settings, logObj);
     window.gameController.log.debug('test board show');
+    window.gameController.top = 0;
     window.gameController.game.board.show();
     assertEqual( 'shogi', window.gameController.container.id );
     } },
