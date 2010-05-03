@@ -172,17 +172,25 @@ if(this.x === 1 && this.y === 1) window.gameController.game.log.warn('-------Cel
         //    3なら敵陣全体だし、1なら下段にあるかどうかの意味
         //    default は3
   isOpponentArea: function isOpponentArea(playerArg, lineArg) { // Cell
+    var ret;
+    this.log.getInto('Cell#isOpponentArea');
     var player = playerArg || window.gameController.playerInTurn();
     var line = lineArg || 3;
+    this.log.debug('this cell : ' + this.toDebugString());
+    this.log.debug('player : ' + player.id);
+    this.log.debug('line : ' + line);
     if (player.id == 'player1') {
-      return (this.y > 0) && (this.y < line+1);
+      ret = (this.y > 0) && (this.y < line+1);
     }
     else if (player.id == 'player2') {
-      return (this.y > (9-line)) && (this.y < 10);
+      ret = (this.y > (9-line)) && (this.y < 10);
     }
     else {
-      throw 'not reach: ' + player.id;
+      this.log.fatal('no player?: ' + player.id);
     }
+    this.log.debug('leaving with : ' + ret);
+    this.log.goOut();
+    return ret;
   },
 	/**
 	 * isOpponentFirstLine(player)

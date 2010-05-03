@@ -590,34 +590,54 @@ function promoteCheck(actionContents){
   var fromCell = actionContents[1];
   var toCell = actionContents[2];
   window.gameController.log.debug('piece type : ' + piece.type);
-  for(;;){
+  window.gameController.log.debug('fromCell : ' + fromCell.toDebugString());
+  window.gameController.log.debug('toCell : ' + toCell.toDebugString());
+  for(var i=0;i<1;i++){
     // 王様or金ならpromoteできないのでfalse
     if (piece.type == 'King' || piece.type == 'Gold'){
+      window.gameController.log.debug('ret is set to false because piece type is ' + piece.type);
       ret = false;
       break;
     }
     // すでにpromoteしている駒ならpromoteできないのでfalse
+    window.gameController.log.debug('すでにpromoteしている駒ならpromoteできないのでfalseをcheck : ' + piece.unpromote_type);
     if (piece.unpromote_type){
+      window.gameController.log.debug('ret is set to false because piece has unpromote_type : ' + piece.unpromote_type);
       ret = false;
       break;
     }
     // 歩ならば１段目へ進むときは必ず成る
+    window.gameController.log.debug('歩ならば１段目へ進むときは必ず成るかcheck');
     if (piece.type == 'Pawn' && toCell.isOpponentArea(player, 1)){
+      window.gameController.log.debug('ret is set to mustPromote because Pawn is going to first line');
       ret = 'mustPromote';
       break;
     }
     // 香ならば１段目へ進むときは必ず成る
+    window.gameController.log.debug('香ならば１段目へ進むときは必ず成るかcheck');
     if (piece.type == 'Lance' && toCell.isOpponentArea(player, 1)){
+      window.gameController.log.debug('ret is set to mustPromote because Lance is going to first line');
       ret = 'mustPromote';
       break;
     }
     // 桂ならば2 or 1段目へ進むときは必ず成る
+    window.gameController.log.debug('桂ならば１,２段目へ進むときは必ず成るかcheck');
     if (piece.type == 'kNight' && toCell.isOpponentArea(player, 2)){
+      window.gameController.log.debug('ret is set to mustPromote because kNight is going to first or second line');
       ret = 'mustPromote';
       break;
     }
-    // 敵陣へ動くか、敵陣から動く場合は成ることができる
-    if (toCell.isOpponentArea(player) || fromCell.isOpponentArea(player)){
+    // 敵陣へ動く場合は成ることができる
+    window.gameController.log.debug('敵陣へ動く場合は成ることができるかCheck');
+    if (toCell.isOpponentArea(player)){
+      window.gameController.log.debug('ret is set to needConfirm because piece is going to OpponentArea');
+      ret = 'needConfirm';
+      break;
+    }
+    // 敵陣から動く場合は成ることができる
+    window.gameController.log.debug('敵陣から動く場合は成ることができるかCheck');
+    if (fromCell.isOpponentArea(player)){
+      window.gameController.log.debug('ret is set to needConfirm because piece is going from OpponentArea');
       ret = 'needConfirm';
       break;
     }
