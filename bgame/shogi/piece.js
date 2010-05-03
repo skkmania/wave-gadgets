@@ -186,7 +186,7 @@ this.game.log.goOut();
     this.game.log.getInto('Piece#canMoveTo');
     var dx = x - this.cell.x;
     var dy = y - this.cell.y;
-    if (this.isBlack()) dy *= -1;
+    this.isBlack() ? dx *= -1 : dy *= -1;
     this.game.log.debug('dx, dy : ' + dx + ', ' + dy);
     ret = this.movableCheck(dx, dy);
     this.game.log.debug('leaving with: ' + ret);
@@ -367,6 +367,18 @@ this.game.log.goOut();
 });
 
 /**
+ * KingMovableCheck(dx,dy) 
+ */
+function KingMovableCheck(dx,dy){
+  if(Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
+  return  [
+            [true,  true,  true],
+            [true,  false, true],
+            [true,  true,  true]
+          ][dy + 1][dx + 1];
+}
+ 
+/**
  * GoldMovableCheck(dx,dy) 
  */
 function GoldMovableCheck(dx,dy){
@@ -375,12 +387,14 @@ function GoldMovableCheck(dx,dy){
             [true,  true,  true],
             [true,  false, true],
             [false, true,  false]
-          ][dx + 1][dy + 1];
+          ][dy + 1][dx + 1];
 }
  
 /**
  * PieceTypeObjects 
  */
+// 以下の各駒のmovableCheckは、先手の立場でdx, dyを受け取ったときの条件判断をしている。
+// したがって、これを呼び出す側(canMove)はそうなるようにdx,dyを補正している。
 var PieceTypeObjects = {
 	/**
 	 * King
@@ -388,14 +402,7 @@ var PieceTypeObjects = {
   King: {
   imageUrl: HOST + 'img/King.png',
   type: 'King',
-  movableCheck: function movableCheck(dx,dy){
-    if(Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
-    return  [
-         [ true,  true,  true],
-         [ true, false,  true],
-         [ true,  true,  true]
-            ][dx + 1][dy + 1];
-    }
+  movableCheck: KingMovableCheck
   },
 	/**
 	 * Bishop
@@ -417,11 +424,7 @@ var PieceTypeObjects = {
   movableCheck: function movableCheck(dx,dy){
     if (dx == dy || dx == (-1)*dy) return true;
     if (Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
-    return [
-            [ true,  true,  true],
-            [ true, false,  true],
-            [ true,  true,  true]
-           ][dx + 1][dy + 1];
+    return true;
   },
   unpromote_type: 'Bishop'
   },
@@ -445,11 +448,7 @@ var PieceTypeObjects = {
   movableCheck: function movableCheck(dx,dy){
     if (dx == 0 || dy == 0) return true;
     if (Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
-    return [
-            [ true,  true,  true],
-            [ true, false,  true],
-            [ true,  true,  true]
-           ][dx + 1][dy + 1];
+    return true;
   },
   unpromote_type: 'Rook'
   },
@@ -459,14 +458,7 @@ var PieceTypeObjects = {
   Gold: {
   imageUrl: HOST + 'img/Gold.png',
   type: 'Gold',
-  movableCheck: function movableCheck(dx,dy){
-    if(Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
-    return  [
-              [true,  true,  true],
-              [true,  false, true],
-              [false, true,  false]
-            ][dx + 1][dy + 1];
-  }
+  movableCheck: GoldMovableCheck
   },
 	/**
 	 * Silver
@@ -480,7 +472,7 @@ var PieceTypeObjects = {
               [true,  true,  true],
               [false, false, false],
               [true,  false, true]
-            ][dx + 1][dy + 1];
+            ][dy + 1][dx + 1];
     },
   promote_type: 'Tsilver'
   },
@@ -500,8 +492,8 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/kNight.png',
   type: 'kNight',
   movableCheck: function movableCheck(dx,dy){
-    return (dx ==  1 && dy == 2) ||
-           (dx == -1 && dy == 2);
+    return (dx ==  1 && dy == -2) ||
+           (dx == -1 && dy == -2);
   },
   promote_type: 'Oknight'
   },
@@ -521,7 +513,7 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/Lance.png',
   type: 'Lance',
   movableCheck: function movableCheck(dx,dy){
-    return (dx == 0 && dy > 0);
+    return (dx == 0 && dy < 0);
   },
   promote_type: 'Mlance'
   },
@@ -541,7 +533,7 @@ var PieceTypeObjects = {
   imageUrl: HOST + 'img/Pawn.png',
   type: 'Pawn',
   movableCheck: function movableCheck(dx,dy){
-      return (dx === 0 && dy === 1);
+      return (dx === 0 && dy === -1);
     },
   promote_type: 'Qpawn'
   },
