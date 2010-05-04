@@ -133,8 +133,8 @@ wave.State.prototype = {
   },
   submitDelta: function(state) {
     if (wave.stateCallback) {
-      wave.stateCallback(state);
       this.state = state;
+      wave.stateCallback(state);
     }
   },
   submitValue: function(key, value) {

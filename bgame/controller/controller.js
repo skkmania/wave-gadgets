@@ -490,8 +490,28 @@ GameController = Class.create({
     this.log.debug('this.players : ' + this.players.length + ' : ' + this.players.join(', '));
     var deltakey = null; 
     var delta = {};
-    switch (this.mode){
-      case  'noPlayers' || undefined:
+    if (this.mode) {
+      switch (this.mode){
+        case  'noPlayers':
+          this.log.debug('first player added');
+          this.players.push(name);
+          this.message(t('waiting'));
+          deltakey = 'players';
+          this.mode = 'onePlayer';
+          delta[deltakey] = name;
+          delta['mode'] = this.mode;
+          break;
+        case 'onePlayer':
+          this.log.debug('second player added');
+          this.players.push(name);
+          this.log.debug('players: ' + this.players.join(','));
+          delta = this.setPlayersOrder();
+          this.log.debug('returned delta : ' + Log.dumpObject(delta));
+          $('join-button').hide();
+          this.mode = 'playing';
+          break;
+      }
+    } else {
         this.log.debug('first player added');
         this.players.push(name);
         this.message(t('waiting'));
@@ -499,16 +519,6 @@ GameController = Class.create({
         this.mode = 'onePlayer';
         delta[deltakey] = name;
         delta['mode'] = this.mode;
-        break;
-      case 'onePlayer':
-        this.log.debug('second player added');
-        this.players.push(name);
-        this.log.debug('players: ' + this.players.join(','));
-        delta = this.setPlayersOrder();
-        this.log.debug('returned delta : ' + Log.dumpObject(delta));
-        $('join-button').hide();
-        this.mode = 'playing';
-        break;
     }
     //this.controlPanel.update(this.mode);
     this.log.debug('sending delta : ' + Log.dumpObject(delta));
