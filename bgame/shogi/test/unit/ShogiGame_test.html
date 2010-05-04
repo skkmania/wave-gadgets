@@ -199,15 +199,34 @@
     gameObj.game.whiteStand.read(str);
 
     // testの準備
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    logObj.setLevel(Log.DEBUG);
+    logObj.setDiv = true;
+
+    // 自分の手番の駒の上に進もうとしていないかCheck
+    var piece = gameObj.game.board.getCell(2,9).piece;
+    var fromCell = gameObj.game.board.getCell(2,9);
+    var toCell = gameObj.game.board.getCell(3,7);
+    var res = moveValidate([piece, fromCell, toCell]);
+    // assert
+    assertEqual( 'badAction', res, 'moveValidate move piece on board onto other self piece test');
+
+    // 駒の上に持ち駒をうとうとする動作に対するテスト
     var piece = gameObj.game.whiteStand.pieces[0];
     var fromObj = gameObj.game.whiteStand;
     var toCell = gameObj.game.board.getCell(5,7);
-    logObj.setLevel(Log.DEBUG);
-    logObj.setDiv = true;
     var res = moveValidate([piece, fromObj, toCell]);
-
     // assert
     assertEqual( 'badAction', res, 'moveValidate put piece from stand to another piece test');
+    
+    // 成ろうとしているかCheck
+    var piece = gameObj.game.board.getCell(5,7).piece;
+    var fromCell = gameObj.game.board.getCell(5,7);
+    var toCell = gameObj.game.board.getCell(5,6);
+    var res = moveValidate([piece, fromCell, toCell]);
+    // assert
+    assertEqual( 'normal', res, 'moveValidate put piece from stand to another piece test');
     
   } },
 
