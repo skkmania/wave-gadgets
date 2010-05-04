@@ -25,19 +25,19 @@ Cell.prototype = {
 	 * say()
 	 */
   say: function say(){ // Cell
-    this.log.getInto('Cell#say');
+    //this.log.getInto('Cell#say');
     // このセルにいるpieceの状態を文字にして返す
     if (!this.piece){
-      this.log.goOut();
+      //this.log.goOut();
       return '_';
     }
     var retChar = Type2chr[this.piece.type];
-    this.log.debug('retChar : ' + retChar);
+    //this.log.debug('retChar : ' + retChar);
     if(this.piece.isBlack()){
-      this.log.goOut();
+      //this.log.goOut();
       return retChar.toUpperCase();
     } else {
-      this.log.goOut();
+      //this.log.goOut();
       return retChar; 
     }
   },

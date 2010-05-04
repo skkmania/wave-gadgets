@@ -65,8 +65,9 @@
   } },
 
   testDebugDump : function() {  with( this )  {
-    var logObj = makeLogObj('testDebugDump', window_link, {width:600, height:350, resizable:false});
+    var logObj = makeLogObj('testDebugDump', {width:600, height:350, resizable:false});
     logObj.debug('test debug_dump');
+    logObj.setLevel(Log.ERROR);
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
@@ -80,8 +81,9 @@
     } },
 
   testMateCheck : function() {  with( this )  {
-    var logObj = makeLogObj('testMateCheck', window_link, {width:600, height:350, resizable:false});
+    var logObj = makeLogObj('testMateCheck', {width:500, height:150, resizable:false});
     logObj.debug('test mateCheck');
+    logObj.setLevel(Log.ERROR);
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
@@ -102,8 +104,9 @@
     } },
 
   testCheckFinish : function() {  with( this )  {
-    var logObj = makeLogObj('testCheckFinish', window_link, {width:600, height:350, resizable:false});
+    var logObj = makeLogObj('testCheckFinish', {width:600, height:350, resizable:false});
     logObj.debug('test checkFinish');
+    logObj.setLevel(Log.ERROR);
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
@@ -125,8 +128,9 @@
     } },
 
   testGetPlayer : function() {  with( this )  {
-    var logObj = makeLogObj('testgetPlayer', window_link, {width:600, height:350, resizable:false});
+    var logObj = makeLogObj('testgetPlayer', {width:600, height:350, resizable:false});
     logObj.debug('test confirmActionByUser');
+    logObj.setLevel(Log.ERROR);
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
@@ -142,6 +146,7 @@
   testConfirmActionByUser : function() {  with( this )  {
     var logObj = makeLogObj('testConfirmActionByUser', {width:600, height:350, resizable:false});
     logObj.debug('test confirmActionByUser');
+    logObj.setLevel(Log.ERROR);
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
@@ -164,6 +169,7 @@
   testMoveValidate : function() {  with( this )  {
     var logObj = makeLogObj('testMoveValidate', {width:500, height:150, resizable:false});
     logObj.debug('test moveValidate');
+    logObj.setLevel(Log.ERROR);
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
@@ -193,6 +199,7 @@
   testPromoteCheck : function() {  with( this )  {
     var logObj = makeLogObj('testPromoteCheck', {width:500, height:150, resizable:false});
     logObj.debug('test promoteCheck');
+    logObj.setLevel(Log.ERROR);
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
@@ -209,6 +216,7 @@
     gameObj.game.whiteStand.read(str);
 
     // testの準備
+    logObj.setLevel(Log.DEBUG);
     gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
     gameObj.setPlayersOrder();
     var piece = gameObj.game.board.getCell(1,4).piece;
@@ -218,6 +226,7 @@
 
     // assert
     assertEqual('needConfirm', res, 'promoteCheck put piece from 1 4 to 1 3 test');
+    logObj.setLevel(Log.ERROR);
     
     // testの準備
     var piece = gameObj.game.board.getCell(2,3).piece;
@@ -241,6 +250,7 @@
   testToString : function() {  with( this )  {
     var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
     logObj.debug('test toString');
+    logObj.setLevel(Log.ERROR);
     $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
