@@ -51,6 +51,7 @@ Log = Class.create({
   initialize: function(level, logger, options){
        this.defaultOptions();
        this.currentLevel = level || Log.WARN;
+       this.setDiv = true;
        switch(logger){
        case 'write':
          this.logger = this.write; // default to write Logger
@@ -210,8 +211,15 @@ Log = Class.create({
     } else
         return '';
   },
-
+	/**
+	 * getInto(str)
+	 */
+	// this.setDiv がfalseのときはなにもせずにすぐ抜ける
+	// this.setDiv がtrueのときは
+	// logDivクラスのdiv要素を作成し、その１行目に受け取った文字列を表示
+	// 作成したdiv要素は現在のdivStackのtop要素に付加し、自身をdivStackのtopとする
   getInto: function getInto(str) {
+    if(!this.setDiv) return;
     // str : logDivの１行めに表示する文字列. なければ呼び出した関数の名前
     var ret = new Element('div');
     ret.className = 'logDiv';
@@ -263,8 +271,14 @@ Log = Class.create({
       div.folded = !(div.folded);
     }
   },
-
+	/**
+	 * goOut()
+	 */
+	// this.setDiv がfalseのときはなにもせずにすぐ抜ける
+	// this.setDiv がtrueのときは
+	// getIntoで作ったdivから抜けるという意味でdivStackからtop要素を削除する
   goOut: function goOut(){
+    if(!this.setDiv) return;
     this.divStack.pop();
   },
 
@@ -274,7 +288,9 @@ Log = Class.create({
     rowDiv.appendChild(ret);
     return ret;
   },
-
+	/**
+	 * entry(msg, level, option)
+	 */
   entry: function entry(msg, level, option){
     // msg : string, log message
     // level: number, such as Log.FATAL, Log.ERROR, Log.WARN,...
