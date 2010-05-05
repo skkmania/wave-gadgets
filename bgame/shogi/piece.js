@@ -106,22 +106,33 @@ Piece = Class.create({
     var thisTurnIsViewers = this.game.controller.isViewersTurn();
     this.game.log.debug('isViewersTurn : '+thisTurnIsViewers);
     if (!this.drag){
+      if(this.game.controller.playerSetting == 'public'){
+        this.addDraggable('toggled');
+      } else {
         if(thisPieceIsViewers && thisTurnIsViewers){
           this.addDraggable('toggled');
         }
+      }
     } else {
-      if(thisPieceIsViewers){
-        if(!thisTurnIsViewers){
-          this.game.log.debug('to destroy drag because this is not Vieweres turn. : '+ Draggables.drags.length);
+      if(this.game.controller.playerSetting == 'public'){
+        this.game.log.debug('to destroy drag because this is not in turn. : '+ Draggables.drags.length);
+        this.drag.destroy();
+        this.game.log.debug('length of drags became : '+ Draggables.drags.length);
+        this.drag = null;
+      } else {
+        if(thisPieceIsViewers){
+          if(!thisTurnIsViewers){
+            this.game.log.debug('to destroy drag because this is not Vieweres turn. : '+ Draggables.drags.length);
+            this.drag.destroy();
+            this.game.log.debug('length of drags became : '+ Draggables.drags.length);
+            this.drag = null;
+          }
+        } else {
+          this.game.log.debug('to destroy drag because this is not Vieweres piece. : '+ Draggables.drags.length);
           this.drag.destroy();
           this.game.log.debug('length of drags became : '+ Draggables.drags.length);
           this.drag = null;
         }
-      } else {
-        this.game.log.debug('to destroy drag because this is not Vieweres piece. : '+ Draggables.drags.length);
-        this.drag.destroy();
-        this.game.log.debug('length of drags became : '+ Draggables.drags.length);
-        this.drag = null;
       }
     }
     this.game.log.debug(this.drag?'drag remains':'no drag');
@@ -274,21 +285,18 @@ this.game.log.goOut();
 	 */
   gotoOpponentsStand: function gotoOpponentsStand() { // Piece
     this.game.log.getInto('Piece#gotoOpponentsStand');
-    this.game.log.debug('piece: ' + this.toDebugString(), {'indent':1});
+    this.game.log.debug('piece: ' + this.toDebugString());
     if(this.unpromote_type){
       this.unpromote();
       this.game.log.debug('unpromoted : ' + this.toDebugString());
     }
     if(this.isBlack()){
-      this.game.log.debug('001');
       this.game.whiteStand.put(this);
-      this.game.log.debug('002');
     } else {
-      this.game.log.debug('101');
       this.game.blackStand.put(this);
-      this.game.log.debug('102');
     }
-      this.game.log.debug('leaving Piece#gotoOpponentsStand : ', {'indent':-1});
+      this.game.log.debug('leaving Piece#gotoOpponentsStand : ');
+      this.game.log.debug('piece: ' + this.toDebugString());
       this.game.log.goOut();
   },
 	/**

@@ -155,6 +155,7 @@ GameController = Class.create({
     this.log = log;
     this.log.getInto('GameController#initialize');
     this.settings = settings;
+    this.playerSetting = settings['playerSetting'] || 'viewer';
     if(settings === undefined){
       this.log.debug('settings is undefined.');
     } else {

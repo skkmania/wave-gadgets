@@ -64,33 +64,94 @@
 
   testPieceInitialize : function() {  with( this )  {
     var logObj = makeLogObj('testPieceInitialize', {width:600, height:350, resizable:false});
-    logObj.debug('test Piece show');
-    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    logObj.debug('test Piece initialize');
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'shogi'};
     var gameObj = new GameController(settings, logObj);
     gameObj.log.debug('test piece initialize');
-    assertEqual( 8, gameObj.game.allPieces().length );
+    assertEqual( 40, gameObj.game.allPieces().length );
     } },
     
   testPieceShow : function() {  with( this )  {
-    var logObj = makeLogObj('testPieceShow', {width:600, height:350, resizable:false});
+    var logObj = makeLogObj('testPieceShow', {width:800, height:650, resizable:false});
     logObj.debug('test Piece show');
-    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    logObj.setLevel(Log.ERROR);
+    logObj.setDiv = false;
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'shogi'};
     var gameObj = new GameController(settings, logObj);
-    gameObj.log.debug('test stand show');
-    assertEqual( 'black-stand', gameObj.game.blackStand.id );
-    assertEqual( 'white-stand', gameObj.game.whiteStand.id );
+    // 局面の準備
+    gameObj.top = 0;
+    gameObj.game.board.show();
+    str = 'l__p__P_Ln_p___PRNs_p___P_S__p___P_Gk_p___P_Kg_p___P_G__p___P_Sn_p___PBNl_p___P_L';
+    gameObj.game.board.read(str);
+    var str = 'gsbr';
+    gameObj.game.whiteStand.read(str);
+
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    logObj.setLevel(Log.DEBUG);
+    logObj.setDiv = true;
+    gameObj.log.debug('test piece show');
+
+    var piece = gameObj.game.board.getCell(2,9).piece;
+    assertEqual( 'kNight', piece.type );
+    } },
+    
+  testPieceGotoOpponentsStand : function() {  with( this )  {
+    var logObj = makeLogObj('testPieceGotoOpponentsStand', {width:800, height:650, resizable:false});
+    logObj.debug('test Piece gotoOpponentsStand');
+    logObj.setLevel(Log.ERROR);
+    logObj.setDiv = false;
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'shogi'};
+    var gameObj = new GameController(settings, logObj);
+    // 局面の準備
+    gameObj.top = 0;
+    gameObj.game.board.show();
+    str = 'DH_qQ___Ln_p___PRNs_p___P_S__p___P_Gk_p___P_Kg_p___P_G__p___P_Sn_p___P_Nl_p___P_L';
+    gameObj.game.board.read(str);
+    var str = 'gsbr';
+    gameObj.game.whiteStand.read(str);
+    gameObj.game.whiteStand.show();
+
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    logObj.setLevel(Log.DEBUG);
+    logObj.setDiv = true;
+    gameObj.log.debug('test piece gotoOpponentsStand');
+
+    var piece = gameObj.game.board.getCell(1,1).piece;
+    assertEqual( 'Dragon', piece.type );
+    piece.gotoOpponentsStand();
+    assertEqual( 'Rook', piece.type );
+
+    var piece = gameObj.game.board.getCell(1,2).piece;
+    assertEqual( 'Horse', piece.type );
+    piece.gotoOpponentsStand();
+    assertEqual( 'Bishop', piece.type );
+
+    var piece = gameObj.game.board.getCell(1,4).piece;
+    assertEqual( 'Qpawn', piece.type );
+    piece.gotoOpponentsStand();
+    assertEqual( 'Pawn', piece.type );
+
+    var piece = gameObj.game.board.getCell(1,5).piece;
+    assertEqual( 'Qpawn', piece.type );
+    piece.gotoOpponentsStand();
+    assertEqual( 'Pawn', piece.type );
     } },
 
   testToString : function() {  with( this )  {
-    var logObj = makeLogObj('testToString', {width:500, height:150, resizable:false});
+    var logObj = makeLogObj('testToString', {width:800, height:650, resizable:false});
     logObj.debug('test toString');
-    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/window_close.gif"}));
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
     new Resizable(window_link,{handle:resizable_id});
 
     settings = {'containerId':'shogi'};

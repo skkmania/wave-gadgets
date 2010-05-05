@@ -231,6 +231,7 @@ window.gameController.game = this;
     }
     this.log.debug(' -- contents of Draggables.drags ends -- ');
 
+    // 本処理
     this.log.warn('processing pieces of board.cells');
     this.board.cells.flatten().pluck('piece').compact().invoke('toggleDraggable');
     this.log.warn('processing blackStand');

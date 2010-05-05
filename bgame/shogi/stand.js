@@ -106,7 +106,7 @@ this.game.log.goOut();
     this.elm.appendChild(piece.elm);
     this.game.log.debug('leaving ' + this.id + ', Stand#put : ' + piece.toDebugString());
     this.game.log.debug(this.id + ' : ' + this.toString());
-this.game.log.goOut();
+    this.game.log.goOut();
   },
 	/**
 	 * put_from_read(piece)

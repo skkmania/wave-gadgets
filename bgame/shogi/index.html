@@ -33,7 +33,7 @@
         new Resizable('logger0',{handle:'handle0'});
         if(wave) 
           window.gameController = new GameController({containerId:'shogi',
-                                      'gameConstructor':'shogi'}, logObj);
+               'playerSetting':'public', 'gameConstructor':'shogi'}, logObj);
         // if (wave && wave.isInWaveContainer())
           wave.setStateCallback(window.gameController.acceptState.bind(window.gameController));
       });
