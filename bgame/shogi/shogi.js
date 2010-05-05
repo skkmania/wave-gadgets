@@ -230,18 +230,7 @@ window.gameController.game = this;
       }.bind(this));
     }
     this.log.debug(' -- contents of Draggables.drags ends -- ');
-/*
-      // dragsの個々の要素のうち、toggleDraggbleを持っているものは、それを実行する
-    this.log.debug('processing pieces of Draggables.drags');
-    Draggables.drags.each(function(e, index){
-      if(e.element && e.element.obj && e.element.obj.toggleDraggable){
-         e.element.obj.toggleDraggable();
-      } else {
-        // toggleDraggableを持っていないものはそうログに記述する
-        this.log.debug('drags[' + index + '] : seems not to be a piece object');
-      }
-    }.bind(this));
-*/
+
     this.log.warn('processing pieces of board.cells');
     this.board.cells.flatten().pluck('piece').compact().invoke('toggleDraggable');
     this.log.warn('processing blackStand');
