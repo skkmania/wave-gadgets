@@ -323,19 +323,22 @@ this.game.log.goOut();
     return ( this.isBlack() ? (cell.y === 1) : (cell.y === 9) );
   },
 	/**
-	 * promote(actionContents)
+	 * promote()
 	 */
-  promote: function promote(actionContents) {  // Piece
+  promote: function promote() {  // Piece
     this.game.log.getInto('Piece#promote');
+    this.game.log.debug(this.toDebugString());
     if(this.promote_type){
       this.imageUrl = PieceTypeObjects[this.promote_type].imageUrl;
       this.elm.src = this.imageUrl;
       this.type = PieceTypeObjects[this.promote_type].type;
+      this.unpromote_type = PieceTypeObjects[this.promote_type].unpromote_type;
       if(this.isBlack())
         this.chr = Type2chr[this.type].toUpperCase();
       else
         this.chr = Type2chr[this.type];
       this.movableCheck = PieceTypeObjects[this.promote_type].movableCheck;
+      this.promote_type = undefined;
       this.game.log.debug('promoted : ' + this.toDebugString());
     } else {
       this.game.log.fatal('this piece cannot promote.');
@@ -343,19 +346,22 @@ this.game.log.goOut();
     this.game.log.goOut();
   },
   	/**
-	 * unpromote(actionContents)
+	 * unpromote()
 	 */
-  unpromote: function unpromote(actionContents) {  // Piece
+  unpromote: function unpromote() {  // Piece
     this.game.log.getInto('Piece#unpromote');
+    this.game.log.debug(this.toDebugString());
     if(this.unpromote_type){
       this.imageUrl = PieceTypeObjects[this.unpromote_type].imageUrl;
       this.elm.src = this.imageUrl;
       this.type = PieceTypeObjects[this.unpromote_type].type;
+      this.promote_type = PieceTypeObjects[this.unpromote_type].promote_type;
+      this.movableCheck = PieceTypeObjects[this.unpromote_type].movableCheck;
       if(this.isBlack())
         this.chr = Type2chr[this.type].toUpperCase();
       else
         this.chr = Type2chr[this.type];
-      this.movableCheck = PieceTypeObjects[this.unpromote_type].movableCheck;
+      this.unpromote_type = undefined;
       this.game.log.debug('unpromoted : ' + this.toDebugString());
     } else {
       this.game.log.fatal('this piece cannot unpromote.');
@@ -368,6 +374,8 @@ this.game.log.goOut();
   toDebugString: function toDebugString() {  // Piece
     var ret = 'chr: <span style="color: #3F8080">' + this.chr + '</span>, ';
     ret += (', className: ' + this.elm.className);
+    ret += (', promote_type: ' + this.promote_type || 'undefined');
+    ret += (', unpromote_type: ' + this.unpromote_type || 'undefined');
     if (this.cell && this.cell.elm) ret += (', cell_name:' + this.cell.elm.id);
     else ret += ', [no cell]';
     return ret;
@@ -439,7 +447,7 @@ var PieceTypeObjects = {
 	/**
 	 * Rook
 	 */
-  Rook: {
+  'Rook': {
   imageUrl: HOST + 'img/Rook.png',
   type: 'Rook',
   movableCheck: function movableCheck(dx,dy){

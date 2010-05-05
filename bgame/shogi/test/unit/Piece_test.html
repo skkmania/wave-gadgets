@@ -115,7 +115,7 @@
     // 局面の準備
     gameObj.top = 0;
     gameObj.game.board.show();
-    str = 'DH_qQ___Ln_p___PRNs_p___P_S__p___P_Gk_p___P_Kg_p___P_G__p___P_Sn_p___P_Nl_p___P_L';
+    str = 'DHhqQd__Ln_p___PRNs_p___P_S__p___P_Gk_p___P_Kg_p___P_G__p___P_Sn_p___P_Nl_p___P_L';
     gameObj.game.board.read(str);
     var str = 'gsbr';
     gameObj.game.whiteStand.read(str);
@@ -137,6 +137,11 @@
     piece.gotoOpponentsStand();
     assertEqual( 'Bishop', piece.type );
 
+    var piece = gameObj.game.board.getCell(1,3).piece;
+    assertEqual( 'Horse', piece.type );
+    piece.gotoOpponentsStand();
+    assertEqual( 'Bishop', piece.type );
+
     var piece = gameObj.game.board.getCell(1,4).piece;
     assertEqual( 'Qpawn', piece.type );
     piece.gotoOpponentsStand();
@@ -146,6 +151,77 @@
     assertEqual( 'Qpawn', piece.type );
     piece.gotoOpponentsStand();
     assertEqual( 'Pawn', piece.type );
+    } },
+
+  testPromote : function() {  with( this )  {
+    var logObj = makeLogObj('testPromote', {width:800, height:650, resizable:false});
+    logObj.debug('test Piece promote');
+    logObj.setLevel(Log.ERROR);
+    logObj.setDiv = false;
+    $(window_link).insert(new Element('img',{id:resizable_id,src:"../../img/lib/window_close.gif"}));
+    new Resizable(window_link,{handle:resizable_id});
+
+    settings = {'containerId':'shogi'};
+    var gameObj = new GameController(settings, logObj);
+    // 局面の準備
+    gameObj.top = 0;
+    gameObj.game.board.show();
+    str = 'DHhqQd__Ln_p___PRNs_p___P_S__p___P_Gk_p___P_Kg_p___P_G__p___P_Sn_p___P_Nl_p___P_L';
+    gameObj.game.board.read(str);
+    var str = 'gsbr';
+    gameObj.game.whiteStand.read(str);
+    gameObj.game.whiteStand.show();
+
+    gameObj.players = ['test01@googlewave.com','test02@googlewave.com'];
+    gameObj.setPlayersOrder();
+    logObj.setLevel(Log.DEBUG);
+    logObj.setDiv = true;
+    gameObj.log.debug('test piece promote');
+
+    var piece = gameObj.game.board.getCell(1,1).piece;
+    assertEqual( 'Dragon', piece.type );
+    piece.unpromote();
+    assertEqual( 'Rook', piece.type );
+    assertEqual( 'Dragon', piece.promote_type);
+    piece.promote();
+    assertEqual( 'Dragon', piece.type );
+    assertEqual( 'Rook', piece.unpromote_type);
+
+    var piece = gameObj.game.board.getCell(1,2).piece;
+    assertEqual( 'Horse', piece.type );
+    piece.unpromote();
+    assertEqual( 'Bishop', piece.type );
+    assertEqual( 'Horse', piece.promote_type);
+    piece.promote();
+    assertEqual( 'Horse', piece.type );
+    assertEqual( 'Bishop', piece.unpromote_type);
+
+    var piece = gameObj.game.board.getCell(1,3).piece;
+    assertEqual( 'Horse', piece.type );
+    piece.unpromote();
+    assertEqual( 'Bishop', piece.type );
+    assertEqual( 'Horse', piece.promote_type);
+    piece.promote();
+    assertEqual( 'Horse', piece.type );
+    assertEqual( 'Bishop', piece.unpromote_type);
+
+    var piece = gameObj.game.board.getCell(1,4).piece;
+    assertEqual( 'Qpawn', piece.type );
+    piece.unpromote();
+    assertEqual( 'Pawn', piece.type );
+    assertEqual( 'Qpawn', piece.promote_type);
+    piece.promote();
+    assertEqual( 'Qpawn', piece.type );
+    assertEqual( 'Pawn', piece.unpromote_type);
+
+    var piece = gameObj.game.board.getCell(1,5).piece;
+    assertEqual( 'Qpawn', piece.type );
+    piece.unpromote();
+    assertEqual( 'Pawn', piece.type );
+    assertEqual( 'Qpawn', piece.promote_type);
+    piece.promote();
+    assertEqual( 'Qpawn', piece.type );
+    assertEqual( 'Pawn', piece.unpromote_type);
     } },
 
   testToString : function() {  with( this )  {
