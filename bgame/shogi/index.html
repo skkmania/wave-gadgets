@@ -44,8 +44,10 @@
     </script>
     <link rel="stylesheet" href="css/log4pipe.css" type="text/css" />
     <link rel="stylesheet" href="css/shogi.css" type="text/css" />
+    <link rel="stylesheet" href="css/shogi_old.css" type="text/css" />
   </head>
   <body>
+
     <div id="test">
       <button onclick="window.gameController.joinButtonPressed(wave.getViewer().getId())">Join 1st</button>
       <button onclick="window.gameController.joinButtonPressed(wave.getViewer().getId())">Join 2nd</button>
@@ -68,6 +70,19 @@
 
 <div id="testlog"> </div>
 
+   <div id="header">
+     <p id="hTitle">定跡研究</p>
+     <div id="displayConf"></div>
+   </div>
+   <div id="Title">
+     <p id="kid">局面ID: </p>
+     <form id="inputId" method="post" action="">
+       <input id="inputText" type="text" name="bid" maxlength="7" value="1" />
+       <input id="submitButton" type="submit" value="jump" />
+     </form>
+   </div>
+
+<div id="prevMoves"></div>
 <div id="container">
   <div id="top-panel" class="player"><span class="t">gote</span><span class="t">waiting</span></div>
   <div id="counter"><span class="t">count</span><span id="counterNum"><span></div>
@@ -80,6 +95,19 @@
   <div id="bottom-stand"></div>
   <div id="bottom-panel" class="player"><span class="t">sente</span><span class="t">waiting</span></div>
 </div>
+
+   <div id="nxtMvTitle"></div>
+   <div id="nxtMoveArea">
+     <div id="nxtMoves"         class="Moves"></div>
+     <div id="nmAllPoints"      class="Moves"></div>
+     <div id="nmPersonalPoints" class="Moves"></div>
+     <div id="nmUpArrows"       class="Moves"></div>
+     <div id="nmDownArrows"     class="Moves"></div>
+     <div id="nmCommentsAdd"    class="Moves"></div>
+     <div id="nmComments"       class="Moves"></div>
+     <div id="nmCommentsMore"   class="Moves"></div>
+   </div>
+
 <div id="sidebar">
   <div id="control-panel">
     <div id="message">
@@ -93,9 +121,28 @@
   <button id="dump-button" class="dump t" onclick="window.gameController.game.debug_dump();">dump</button>
   <button id="test-button" class="testbutton t" onclick="new Test.Unit.Runner( testcases, 'testlog' );">run_test</button>
 </div>
-<div style="clear:both;text-align:right;">
-    <a href="http://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi" target="_blank" class="t">help</a>
-</div>
+   <div id="BoardPoints">
+     <div id="totalBoardPoint">
+       <span id="tBPoint"></span>
+     </div>
+     <div id="pBPoint"> </div>
+   </div>
+   <div id="BoardComments">
+     <div id="totalBoardComments"></div>
+     <div id="personalBoardComment"></div>
+     <div id="personalBoardCommentIpeTrigger"></div>
+   </div>
+   <div id="situationImage">
+     <p id="siTitle">局面画像</p>
+   </div>
+   <div id="kifRead">
+     <p id="krTitle">棋譜読込</p>
+     <form method="POST" id="kifReadForm" action="./24kif.rb">
+       <textarea name="kifText" cols="40" rows="5" id="kifTextArea"></textarea>
+         <input type="submit" name="submit" value="post" />
+         <input type="reset" name="reset" value="reset" />
+     </form>
+   </div>
 
 <button id="join-button" class="join t" onclick="window.gameController.joinButtonPressed(wave.getViewer().getId()); this.hide();">join</button>
 
