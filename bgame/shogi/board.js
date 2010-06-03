@@ -6,7 +6,7 @@ Board = Class.create({
 	 * initialize(elm, game)
 	 */
   initialize: function initialize(elm, game) {
-game.log.getInto('Board#initialize');
+    game.log.getInto('Board#initialize');
     this.game = game;
     //this.top = game.controller.top;
     this.elm = elm || document.body;
@@ -22,26 +22,26 @@ game.log.getInto('Board#initialize');
     this.initialString = 'l_p___P_Lnbp___PRNs_p___P_Sg_p___P_Gk_p___P_Kg_p___P_Gs_p___P_Snrp___PBNl_p___P_L';
     game.log.warn('Board#initialize going to process initialString.');
     $A(this.initialString).each(function(chr, idx){
-game.log.getInto('reading initialString');
+      game.log.getInto('reading initialString');
       game.log.warn('idx: ' + idx);
       if(chr == '_'){ game.log.goOut(); return; }
       var xy = this.idx2xy(idx);
       var x = xy[0];
       var y = xy[1];
       game.log.warn('chr: ' + chr + ', x : ' + x +', y : ' + y);
-if(this.cells[y] && this.cells[y][x])
-  game.log.warn('cell: ' + this.cells[y][x].toDebugString());
-else{
-  game.log.warn('Board#initialize,  there is no cell at x: ' + x + ', y: ' + y +'.');
-  return;
-}
+      if(this.cells[y] && this.cells[y][x])
+        game.log.warn('cell: ' + this.cells[y][x].toDebugString());
+      else{
+        game.log.warn('Board#initialize,  there is no cell at x: ' + x + ', y: ' + y +'.');
+        return;
+      }
       var p = new Piece(chr, game);
       game.log.debug('piece: initialized in Board#initialize : ' + p.toDebugString());
       this.cells[y][x].put(p);
-game.log.goOut();
+      game.log.goOut();
     }.bind(this));
-game.log.goOut();
-    game.log.warn('leaving Board#initialize');
+    game.log.debug('leaving Board#initialize');
+    game.log.goOut();
   },
 	/**
 	 * pawnExists(x, chr))
