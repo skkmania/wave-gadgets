@@ -103,7 +103,7 @@ window.gameController.game = this;
 	 */
   show: function show() { // ShogiGame
     this.log.warn('game.show');
-    //this.board.show();
+    this.board.show();
   },
 	/**
 	 * reverse()

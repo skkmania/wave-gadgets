@@ -151,29 +151,27 @@ GameController = Class.create({
 	 * initialize(settings)
 	 */
   initialize: function initialize(settings, log) { // GameController
-    var title = settings['logTitle'] || 'popup';
     this.log = log;
-    this.log.getInto('GameController#initialize');
-    this.settings = settings;
-    this.playerSetting = settings['playerSetting'] || 'viewer';
     if(settings === undefined){
       this.log.debug('settings is undefined.');
     } else {
       this.log.debug(this.settings);
     }
-
-    this.game = new ShogiGame(settings, this);
-    //this.game = new GameConstructor[settings['gameConstructor']](settings, this);
-    this.players = $A([]);
-    this.blackplayers = $A([]);
-    this.whiteplayers = $A([]);
+    var title = settings['logTitle'] || 'popup';
+    this.log.getInto('GameController#initialize');
+    this.settings = settings;
     this.container = $(this.settings['containerId']);
+    this.playerSetting = settings['playerSetting'] || 'viewer';
+    this.players = $A([]);       // playerのIDの文字列の配列
+    this.playerObjects = $A([]); // playerオブジェクトの配列
+    this.blackplayers = $A([]);  // 先手playerのPlayerオブジェクトの配列
+    this.whiteplayers = $A([]);  // 後手playerのPlayerオブジェクトの配列
     this.controlPanel = new ControlPanel(this);
     this.log.warn('CP created.');
-    this.mode = '';
-    this.message(t('click_join_button'));
     this.count = 0;
-       // 手数。このgameではcount手目を指した局面がthis.gameのboard,blackStand, whiteStandに反映されているものとする.
+       // 手数。このgameではcount手目を指した局面がthis.gameの
+       // board, blackStand, whiteStandに反映されているものとする.
+
     this.top_by_viewer = false;
       // viewerが反転ボタンでtopを決定したとき、その値を持つ。
       // それまではfalse. したがって、これがfalseのあいだはplayerとviewerの関係のみで
@@ -182,11 +180,58 @@ GameController = Class.create({
       //  viewer == player1 のとき、top = 0 (player1がbottomなので)
       //  viewer == player2 のとき、top = 1 (player2がbottomなので)
       //  viewer がplayerでないとき、top = 0 （先手がbottomがデフォルトであるので)
-      //  Boardのinitializeにおいてはtop=0を前提にstyle.top, style.leftを決めている
+      //  Boardのinitializeにおいては
+      //  top=0を前提にstyle.top, style.leftを決めている
       //  ので、topが決まったこの時点で必要なら修正しておく必要がある
-    this.log.warn('leaving GameController#initialize',{3:{'color':'green'}});
+    switch(this.playerSetting){
+      case 'review':  // 検討モード
+        this.mode = 'noPlayers';
+        this.prepareReview();
+        break;
+      case 'playGame':  // 対局モード
+        this.mode = '';
+        this.lookForParticipants();
+        this.game = new ShogiGame(settings, this);
+        break;
+      case 'viewer': // 観戦モード
+        break;
+      default:
+        break;
+    }
     this.log.goOut();
-    // this.debug_dump();
+  },
+
+  lookForParticipants : function lookForParticipants(){
+    this.log.getInto('GameController#lookForParticipants');
+    this.message(t('click_join_button'));
+    this.log.goOut();
+  },
+	/**
+	 * prepareReview()
+	 */
+        // 入力：なし
+        // 出力：なし
+        // 機能：reviewモードのためにplayerの名前を決定し、所定の配列に格納する
+        //   reviewモードの名前付け規則
+        //     wave ID の場合: 先手： IDの先頭に'b_' を追加する
+        //                   : 後手： IDの先頭に'w_' を追加する
+  prepareReview: function prepareReview() { // GameController
+    this.log.getInto('GameController#prepareReview');
+    var name = wave.getViewer().getId();
+    this.players.push('b_' + name);
+    this.players.push('w_' + name);
+    this.player1 = new Player('player1', 'b_' + name, true);
+    this.player2 = new Player('player2', 'w_' + name, true);
+    var delta = this.addPlayersToDelta();
+    $('join-button').hide();
+    this.game = new ShogiGame(this.settings, this);
+    this.count = 0;
+    this.top_by_viewer = 0;
+    this.top = 0;
+    this.log.goOut();
+    this.sendDelta(delta);
+    this.playing(wave.getState());
+    this.game.show();
   },
 	/**
 	 * acceptState()
@@ -484,7 +529,10 @@ GameController = Class.create({
 	 * joinButtonPressed(name)
 	 */
         // 機能：　joinボタン押下に対し反応し再びjoinボタン押下待ち状態に戻る
-        // this.playersの人数が２人になったら次の段階へ進む
+        //         受け取ったnameをthis.playersに格納する
+        //         this.playersの人数が２人になったら次の段階(振り駒)へ進む
+        // 入力： name 文字列 playerの名前 (waveの@以下を含むIDなど。)
+        // 出力： なし
   joinButtonPressed: function joinButtonPressed(name) { // GameController
     this.log.getInto('GameController#joinButtonPressed');
     this.log.debug('arguments : ' + name);
@@ -535,7 +583,6 @@ GameController = Class.create({
         //        this.blackplayers, this.whiteplayersをセットする
         // 返値 : stateに載せる情報としてdeltaを作成し返す
   setPlayersOrder: function setPlayersOrder() { // GameController
-    var delta = {};
     var viewer = wave.getViewer().getId();
     this.log.getInto('GameController#setPlayersOrder');
     
@@ -546,8 +593,23 @@ GameController = Class.create({
       this.player1 = new Player('player1', this.players[1], this.players[1]==viewer);
       this.player2 = new Player('player2', this.players[0], this.players[0]==viewer);
     }
+    var delta = addPlayersToDelta();
+    this.log.goOut();
+    return delta;
+  },
+	/**
+	 * addPlayersToDelta()
+	 */
+        // 機能： Player情報をstateに送るための差分をdeltaにセットする
+        // 返値 : stateに載せる情報としてdeltaを作成し返す
+  addPlayersToDelta: function addPlayersToDelta() { // GameController
+    var delta = {};
+    var viewer = wave.getViewer().getId();
+    this.log.getInto('GameController#addPlayersToDelta');
+    
     this.log.debug('player1 : ' + this.player1.toString());
     this.log.debug('player2 : ' + this.player2.toString());
+
     delta['players'] = this.players.join(',');
     this.blackplayers.push(this.player1);
     delta['blacks'] = this.blackplayers.pluck('name').join(',');
